@@ -82,15 +82,20 @@ const Analise = () => {
       </header>
 
       <main className="container max-w-3xl -mt-6 relative z-10 pb-16 space-y-5">
-        {/* ALERTA EMAIL */}
+        {/* ALERTA EMAIL + RESULTADO IMEDIATO */}
         {email && (
-          <div className="lvb-card border-2 border-gold/40 bg-gold/5 p-5 flex gap-4 items-start">
-            <div className="w-10 h-10 rounded-full bg-gold/20 text-gold flex items-center justify-center shrink-0">
+          <div className="lvb-card border-2 border-emerald-400/40 bg-emerald-50/60 p-5 flex gap-4 items-start">
+            <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-700 flex items-center justify-center shrink-0">
               <Mail className="w-5 h-5" />
             </div>
-            <p className="text-sm md:text-base">
-              Sua análise completa foi enviada para <strong>{email}</strong>. Verifique também a pasta de spam.
-            </p>
+            <div className="text-sm md:text-base">
+              <p className="font-semibold text-emerald-900">
+                Sua análise está disponível agora nesta tela.
+              </p>
+              <p className="mt-1 text-foreground/80">
+                Uma cópia também foi enviada para <strong>{email}</strong>. Verifique também a pasta de spam.
+              </p>
+            </div>
           </div>
         )}
 
