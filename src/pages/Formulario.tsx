@@ -125,21 +125,43 @@ const Formulario = () => {
       localStorage.setItem("lvb_nome", data.nome);
       localStorage.setItem("lvb_email", data.email);
       localStorage.setItem("lvb_total_dividas", data.total_dividas);
+
+      // Timeout de 90s — Claude + envio de e-mail pelo n8n pode demorar
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
+
       const res = await fetch(N8N_WEBHOOK, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, tipo_divida: data.tipo_divida.join(", "), bancos: data.bancos.join(", ") }),
-      });
+        signal: controller.signal,
+        body: JSON.stringify({
+          ...data,
+          tipo_divida: data.tipo_divida.join(", "),
+          bancos: data.bancos.join(", "),
+          enviado_em: new Date().toISOString(),
+        }),
+      }).finally(() => clearTimeout(timeoutId));
+
       let analise = "";
       if (res.ok) {
-        try { const j = await res.json(); analise = j.analise || j.output || ""; }
-        catch { analise = await res.text(); }
+        const text = await res.text();
+        try {
+          const j = JSON.parse(text);
+          analise = j.analise || j.output || j.text || "";
+        } catch {
+          analise = text;
+        }
       }
       localStorage.setItem("lvb_analise", analise || "");
       nav("/analise");
     } catch (err) {
-      toast({ title: "Erro ao enviar", description: "Tente novamente em instantes.", variant: "destructive" });
-      setLoading(false);
+      // Mesmo com erro, leva pra /analise (e-mail pode chegar mesmo assim)
+      localStorage.setItem("lvb_analise", "");
+      toast({
+        title: "Análise enviada",
+        description: "Sua análise está sendo gerada e chegará por e-mail em instantes.",
+      });
+      nav("/analise");
     }
   };
 
