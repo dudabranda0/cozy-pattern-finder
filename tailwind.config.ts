@@ -13,14 +13,29 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        serif: ['"Cormorant Garamond"', 'serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        beige: {
+          DEFAULT: "hsl(var(--beige))",
+          deep: "hsl(var(--beige-deep))",
+        },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          light: "hsl(var(--gold-light))",
+          foreground: "hsl(var(--gold-foreground))",
+        },
+        weak: "hsl(var(--weak))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
+          hover: "hsl(var(--primary-hover))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
