@@ -55,12 +55,27 @@ const Sales = () => {
             negociação: juros abusivos, Lei do Superendividamento, revisão contratual e mais.
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+          {/* PREÇO EM DESTAQUE NO HERO */}
+          <div className="mt-8 inline-flex flex-col items-center gap-1 rounded-2xl border-2 border-primary/20 bg-card px-6 py-4 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.35)]">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+              Pagamento único · acesso imediato
+            </span>
+            <div className="font-serif-lvb font-bold leading-none flex items-baseline gap-1">
+              <span className="text-sm text-muted-foreground line-through mr-2">R$ 97</span>
+              <span className="text-5xl md:text-6xl text-primary">R$ 29</span>
+              <span className="text-2xl md:text-3xl text-gradient-gold">,90</span>
+            </div>
+            <span className="text-xs text-muted-foreground mt-1">
+              Cartão · Pix · Boleto
+            </span>
+          </div>
+
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href={CAKTO_LINK}
               className="pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 text-base font-semibold inline-flex items-center justify-center gap-2 shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.5)] transition-colors"
             >
-              Fazer análise agora <ArrowRight className="w-5 h-5" />
+              Quero minha análise por R$ 29,90 <ArrowRight className="w-5 h-5" />
             </a>
             <a
               href="#como-funciona"
@@ -71,7 +86,7 @@ const Sales = () => {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-2 justify-center text-xs">
-            {["Análise personalizada", "Sigiloso", "Resultado em minutos"].map((p) => (
+            {["Análise personalizada", "Sigiloso", "Resultado na hora + e-mail"].map((p) => (
               <span key={p} className="pill bg-secondary px-3 py-1.5 border border-border text-muted-foreground">
                 {p}
               </span>
