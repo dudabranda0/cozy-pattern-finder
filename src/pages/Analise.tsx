@@ -1,36 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail, ArrowRight, MessageCircle, FileText, Scale, Target, AlertTriangle, Compass } from "lucide-react";
+import {
+  Mail, ArrowRight, MessageCircle, FileText, Scale, Target,
+  AlertTriangle, Compass, ShieldCheck, Sparkles, CheckCircle2, Quote,
+} from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { SiteFooter } from "@/components/SiteChrome";
 import { COURSE_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
 
-const blocks = [
-  { n: "01", t: "Resumo da Situação", icon: FileText },
-  { n: "02", t: "Seus Direitos", icon: Scale },
-  { n: "03", t: "Estratégia Recomendada", icon: Target },
-  { n: "04", t: "Pontos de Atenção", icon: AlertTriangle },
-  { n: "05", t: "Próximo Passo", icon: Compass },
-];
+/* ------------------------------------------------------------------ */
+/*  PARSER                                                             */
+/* ------------------------------------------------------------------ */
 
-const SECTION_TITLES = [
-  "RESUMO DA SITUAÇÃO",
-  "SEUS DIREITOS",
-  "ESTRATÉGIA RECOMENDADA",
-  "PONTOS DE ATENÇÃO",
-  "PRÓXIMO PASSO",
-];
+const SECTIONS = [
+  { n: "01", title: "Resumo da Situação",     icon: FileText,      key: "RESUMO DA SITUACAO" },
+  { n: "02", title: "Seus Direitos",          icon: Scale,         key: "SEUS DIREITOS" },
+  { n: "03", title: "Estratégia Recomendada", icon: Target,        key: "ESTRATEGIA RECOMENDADA" },
+  { n: "04", title: "Pontos de Atenção",      icon: AlertTriangle, key: "PONTOS DE ATENCAO" },
+  { n: "05", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO" },
+] as const;
 
 const strip = (s: string) =>
   s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
 
+/** Quebra o texto bruto em 5 seções. Tolera `##`, `**`, `1.`, `1)`, "BLOCO 1" etc. */
 const splitAnalise = (raw: string): string[] => {
-  if (!raw) return [];
-  // Normaliza \n escapado (caso venha literal "\\n" de JSON aninhado)
-  const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "");
+  if (!raw) return ["", "", "", "", ""];
+  const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\r/g, "");
   const result: string[] = ["", "", "", "", ""];
 
-  // Captura marcadores "1." "1)" "01." "**1.**" "## 1." "### 1)" "BLOCO 1" no início de linha
+  // 1) Tenta achar marcadores numerados 1..5 no início de linha
   const re = /(?:^|\n)[ \t]*(?:#{1,6}[ \t]*)?(?:\*+[ \t]*)?(?:BLOCO[ \t]*)?0?([1-5])[\.\)\-:][ \t]*([^\n]*)/gi;
   const matches: { idx: number; start: number; headerEnd: number }[] = [];
   let m: RegExpExecArray | null;
@@ -50,39 +49,36 @@ const splitAnalise = (raw: string): string[] => {
       const cur = matches[i];
       const next = matches[i + 1];
       const body = text.slice(cur.headerEnd, next ? next.start : text.length);
-      let cleaned = body
-        .replace(/^[\s:\-*#]+/, "")
-        .replace(/\*\*/g, "")
-        .trim();
-      // Remove o título da seção se vier repetido no começo do body
-      const titleStripped = strip(SECTION_TITLES[cur.idx]);
-      const cleanedStripped = strip(cleaned);
-      if (cleanedStripped.startsWith(titleStripped)) {
-        cleaned = cleaned.slice(SECTION_TITLES[cur.idx].length).replace(/^[\s:\-*#\n]+/, "").trim();
+      let cleaned = body.replace(/^[\s:\-*#]+/, "").replace(/\*\*/g, "").trim();
+      const titleStripped = strip(SECTIONS[cur.idx].key);
+      if (strip(cleaned).startsWith(titleStripped)) {
+        cleaned = cleaned.slice(SECTIONS[cur.idx].key.length).replace(/^[\s:\-*#\n]+/, "").trim();
       }
       if (!result[cur.idx]) result[cur.idx] = cleaned;
     }
-    if (result.some((s) => s)) return result;
+    if (result.some(Boolean)) return result;
   }
 
-  // Fallback: split pelos títulos em caixa alta
+  // 2) Fallback: split pelos títulos em caixa alta
   const stripped = strip(text);
-  for (let i = 0; i < SECTION_TITLES.length; i++) {
-    const titleStripped = strip(SECTION_TITLES[i]);
+  for (let i = 0; i < SECTIONS.length; i++) {
+    const titleStripped = strip(SECTIONS[i].key);
     const pos = stripped.indexOf(titleStripped);
     if (pos >= 0) {
       const nextPos =
-        i + 1 < SECTION_TITLES.length
-          ? stripped.indexOf(strip(SECTION_TITLES[i + 1]), pos + titleStripped.length)
+        i + 1 < SECTIONS.length
+          ? stripped.indexOf(strip(SECTIONS[i + 1].key), pos + titleStripped.length)
           : -1;
       const end = nextPos > 0 ? nextPos : text.length;
-      const slice = text.slice(pos + titleStripped.length, end);
-      result[i] = slice.replace(/^[\s:\-*#\n]+/, "").replace(/\*\*/g, "").trim();
+      result[i] = text.slice(pos + titleStripped.length, end)
+        .replace(/^[\s:\-*#\n]+/, "")
+        .replace(/\*\*/g, "")
+        .trim();
     }
   }
-  if (result.some((s) => s)) return result;
+  if (result.some(Boolean)) return result;
 
-  // Último recurso: divide por parágrafos em 5 grupos
+  // 3) Último recurso: divide por parágrafos
   const paras = text.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
   if (paras.length <= 1) return [text, "", "", "", ""];
   const chunkSize = Math.ceil(paras.length / 5);
@@ -91,35 +87,92 @@ const splitAnalise = (raw: string): string[] => {
   );
 };
 
+/* ------------------------------------------------------------------ */
+/*  RICH CONTENT RENDERER                                              */
+/* ------------------------------------------------------------------ */
+
+/** Renderiza texto com suporte a **negrito**, listas com `-`/`•`/`*` e parágrafos. */
+const RichContent = ({ text }: { text: string }) => {
+  if (!text?.trim()) {
+    return (
+      <p className="text-muted-foreground italic">
+        Esta seção será preenchida em instantes — aguarde a conclusão da análise.
+      </p>
+    );
+  }
+
+  const blocks = text.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
+
+  const renderInline = (s: string) => {
+    const parts = s.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((p, i) =>
+      p.startsWith("**") && p.endsWith("**") ? (
+        <strong key={i} className="font-semibold text-primary">{p.slice(2, -2)}</strong>
+      ) : (
+        <span key={i}>{p}</span>
+      ),
+    );
+  };
+
+  return (
+    <div className="space-y-4 text-foreground/85 leading-relaxed">
+      {blocks.map((block, bi) => {
+        const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+        const isList = lines.every((l) => /^([-*•·]|\d+[\.\)])\s+/.test(l));
+
+        if (isList) {
+          return (
+            <ul key={bi} className="space-y-2.5">
+              {lines.map((l, li) => {
+                const item = l.replace(/^([-*•·]|\d+[\.\)])\s+/, "");
+                return (
+                  <li key={li} className="flex gap-3">
+                    <CheckCircle2 className="w-4 h-4 mt-1 shrink-0 text-gold" />
+                    <span>{renderInline(item)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+
+        return (
+          <p key={bi} className="text-[15px] md:text-base">
+            {renderInline(block)}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  PAGE                                                               */
+/* ------------------------------------------------------------------ */
+
 const Analise = () => {
-  const [analiseParts, setAnaliseParts] = useState<string[]>([]);
+  const [raw, setRaw] = useState("");
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
   const [total, setTotal] = useState("");
   const [missing, setMissing] = useState(false);
 
   useEffect(() => {
-    let raw = localStorage.getItem("lvb_analise") || "";
+    let r = localStorage.getItem("lvb_analise") || "";
     const e = localStorage.getItem("lvb_email") || "";
     const n = localStorage.getItem("lvb_nome") || "";
     const t = localStorage.getItem("lvb_total_dividas") || "";
     setEmail(e); setNome(n); setTotal(t);
 
-    console.log("[Analise] raw length:", raw.length);
-    console.log("[Analise] raw preview:", raw.slice(0, 300));
+    if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(r) && r.includes("}}")) r = "";
+    if (!r && !e) { setMissing(true); return; }
+    setRaw(r);
 
-    // Se o n8n devolveu a expressão literal (não avaliada), descarta o conteúdo
-    if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(raw) && raw.includes("}}")) {
-      console.warn("[Analise] expressão n8n não avaliada detectada");
-      raw = "";
-    }
-
-    if (!raw && !e) { setMissing(true); return; }
-    const parts = splitAnalise(raw);
-    console.log("[Analise] parts lengths:", parts.map((p) => p.length));
-    setAnaliseParts(parts);
+    window.scrollTo({ top: 0 });
   }, []);
 
+  const parts = useMemo(() => splitAnalise(raw), [raw]);
+  const firstName = nome.split(" ")[0] || "";
   const isLowDebt = /Até R\$ 5\.000|R\$ 5\.000 a R\$ 15\.000|R\$ 15\.000 a R\$ 30\.000/.test(total);
 
   if (missing) {
@@ -131,7 +184,10 @@ const Analise = () => {
           <p className="mt-3 text-muted-foreground">
             Sua análise não foi encontrada. Verifique seu e-mail ou refaça o formulário.
           </p>
-          <Link to="/formulario" className="mt-6 pill bg-primary hover:bg-primary-hover text-primary-foreground px-6 py-3 font-semibold inline-flex items-center gap-2 transition-colors">
+          <Link
+            to="/formulario"
+            className="mt-6 pill bg-primary hover:bg-primary-hover text-primary-foreground px-6 py-3 font-semibold inline-flex items-center gap-2 transition-colors"
+          >
             Refazer formulário <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -141,101 +197,215 @@ const Analise = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* HEADER */}
-      <header className="bg-[#1A1005] text-primary-foreground py-12 md:py-16 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30" style={{ background: "var(--gradient-burgundy)" }} />
-        <div className="container max-w-4xl relative">
-          <div className="flex justify-center mb-6"><LvbLogo size="md" className="brightness-110" /></div>
-          <span className="mx-auto block w-fit pill bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 px-4 py-1.5 text-xs font-semibold">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse-dot" />
-            Análise gerada com sucesso
-          </span>
-          <h1 className="font-serif-lvb mt-5 text-3xl md:text-5xl font-bold text-center leading-tight">
-            {nome ? `${nome.split(" ")[0]}, ` : ""}sua análise de dívida bancária está pronta
-          </h1>
-          <p className="mt-4 text-center text-primary-foreground/70 max-w-2xl mx-auto">
-            Análise elaborada com base nas informações fornecidas.
+      {/* ============ HERO ============ */}
+      <header className="relative overflow-hidden bg-[#1A1005] text-primary-foreground">
+        {/* gradient + decorative shapes */}
+        <div className="absolute inset-0 opacity-40" style={{ background: "var(--gradient-burgundy)" }} />
+        <div className="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-gold/20 blur-3xl" />
+        <div className="absolute -bottom-32 -left-20 w-[380px] h-[380px] rounded-full bg-primary/40 blur-3xl" />
+        <div
+          className="absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, hsl(var(--gold-light)) 1px, transparent 0)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+
+        <div className="container max-w-4xl relative pt-12 pb-32 md:pt-16 md:pb-40">
+          <div className="flex justify-center mb-7">
+            <LvbLogo size="md" className="brightness-110" />
+          </div>
+
+          <div className="flex justify-center mb-5">
+            <span className="pill bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 px-4 py-1.5 text-xs font-semibold inline-flex items-center">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse-dot" />
+              Análise gerada com sucesso
+            </span>
+          </div>
+
+          <p className="text-center text-gold-light/90 font-semibold tracking-[0.3em] text-xs uppercase mb-3">
+            Parecer Jurídico Personalizado
           </p>
+          <h1 className="font-serif-lvb text-center text-4xl md:text-6xl font-bold leading-[1.05]">
+            {firstName ? (
+              <>
+                {firstName}, sua análise <br className="hidden md:block" />
+                <span className="text-gradient-gold">está pronta</span>
+              </>
+            ) : (
+              <>Sua análise <span className="text-gradient-gold">está pronta</span></>
+            )}
+          </h1>
+          <p className="mt-5 text-center text-primary-foreground/70 max-w-2xl mx-auto text-base md:text-lg">
+            Elaborada com base nas informações que você forneceu, seguindo a metodologia LVB de
+            análise de dívidas bancárias.
+          </p>
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3 text-xs">
+            {[
+              { i: ShieldCheck, t: "100% Confidencial" },
+              { i: Sparkles,    t: "Estratégia Personalizada" },
+              { i: Scale,       t: "Embasamento Jurídico" },
+            ].map(({ i: I, t }) => (
+              <span
+                key={t}
+                className="pill bg-primary-foreground/5 border border-primary-foreground/15 px-4 py-2 text-primary-foreground/80 inline-flex items-center gap-2"
+              >
+                <I className="w-3.5 h-3.5 text-gold-light" /> {t}
+              </span>
+            ))}
+          </div>
         </div>
+
+        {/* curved bottom */}
+        <svg
+          className="absolute bottom-0 left-0 right-0 w-full text-background"
+          viewBox="0 0 1440 80"
+          fill="currentColor"
+          preserveAspectRatio="none"
+        >
+          <path d="M0 80V40C240 0 480 0 720 20C960 40 1200 40 1440 20V80H0Z" />
+        </svg>
       </header>
 
-      <main className="container max-w-3xl -mt-6 relative z-10 pb-16 space-y-5">
-        {/* ALERTA EMAIL + RESULTADO IMEDIATO */}
+      {/* ============ MAIN ============ */}
+      <main className="container max-w-4xl -mt-20 relative z-10 pb-20 space-y-6">
+        {/* Email confirmation card */}
         {email && (
-          <div className="lvb-card border-2 border-emerald-400/40 bg-emerald-50/60 p-5 flex gap-4 items-start">
-            <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-700 flex items-center justify-center shrink-0">
+          <div className="lvb-card border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-50 to-emerald-50/30 p-5 md:p-6 flex gap-4 items-start animate-fade-up">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-700 flex items-center justify-center shrink-0">
               <Mail className="w-5 h-5" />
             </div>
             <div className="text-sm md:text-base">
               <p className="font-semibold text-emerald-900">
                 Sua análise está disponível agora nesta tela.
               </p>
-              <p className="mt-1 text-foreground/80">
-                Uma cópia também foi enviada para <strong>{email}</strong>. Verifique também a pasta de spam.
+              <p className="mt-1 text-foreground/70">
+                Uma cópia também foi enviada para <strong className="text-emerald-900">{email}</strong>.
+                Verifique a caixa de entrada e a pasta de spam.
               </p>
             </div>
           </div>
         )}
 
-        {/* BLOCOS */}
-        {blocks.map((b, i) => {
-          const I = b.icon;
-          const content = analiseParts[i] || "Sua análise está sendo processada e será enviada por e-mail em instantes.";
+        {/* Quote / intro */}
+        <div className="lvb-card p-6 md:p-8 bg-gradient-to-br from-card to-secondary/40 animate-fade-up" style={{ animationDelay: "60ms" }}>
+          <Quote className="w-8 h-8 text-gold/60" />
+          <p className="font-serif-lvb mt-3 text-xl md:text-2xl text-foreground/90 leading-snug italic">
+            “Toda dívida tem uma saída — e a sua começa por entender exatamente onde você está
+            hoje e quais são os próximos movimentos.”
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">— Equipe LVB Advogados</p>
+        </div>
+
+        {/* Sections */}
+        {SECTIONS.map((s, i) => {
+          const I = s.icon;
+          const content = parts[i] || "";
           return (
-            <article key={b.n} className="lvb-card overflow-hidden animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
-              <header className="bg-primary text-primary-foreground p-5 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
-                    <I className="w-5 h-5" />
+            <article
+              key={s.n}
+              className="lvb-card overflow-hidden animate-fade-up group"
+              style={{ animationDelay: `${120 + i * 80}ms` }}
+            >
+              {/* Section header */}
+              <div className="relative bg-gradient-to-r from-primary via-primary to-[#4A0D17] text-primary-foreground px-6 py-5 md:px-8 md:py-6 overflow-hidden">
+                <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-gold/10 blur-2xl" />
+                <div className="relative flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary-foreground/10 border border-primary-foreground/15 flex items-center justify-center shrink-0 backdrop-blur-sm">
+                      <I className="w-5 h-5 md:w-6 md:h-6 text-gold-light" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] md:text-xs font-semibold tracking-[0.25em] uppercase text-gold-light/80">
+                        Bloco {s.n}
+                      </p>
+                      <h2 className="font-serif-lvb text-xl md:text-3xl font-bold leading-tight truncate">
+                        {s.title}
+                      </h2>
+                    </div>
                   </div>
-                  <h2 className="font-serif-lvb text-xl md:text-2xl font-bold">{b.t}</h2>
+                  <span className="font-serif-lvb text-4xl md:text-6xl text-primary-foreground/10 font-bold leading-none select-none">
+                    {s.n}
+                  </span>
                 </div>
-                <span className="font-serif-lvb text-3xl md:text-4xl text-gold-light/80 font-bold">{b.n}</span>
-              </header>
-              <div className="p-6 md:p-7 whitespace-pre-line text-foreground/90 leading-relaxed">
-                {content}
+              </div>
+
+              {/* Section body */}
+              <div className="p-6 md:p-8 lg:p-10 bg-card relative">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold via-gold-light to-transparent opacity-60" />
+                <RichContent text={content} />
               </div>
             </article>
           );
         })}
 
-        {/* CTA SEGMENTADO */}
+        {/* ============ CTA ============ */}
         {isLowDebt ? (
-          <div className="rounded-2xl bg-[#0D4A20] text-white p-7 md:p-9 text-center shadow-deep relative overflow-hidden">
-            <span className="pill bg-emerald-300/20 border border-emerald-300/40 text-emerald-100 px-3 py-1 text-xs font-semibold">
-              Indicado para o seu perfil
-            </span>
-            <h3 className="font-serif-lvb mt-4 text-2xl md:text-3xl font-bold leading-tight">
-              Aprenda a negociar sua dívida e consiga até 90% de desconto
-            </h3>
-            <p className="mt-3 text-white/80 max-w-xl mx-auto">
-              Curso completo com método LVB para você renegociar com força e conhecimento dos seus direitos.
-            </p>
-            <a href={COURSE_LINK} className="mt-6 pill bg-white text-[#0D4A20] hover:bg-white/90 px-7 py-4 font-bold inline-flex items-center gap-2 transition-colors">
-              Acessar o Curso Agora <ArrowRight className="w-5 h-5" />
-            </a>
+          <div
+            className="relative rounded-[28px] overflow-hidden p-8 md:p-12 text-center text-white shadow-deep animate-fade-up"
+            style={{ animationDelay: "600ms" }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0D4A20] via-[#0F5A28] to-[#072F14]" />
+            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-emerald-400/20 blur-3xl" />
+            <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-emerald-300/10 blur-3xl" />
+            <div className="relative">
+              <span className="pill bg-emerald-300/20 border border-emerald-300/40 text-emerald-100 px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> Indicado para o seu perfil
+              </span>
+              <h3 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight max-w-2xl mx-auto">
+                Aprenda a negociar sua dívida e consiga até{" "}
+                <span className="text-emerald-200">90% de desconto</span>
+              </h3>
+              <p className="mt-4 text-white/80 max-w-xl mx-auto text-base md:text-lg">
+                Curso completo com o método LVB para você renegociar com força, sabendo
+                exatamente quais são seus direitos.
+              </p>
+              <a
+                href={COURSE_LINK}
+                className="mt-8 pill bg-white text-[#0D4A20] hover:bg-white/95 px-8 py-4 font-bold inline-flex items-center gap-2 transition-all hover:scale-[1.02] shadow-2xl"
+              >
+                Acessar o Curso Agora <ArrowRight className="w-5 h-5" />
+              </a>
+            </div>
           </div>
         ) : (
-          <div className="rounded-2xl bg-primary text-primary-foreground p-7 md:p-9 text-center shadow-deep">
-            <span className="pill bg-gold/20 border border-gold/40 text-gold-light px-3 py-1 text-xs font-semibold">
-              Atendimento personalizado
-            </span>
-            <h3 className="font-serif-lvb mt-4 text-2xl md:text-3xl font-bold leading-tight">
-              Seu caso merece atenção especializada
-            </h3>
-            <p className="mt-3 text-primary-foreground/80 max-w-xl mx-auto">
-              Nossa equipe está pronta para conduzir seu caso com a estratégia certa para sua situação.
-            </p>
-            <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer"
-              className="mt-6 pill bg-emerald-500 hover:bg-emerald-600 text-white px-7 py-4 font-bold inline-flex items-center gap-2 transition-colors">
-              <MessageCircle className="w-5 h-5" /> Falar com Nossa Equipe
-            </a>
+          <div
+            className="relative rounded-[28px] overflow-hidden p-8 md:p-12 text-center text-primary-foreground shadow-deep animate-fade-up"
+            style={{ animationDelay: "600ms" }}
+          >
+            <div className="absolute inset-0" style={{ background: "var(--gradient-burgundy)" }} />
+            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-gold/25 blur-3xl" />
+            <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-primary/40 blur-3xl" />
+            <div className="relative">
+              <span className="pill bg-gold/25 border border-gold/40 text-gold-light px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5" /> Atendimento personalizado
+              </span>
+              <h3 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight max-w-2xl mx-auto">
+                Seu caso merece <span className="text-gradient-gold">atenção especializada</span>
+              </h3>
+              <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto text-base md:text-lg">
+                Nossa equipe está pronta para conduzir seu processo com a estratégia certa para a
+                sua situação específica.
+              </p>
+              <a
+                href={WHATSAPP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 pill bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 font-bold inline-flex items-center gap-2 transition-all hover:scale-[1.02] shadow-2xl"
+              >
+                <MessageCircle className="w-5 h-5" /> Falar com Nossa Equipe
+              </a>
+            </div>
           </div>
         )}
 
-        {/* AVISO LGPD */}
-        <div className="bg-secondary/60 border border-border rounded-xl p-4 text-xs text-muted-foreground text-center">
-          Esta análise é informativa e não constitui orientação formal. Suas informações foram tratadas com total confidencialidade.
+        {/* LGPD notice */}
+        <div className="bg-secondary/60 border border-border rounded-2xl p-5 text-xs md:text-sm text-muted-foreground text-center max-w-2xl mx-auto">
+          <ShieldCheck className="w-4 h-4 inline mr-1.5 -mt-0.5" />
+          Esta análise é informativa e não constitui orientação formal. Suas informações foram
+          tratadas com total confidencialidade conforme a LGPD.
         </div>
       </main>
 
