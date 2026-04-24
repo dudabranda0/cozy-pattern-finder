@@ -364,7 +364,7 @@ const Analise = () => {
               </p>
               <a
                 href={COURSE_LINK}
-                className="mt-8 pill bg-white text-[#0D4A20] hover:bg-white/95 px-8 py-4 font-bold inline-flex items-center gap-2 transition-all hover:scale-[1.02] shadow-2xl"
+                className="btn-cta mt-8 pill bg-white text-[#0D4A20] hover:bg-white/95 px-8 py-4 font-bold inline-flex items-center gap-2 shadow-2xl"
               >
                 Acessar o Curso Agora <ArrowRight className="w-5 h-5" />
               </a>
@@ -393,7 +393,7 @@ const Analise = () => {
                 href={WHATSAPP_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-8 pill bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 font-bold inline-flex items-center gap-2 transition-all hover:scale-[1.02] shadow-2xl"
+                className="btn-cta mt-8 pill bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 font-bold inline-flex items-center gap-2 shadow-2xl"
               >
                 <MessageCircle className="w-5 h-5" /> Falar com Nossa Equipe
               </a>

@@ -41,53 +41,57 @@ const Sales = () => {
       <SiteHeader />
 
       {/* HERO */}
-      <section className="container max-w-6xl py-12 md:py-20">
+      <section className="container max-w-6xl py-14 md:py-24 relative overflow-hidden">
+        {/* decorative background glows */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl -z-10" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-gold/5 blur-3xl -z-10" />
+
         <div className="max-w-3xl mx-auto text-center animate-fade-up">
-          <span className="inline-flex items-center gap-2 pill bg-secondary text-foreground px-4 py-1.5 text-xs md:text-sm font-medium border border-border">
+          <span className="inline-flex items-center gap-2 pill bg-secondary/80 backdrop-blur text-foreground px-4 py-1.5 text-xs md:text-sm font-medium border border-border shadow-sm">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-dot" />
             Resultado em menos de 5 minutos
           </span>
-          <h1 className="font-serif-lvb mt-6 text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight">
-            Descubra quanto você pode <span className="text-primary">reduzir</span> das suas dívidas.
+          <h1 className="font-serif-lvb mt-7 text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.02] tracking-tight">
+            Descubra quanto você pode <span className="text-gradient-burgundy">reduzir</span> das suas dívidas.
           </h1>
-          <p className="mt-6 text-base md:text-lg text-muted-foreground leading-relaxed">
+          <p className="mt-7 text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
             A metodologia LVB analisa sua situação e calcula seu potencial real de
             negociação: juros abusivos, Lei do Superendividamento, revisão contratual e mais.
           </p>
 
           {/* PREÇO EM DESTAQUE NO HERO */}
-          <div className="mt-8 inline-flex flex-col items-center gap-1 rounded-2xl border-2 border-primary/20 bg-card px-6 py-4 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.35)]">
-            <span className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+          <div className="mt-10 inline-flex flex-col items-center gap-1 rounded-3xl border-2 border-primary/20 bg-card px-7 py-5 shadow-[0_20px_50px_-20px_hsl(var(--primary)/0.35)] animate-scale-in" style={{ animationDelay: "200ms" }}>
+            <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-muted-foreground font-semibold">
               Pagamento único · acesso imediato
             </span>
-            <div className="font-serif-lvb font-bold leading-none flex items-baseline gap-1">
+            <div className="font-serif-lvb font-bold leading-none flex items-baseline gap-1 mt-1">
               <span className="text-sm text-muted-foreground line-through mr-2">R$ 97</span>
               <span className="text-5xl md:text-6xl text-primary">R$ 29</span>
               <span className="text-2xl md:text-3xl text-gradient-gold">,90</span>
             </div>
-            <span className="text-xs text-muted-foreground mt-1">
+            <span className="text-xs text-muted-foreground mt-2">
               Cartão · Pix · Boleto
             </span>
           </div>
 
-          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center animate-fade-up" style={{ animationDelay: "350ms" }}>
             <a
               href={CAKTO_LINK}
-              className="pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 text-base font-semibold inline-flex items-center justify-center gap-2 shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.5)] transition-colors"
+              className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 text-base font-semibold inline-flex items-center justify-center gap-2"
             >
               Quero minha análise por R$ 29,90 <ArrowRight className="w-5 h-5" />
             </a>
             <a
               href="#como-funciona"
-              className="pill border border-border bg-card hover:bg-secondary px-7 py-4 text-base font-semibold transition-colors"
+              className="pill border border-border bg-card hover:bg-secondary hover:border-primary/30 px-7 py-4 text-base font-semibold transition-all hover:-translate-y-0.5"
             >
               Como funciona
             </a>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-2 justify-center text-xs">
+          <div className="mt-8 flex flex-wrap gap-2 justify-center text-xs animate-fade-up" style={{ animationDelay: "500ms" }}>
             {["Análise personalizada", "Sigiloso", "Resultado na hora + e-mail"].map((p) => (
-              <span key={p} className="pill bg-secondary px-3 py-1.5 border border-border text-muted-foreground">
+              <span key={p} className="pill bg-secondary/70 px-3 py-1.5 border border-border text-muted-foreground">
                 {p}
               </span>
             ))}
@@ -99,13 +103,17 @@ const Sales = () => {
       <section className="bg-beige-deep py-16 md:py-24">
         <div className="container max-w-4xl">
           <h2 className="font-serif-lvb text-3xl md:text-5xl font-bold text-center leading-tight">
-            São situações como essas que <span className="text-primary">analisamos todos os dias</span>
+            São situações como essas que <span className="text-gradient-burgundy">analisamos todos os dias</span>
           </h2>
-          <div className="mt-10 space-y-3">
-            {recognize.map((q) => (
-              <div key={q} className="lvb-card p-5 md:p-6 flex items-start gap-3">
+          <div className="mt-12 space-y-3">
+            {recognize.map((q, i) => (
+              <div
+                key={q}
+                className="lvb-card lvb-card-hover p-5 md:p-6 flex items-start gap-4 animate-fade-up"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
                 <span className="mt-2 w-2 h-2 rounded-full bg-primary shrink-0" />
-                <p className="text-foreground/90 italic">{q}</p>
+                <p className="text-foreground/90 italic text-[15px] md:text-base">{q}</p>
               </div>
             ))}
           </div>
@@ -116,10 +124,17 @@ const Sales = () => {
       <section id="como-funciona" className="py-16 md:py-24 bg-card">
         <div className="container max-w-5xl">
           <h2 className="font-serif-lvb text-3xl md:text-5xl font-bold text-center">Simples assim</h2>
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {steps.map((s) => (
-              <div key={s.n} className="lvb-card p-6 flex gap-5 items-start hover:-translate-y-1 transition-transform">
-                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground font-serif-lvb text-2xl font-bold flex items-center justify-center shrink-0">
+          <p className="mt-4 text-center text-muted-foreground max-w-xl mx-auto">
+            Quatro passos para você ter clareza sobre suas opções.
+          </p>
+          <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {steps.map((s, i) => (
+              <div
+                key={s.n}
+                className="lvb-card lvb-card-hover p-6 md:p-7 flex gap-5 items-start animate-fade-up"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-serif-lvb text-2xl font-bold flex items-center justify-center shrink-0 shadow-md">
                   {s.n}
                 </div>
                 <div>
@@ -136,12 +151,16 @@ const Sales = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-3xl">
           <h2 className="font-serif-lvb text-3xl md:text-5xl font-bold text-center">
-            Sua análise <span className="text-primary">analisa tudo isso</span>
+            Sua análise <span className="text-gradient-burgundy">analisa tudo isso</span>
           </h2>
-          <ul className="mt-10 space-y-3">
-            {includes.map((i) => (
-              <li key={i} className="lvb-card px-5 py-4 flex items-center gap-3">
-                <span className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
+          <ul className="mt-12 space-y-3">
+            {includes.map((i, idx) => (
+              <li
+                key={i}
+                className="lvb-card lvb-card-hover px-5 py-4 flex items-center gap-3 animate-fade-up"
+                style={{ animationDelay: `${idx * 60}ms` }}
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-primary to-gold shrink-0" />
                 <span className="font-medium">{i}</span>
               </li>
             ))}
@@ -182,7 +201,7 @@ const Sales = () => {
                 </p>
                 <a
                   href={CAKTO_LINK}
-                  className="pill bg-primary hover:bg-primary-hover text-primary-foreground px-6 py-3 font-semibold inline-flex items-center gap-2 transition-colors"
+                  className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-6 py-3 font-semibold inline-flex items-center gap-2"
                 >
                   Ver minha análise agora <ArrowRight className="w-4 h-4" />
                 </a>
@@ -222,7 +241,7 @@ const Sales = () => {
               </ul>
               <a
                 href={CAKTO_LINK}
-                className="mt-7 pill bg-primary hover:bg-primary-hover text-primary-foreground w-full px-6 py-4 font-semibold inline-flex items-center justify-center gap-2 transition-colors"
+                className="btn-cta mt-7 pill bg-primary hover:bg-primary-hover text-primary-foreground w-full px-6 py-4 font-semibold inline-flex items-center justify-center gap-2"
               >
                 Fazer análise agora <ArrowRight className="w-5 h-5" />
               </a>
@@ -258,7 +277,7 @@ const Sales = () => {
           </h2>
           <a
             href={CAKTO_LINK}
-            className="mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-8 py-4 text-lg font-semibold inline-flex items-center gap-2 transition-colors"
+            className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-8 py-4 text-lg font-semibold inline-flex items-center gap-2"
           >
             Fazer análise agora <ArrowRight className="w-5 h-5" />
           </a>
