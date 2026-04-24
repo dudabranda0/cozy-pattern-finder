@@ -163,48 +163,41 @@ const Formulario = () => {
         const text = await res.text();
         console.log("[n8n] raw response:", text.slice(0, 500));
 
-        // Helper: detecta expressão n8n não avaliada (ex.: "{{ $('...').item.json... }}")
-        const isUnevaluated = (s: any) =>
-          typeof s === "string" && s.includes("{{") && s.includes("}}");
+        // Considera inválido: vazio ou expressão n8n não avaliada (ex.: "{{ ... }}")
+        const isExpr = (s: any) =>
+          typeof s === "string" && s.includes("{{");
         const valid = (s: any) =>
-          typeof s === "string" && s.trim().length > 0 && !isUnevaluated(s);
-
-        // Extrai .content[0].text ou .content (string) de um objeto Anthropic-like
-        const fromContent = (obj: any): string => {
-          if (!obj) return "";
-          const c = obj.content;
-          if (Array.isArray(c) && c[0] && typeof c[0].text === "string") return c[0].text;
-          if (typeof c === "string") return c;
-          return "";
-        };
+          typeof s === "string" && s.trim().length > 0 && !isExpr(s);
 
         try {
-          let j: any = JSON.parse(text);
-          const arr = Array.isArray(j) ? j[0] || {} : j;
-          console.log("[n8n] parsed keys:", Object.keys(arr || {}));
+          const j: any = JSON.parse(text);
+          console.log("[n8n] parsed keys:", j && typeof j === "object" ? Object.keys(j) : typeof j);
 
-          // 1) j.analise — só se válido (não vazio e não expressão {{ }})
-          if (valid(arr.analise)) {
-            analise = arr.analise;
+          // 1) j.analise (se não for expressão {{ }})
+          if (valid(j?.analise)) {
+            analise = j.analise;
           }
-
-          // 2) Fallback: content[0].text no objeto raiz/array
-          if (!analise) {
-            const c = fromContent(arr) || (Array.isArray(j) ? fromContent(j[0]) : "");
-            if (valid(c)) analise = c;
+          // Fallbacks exatos pedidos:
+          // 2) j.content?.[0]?.text
+          if (!analise && valid(j?.content?.[0]?.text)) {
+            analise = j.content[0].text;
           }
-
-          // 3) Outros campos comuns do n8n
-          if (!analise) {
-            const candidates = [
-              arr.output, arr.text, arr.message, arr.result,
-              arr.data && (arr.data.analise || arr.data.output || fromContent(arr.data)),
-            ];
-            const found = candidates.find((v) => valid(v));
-            if (found) analise = found;
+          // 3) j[0]?.content?.[0]?.text
+          if (!analise && Array.isArray(j) && valid(j[0]?.content?.[0]?.text)) {
+            analise = j[0].content[0].text;
           }
-
-          if (!analise && typeof j === "string" && valid(j)) analise = j;
+          // 3b) Se for array, tenta também j[0].analise
+          if (!analise && Array.isArray(j) && valid(j[0]?.analise)) {
+            analise = j[0].analise;
+          }
+          // 4) j.output
+          if (!analise && valid(j?.output)) {
+            analise = j.output;
+          }
+          // 5) j.text
+          if (!analise && valid(j?.text)) {
+            analise = j.text;
+          }
         } catch {
           if (valid(text)) analise = text;
         }
