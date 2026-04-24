@@ -418,18 +418,18 @@ const Formulario = () => {
         <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3 justify-between">
           {step > 1 ? (
             <button type="button" onClick={prev}
-              className="pill border border-border bg-card hover:bg-secondary px-6 py-3.5 font-semibold inline-flex items-center justify-center gap-2 transition-colors">
+              className="pill border border-border bg-card hover:bg-secondary hover:border-primary/30 px-6 py-3.5 font-semibold inline-flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5">
               <ArrowLeft className="w-4 h-4" /> Anterior
             </button>
           ) : <span />}
           {step < 5 ? (
             <button type="button" onClick={next}
-              className="pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-3.5 font-semibold inline-flex items-center justify-center gap-2 transition-colors">
+              className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-3.5 font-semibold inline-flex items-center justify-center gap-2">
               Próximo <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
             <button type="submit"
-              className="pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-3.5 font-semibold inline-flex items-center justify-center gap-2 transition-colors">
+              className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-3.5 font-semibold inline-flex items-center justify-center gap-2">
               Ver Minha Análise <ArrowRight className="w-4 h-4" />
             </button>
           )}
