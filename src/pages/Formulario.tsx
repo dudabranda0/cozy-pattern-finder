@@ -145,10 +145,12 @@ const Formulario = () => {
       let analise = "";
       if (res.ok) {
         const text = await res.text();
+        console.log("[n8n] raw response:", text.slice(0, 500));
         try {
           let j: any = JSON.parse(text);
           // n8n frequentemente retorna array: [{ analise: "..." }]
           if (Array.isArray(j)) j = j[0] || {};
+          console.log("[n8n] parsed keys:", Object.keys(j || {}));
           analise =
             j.analise ||
             j.output ||
@@ -162,6 +164,7 @@ const Formulario = () => {
         } catch {
           analise = text;
         }
+        console.log("[n8n] analise length extraída:", analise.length);
       }
 
       // Detecta expressão n8n não avaliada (ex.: "{{ $('...').item.json... }}")

@@ -26,13 +26,15 @@ const strip = (s: string) =>
 
 const splitAnalise = (raw: string): string[] => {
   if (!raw) return [];
+  // Normaliza \n escapado (caso venha literal "\\n" de JSON aninhado)
+  const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "");
   const result: string[] = ["", "", "", "", ""];
 
-  // Captura marcadores "1." "1)" "01." "**1.**" "#1" "BLOCO 1" no início de linha
-  const re = /(?:^|\n)\s*(?:\*+|#+)?\s*(?:BLOCO\s*)?0?([1-5])[\.\)\-:]\s*([^\n]*)/gi;
+  // Captura marcadores "1." "1)" "01." "**1.**" "## 1." "### 1)" "BLOCO 1" no início de linha
+  const re = /(?:^|\n)[ \t]*(?:#{1,6}[ \t]*)?(?:\*+[ \t]*)?(?:BLOCO[ \t]*)?0?([1-5])[\.\)\-:][ \t]*([^\n]*)/gi;
   const matches: { idx: number; start: number; headerEnd: number }[] = [];
   let m: RegExpExecArray | null;
-  while ((m = re.exec(raw)) !== null) {
+  while ((m = re.exec(text)) !== null) {
     const n = parseInt(m[1], 10);
     if (n >= 1 && n <= 5) {
       matches.push({
@@ -47,15 +49,24 @@ const splitAnalise = (raw: string): string[] => {
     for (let i = 0; i < matches.length; i++) {
       const cur = matches[i];
       const next = matches[i + 1];
-      const body = raw.slice(cur.headerEnd, next ? next.start : raw.length);
-      const cleaned = body.replace(/^\**\s*/, "").replace(/\*\*/g, "").trim();
+      const body = text.slice(cur.headerEnd, next ? next.start : text.length);
+      let cleaned = body
+        .replace(/^[\s:\-*#]+/, "")
+        .replace(/\*\*/g, "")
+        .trim();
+      // Remove o título da seção se vier repetido no começo do body
+      const titleStripped = strip(SECTION_TITLES[cur.idx]);
+      const cleanedStripped = strip(cleaned);
+      if (cleanedStripped.startsWith(titleStripped)) {
+        cleaned = cleaned.slice(SECTION_TITLES[cur.idx].length).replace(/^[\s:\-*#\n]+/, "").trim();
+      }
       if (!result[cur.idx]) result[cur.idx] = cleaned;
     }
     if (result.some((s) => s)) return result;
   }
 
   // Fallback: split pelos títulos em caixa alta
-  const stripped = strip(raw);
+  const stripped = strip(text);
   for (let i = 0; i < SECTION_TITLES.length; i++) {
     const titleStripped = strip(SECTION_TITLES[i]);
     const pos = stripped.indexOf(titleStripped);
@@ -64,16 +75,16 @@ const splitAnalise = (raw: string): string[] => {
         i + 1 < SECTION_TITLES.length
           ? stripped.indexOf(strip(SECTION_TITLES[i + 1]), pos + titleStripped.length)
           : -1;
-      const end = nextPos > 0 ? nextPos : raw.length;
-      const slice = raw.slice(pos + titleStripped.length, end);
+      const end = nextPos > 0 ? nextPos : text.length;
+      const slice = text.slice(pos + titleStripped.length, end);
       result[i] = slice.replace(/^[\s:\-*#\n]+/, "").replace(/\*\*/g, "").trim();
     }
   }
   if (result.some((s) => s)) return result;
 
   // Último recurso: divide por parágrafos em 5 grupos
-  const paras = raw.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
-  if (paras.length <= 1) return [raw, "", "", "", ""];
+  const paras = text.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
+  if (paras.length <= 1) return [text, "", "", "", ""];
   const chunkSize = Math.ceil(paras.length / 5);
   return Array.from({ length: 5 }, (_, i) =>
     paras.slice(i * chunkSize, (i + 1) * chunkSize).join("\n\n"),
@@ -94,13 +105,19 @@ const Analise = () => {
     const t = localStorage.getItem("lvb_total_dividas") || "";
     setEmail(e); setNome(n); setTotal(t);
 
+    console.log("[Analise] raw length:", raw.length);
+    console.log("[Analise] raw preview:", raw.slice(0, 300));
+
     // Se o n8n devolveu a expressão literal (não avaliada), descarta o conteúdo
     if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(raw) && raw.includes("}}")) {
+      console.warn("[Analise] expressão n8n não avaliada detectada");
       raw = "";
     }
 
     if (!raw && !e) { setMissing(true); return; }
-    setAnaliseParts(splitAnalise(raw));
+    const parts = splitAnalise(raw);
+    console.log("[Analise] parts lengths:", parts.map((p) => p.length));
+    setAnaliseParts(parts);
   }, []);
 
   const isLowDebt = /Até R\$ 5\.000|R\$ 5\.000 a R\$ 15\.000|R\$ 15\.000 a R\$ 30\.000/.test(total);
