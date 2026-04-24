@@ -13,15 +13,21 @@ import { COURSE_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
 /* ------------------------------------------------------------------ */
 
 const SECTIONS = [
-  { n: "01", title: "Resumo da Situação",     icon: FileText,      key: "RESUMO DA SITUACAO" },
-  { n: "02", title: "Seus Direitos",          icon: Scale,         key: "SEUS DIREITOS" },
-  { n: "03", title: "Estratégia Recomendada", icon: Target,        key: "ESTRATEGIA RECOMENDADA" },
-  { n: "04", title: "Pontos de Atenção",      icon: AlertTriangle, key: "PONTOS DE ATENCAO" },
-  { n: "05", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO" },
+  { n: "01", title: "Resumo da Situação",     icon: FileText,      key: "RESUMO DA SITUACAO",     keywords: ["RESUMO"] },
+  { n: "02", title: "Seus Direitos",          icon: Scale,         key: "SEUS DIREITOS",          keywords: ["DIREITOS"] },
+  { n: "03", title: "Estratégia Recomendada", icon: Target,        key: "ESTRATEGIA RECOMENDADA", keywords: ["ESTRATEGIA", "ESTRATÉGIA", "ESTRATEG"] },
+  { n: "04", title: "Pontos de Atenção",      icon: AlertTriangle, key: "PONTOS DE ATENCAO",      keywords: ["PONTOS", "ATENCAO", "ATENÇÃO"] },
+  { n: "05", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO",          keywords: ["PROXIMO", "PRÓXIMO", "PASSO"] },
 ] as const;
 
+/** Remove acentos (NFD), normaliza espaços e converte para caixa alta. */
 const strip = (s: string) =>
-  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+  s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .toUpperCase()
+    .trim();
 
 /** Quebra o texto bruto em 5 seções. Tolera `##`, `**`, `1.`, `1)`, "BLOCO 1" etc. */
 const splitAnalise = (raw: string): string[] => {
