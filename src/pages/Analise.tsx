@@ -364,7 +364,7 @@ const Analise = () => {
               </p>
               <a
                 href={COURSE_LINK}
-                className="mt-8 pill bg-white text-[#0D4A20] hover:bg-white/95 px-8 py-4 font-bold inline-flex items-center gap-2 transition-all hover:scale-[1.02] shadow-2xl"
+                className="btn-cta mt-8 pill bg-white text-[#0D4A20] hover:bg-white/95 px-8 py-4 font-bold inline-flex items-center gap-2 shadow-2xl"
               >
                 Acessar o Curso Agora <ArrowRight className="w-5 h-5" />
               </a>
