@@ -36,7 +36,7 @@ const splitAnalise = (raw: string): string[] => {
   const result: string[] = ["", "", "", "", ""];
 
   console.log("[Analise] parsing raw text, length:", text.length);
-  console.log("[Analise] first 300 chars:", text.slice(0, 300));
+  console.log("[Analise] full raw text before split:\n" + text);
 
   // 1) Tenta achar marcadores numerados 1..5 (com ou sem #, **, BLOCO etc.)
   // Aceita: "## 1.", "# 1)", "### 1 -", "**1.**", "BLOCO 01", "1.", "1)" etc.
@@ -56,6 +56,15 @@ const splitAnalise = (raw: string): string[] => {
       headerStripped === headerStripped.toUpperCase() ||
       headerStripped.includes(expectedKeyStripped) ||
       expected.keywords.some((kw) => headerStripped.includes(strip(kw)));
+    console.log("[Analise] regex match found:", {
+      rawMatch: m[0],
+      sectionNumber: n,
+      index: m.index,
+      headerLine,
+      headerStripped,
+      expectedKey: expected.key,
+      accepted: n >= 1 && n <= 5 && looksLikeTitle,
+    });
     if (n >= 1 && n <= 5 && looksLikeTitle) {
       matches.push({
         idx: n - 1,
@@ -66,6 +75,14 @@ const splitAnalise = (raw: string): string[] => {
   }
 
   console.log("[Analise] numbered matches found:", matches.length, matches.map((x) => x.idx + 1));
+
+  const sec2 = matches.find((x) => x.idx === 1);
+  const sec4 = matches.find((x) => x.idx === 3);
+  if (sec2 && sec4 && sec4.start > sec2.headerEnd) {
+    console.log(
+      "[Analise] raw text between section 2 and section 4:\n" + text.slice(sec2.headerEnd, sec4.start),
+    );
+  }
 
   if (matches.length >= 2) {
     for (let i = 0; i < matches.length; i++) {
