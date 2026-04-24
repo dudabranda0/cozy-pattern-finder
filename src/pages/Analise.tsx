@@ -50,10 +50,16 @@ const splitAnalise = (raw: string): string[] => {
       const cur = matches[i];
       const next = matches[i + 1];
       const body = text.slice(cur.headerEnd, next ? next.start : text.length);
-      const cleaned = body
+      let cleaned = body
         .replace(/^[\s:\-*#]+/, "")
         .replace(/\*\*/g, "")
         .trim();
+      // Remove o título da seção se vier repetido no começo do body
+      const titleStripped = strip(SECTION_TITLES[cur.idx]);
+      const cleanedStripped = strip(cleaned);
+      if (cleanedStripped.startsWith(titleStripped)) {
+        cleaned = cleaned.slice(SECTION_TITLES[cur.idx].length).replace(/^[\s:\-*#\n]+/, "").trim();
+      }
       if (!result[cur.idx]) result[cur.idx] = cleaned;
     }
     if (result.some((s) => s)) return result;
