@@ -146,8 +146,19 @@ const Formulario = () => {
       if (res.ok) {
         const text = await res.text();
         try {
-          const j = JSON.parse(text);
-          analise = j.analise || j.output || j.text || "";
+          let j: any = JSON.parse(text);
+          // n8n frequentemente retorna array: [{ analise: "..." }]
+          if (Array.isArray(j)) j = j[0] || {};
+          analise =
+            j.analise ||
+            j.output ||
+            j.text ||
+            j.message ||
+            j.result ||
+            (j.data && (j.data.analise || j.data.output)) ||
+            "";
+          // Se ainda vazio, usa o JSON todo como fallback textual
+          if (!analise && typeof j === "string") analise = j;
         } catch {
           analise = text;
         }
