@@ -177,13 +177,13 @@ const RichContent = ({ text }: { text: string }) => {
     <div className="space-y-4 text-foreground/85 leading-relaxed">
       {blocks.map((block, bi) => {
         const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
-        const isList = lines.every((l) => /^([-*•·]|\d+[\.\)])\s+/.test(l));
+        const isList = lines.every((l) => /^([-*•·]|\d+[.)])\s+/.test(l));
 
         if (isList) {
           return (
             <ul key={bi} className="space-y-2.5">
               {lines.map((l, li) => {
-                const item = l.replace(/^([-*•·]|\d+[\.\)])\s+/, "");
+                const item = l.replace(/^([-*•·]|\d+[.)])\s+/, "");
                 return (
                   <li key={li} className="flex gap-3">
                     <CheckCircle2 className="w-4 h-4 mt-1 shrink-0 text-gold" />
