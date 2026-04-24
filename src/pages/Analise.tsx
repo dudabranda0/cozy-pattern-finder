@@ -163,7 +163,7 @@ const Analise = () => {
         {/* BLOCOS */}
         {blocks.map((b, i) => {
           const I = b.icon;
-          const content = analiseParts[i] || "Conteúdo desta seção será exibido aqui assim que sua análise for processada.";
+          const content = analiseParts[i] || "Sua análise está sendo processada e será enviada por e-mail em instantes.";
           return (
             <article key={b.n} className="lvb-card overflow-hidden animate-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
               <header className="bg-primary text-primary-foreground p-5 flex items-center justify-between gap-4">
