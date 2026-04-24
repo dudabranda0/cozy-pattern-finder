@@ -29,112 +29,113 @@ const strip = (s: string) =>
     .toUpperCase()
     .trim();
 
+const normalizeHeader = (s: string) =>
+  strip(
+    s
+      .replace(/\uFEFF/g, "")
+      .replace(/["“”'‘’`´]/g, " ")
+      .replace(/\*+/g, " ")
+      .replace(/\s+/g, " "),
+  );
+
+const cleanSectionBody = (value: string, idx: number) => {
+  let cleaned = value
+    .replace(/^\s+/, "")
+    .replace(/^[:\-*#\s]+/, "")
+    .replace(/\*\*/g, "")
+    .trim();
+
+  const expectedKey = strip(SECTIONS[idx].key);
+  const cleanedHeader = normalizeHeader(cleaned.split("\n")[0] || "");
+  if (cleanedHeader.includes(expectedKey)) {
+    cleaned = cleaned.split("\n").slice(1).join("\n").trim();
+  }
+
+  return cleaned;
+};
+
+type SectionMatch = { idx: number; start: number; headerEnd: number };
+
+const getNumberedSectionMatch = (line: string) => {
+  const trimmed = line.trim();
+  const match = trimmed.match(
+    /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-5])(?:\s*[\.)\-:])?\s*(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/i,
+  );
+
+  if (!match) return null;
+
+  const prefix = match[1] || "";
+  const idx = Number(match[2]) - 1;
+  const title = normalizeHeader(match[3] || "");
+  const expected = SECTIONS[idx];
+  const looksLikeTitle =
+    !title ||
+    title.includes(strip(expected.key)) ||
+    expected.keywords.some((keyword) => title.includes(strip(keyword)));
+  const hasStructuredPrefix = /#|\*|BLOCO/i.test(prefix);
+
+  return hasStructuredPrefix || looksLikeTitle ? idx : null;
+};
+
+const getTitleSectionMatch = (line: string) => {
+  const normalized = normalizeHeader(line)
+    .replace(/^(?:BLOCO\s+)?0?[1-5](?:\s*[\.)\-:])?\s*/, "")
+    .trim();
+
+  if (!normalized) return null;
+
+  return SECTIONS.findIndex((section) => {
+    const expectedKey = strip(section.key);
+    const keywordHits = section.keywords.filter((keyword) => normalized.includes(strip(keyword))).length;
+    return normalized.includes(expectedKey) || keywordHits >= Math.min(2, section.keywords.length);
+  });
+};
+
+const extractByMatches = (text: string, matches: SectionMatch[]) => {
+  const result = ["", "", "", "", ""];
+  const ordered = [...matches]
+    .sort((a, b) => a.start - b.start)
+    .filter((match, index, arr) => arr.findIndex((item) => item.idx === match.idx) === index);
+
+  for (let i = 0; i < ordered.length; i++) {
+    const current = ordered[i];
+    const next = ordered[i + 1];
+    const body = text.slice(current.headerEnd, next ? next.start : text.length);
+    result[current.idx] = cleanSectionBody(body, current.idx);
+  }
+
+  return result;
+};
+
+const collectMatches = (
+  text: string,
+  resolver: (line: string) => number | null,
+): SectionMatch[] => {
+  const lines = text.split("\n");
+  const matches: SectionMatch[] = [];
+  let cursor = 0;
+
+  for (const line of lines) {
+    const idx = resolver(line);
+    if (idx !== null && idx >= 0) {
+      matches.push({ idx, start: cursor, headerEnd: cursor + line.length });
+    }
+    cursor += line.length + 1;
+  }
+
+  return matches;
+};
+
 /** Quebra o texto bruto em 5 seções. Tolera `##`, `**`, `1.`, `1)`, "BLOCO 1" etc. */
 const splitAnalise = (raw: string): string[] => {
   if (!raw) return ["", "", "", "", ""];
-  const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\r/g, "");
-  const result: string[] = ["", "", "", "", ""];
+  const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\r/g, "").replace(/\uFEFF/g, "");
 
-  console.log("[Analise] parsing raw text, length:", text.length);
-  console.log("[Analise] full raw text before split:\n" + text);
+  const numbered = extractByMatches(text, collectMatches(text, getNumberedSectionMatch));
+  if (numbered.some(Boolean)) return numbered;
 
-  // 1) Tenta achar marcadores numerados 1..5 (com ou sem #, **, BLOCO etc.)
-  // Aceita: "## 1.", "# 1)", "### 1 -", "**1.**", "BLOCO 01", "1.", "1)" etc.
-  const re = /(?:^|\n)[ \t]*(?:#{1,6}[ \t]*)?(?:\*{1,3}[ \t]*)?(?:BLOCO[ \t]+)?0?([1-5])[ \t]*[\.\)\-:][ \t]*\*{0,3}[ \t]*([^\n]*)/gi;
-  const matches: { idx: number; start: number; headerEnd: number }[] = [];
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
-    const n = parseInt(m[1], 10);
-    const headerLine = m[2] || "";
-    // Heurística: só aceita se a linha do header parece um título de seção
-    // (vazia, em caixa alta, ou contém palavras-chave dos títulos esperados)
-    const headerStripped = strip(headerLine);
-    const expected = SECTIONS[n - 1];
-    const expectedKeyStripped = strip(expected.key);
-    const looksLikeTitle =
-      !headerStripped ||
-      headerStripped === headerStripped.toUpperCase() ||
-      headerStripped.includes(expectedKeyStripped) ||
-      expected.keywords.some((kw) => headerStripped.includes(strip(kw)));
-    console.log("[Analise] regex match found:", {
-      rawMatch: m[0],
-      sectionNumber: n,
-      index: m.index,
-      headerLine,
-      headerStripped,
-      expectedKey: expected.key,
-      accepted: n >= 1 && n <= 5 && looksLikeTitle,
-    });
-    if (n >= 1 && n <= 5 && looksLikeTitle) {
-      matches.push({
-        idx: n - 1,
-        start: m.index + (m[0].startsWith("\n") ? 1 : 0),
-        headerEnd: m.index + m[0].length,
-      });
-    }
-  }
-
-  console.log("[Analise] numbered matches found:", matches.length, matches.map((x) => x.idx + 1));
-
-  const sec2 = matches.find((x) => x.idx === 1);
-  const sec4 = matches.find((x) => x.idx === 3);
-  if (sec2 && sec4 && sec4.start > sec2.headerEnd) {
-    console.log(
-      "[Analise] raw text between section 2 and section 4:\n" + text.slice(sec2.headerEnd, sec4.start),
-    );
-  }
-
-  if (matches.length >= 2) {
-    for (let i = 0; i < matches.length; i++) {
-      const cur = matches[i];
-      const next = matches[i + 1];
-      const body = text.slice(cur.headerEnd, next ? next.start : text.length);
-      let cleaned = body
-        .replace(/^[\s:\-*#]+/, "")
-        .replace(/\*\*/g, "")
-        .trim();
-      // Remove o título da seção se ele aparecer no início (com ou sem acento)
-      const expectedKeyStripped = strip(SECTIONS[cur.idx].key);
-      const cleanedStripped = strip(cleaned);
-      if (cleanedStripped.startsWith(expectedKeyStripped)) {
-        // Avança no texto original o número de chars equivalente ao título stripped
-        // (mais seguro que usar .length da key, pois o original pode ter acentos)
-        let consumed = 0;
-        let strippedConsumed = 0;
-        while (consumed < cleaned.length && strippedConsumed < expectedKeyStripped.length) {
-          const chStripped = strip(cleaned[consumed]);
-          consumed++;
-          strippedConsumed += chStripped.length;
-        }
-        cleaned = cleaned.slice(consumed).replace(/^[\s:\-*#\n]+/, "").trim();
-      }
-      if (!result[cur.idx]) result[cur.idx] = cleaned;
-    }
-    if (result.some(Boolean)) {
-      console.log("[Analise] section lengths:", result.map((s) => s.length));
-      return result;
-    }
-  }
-
-  // 2) Fallback: split pelos títulos em caixa alta (com normalização de acentos)
-  const stripped = strip(text);
-  // Mapa de posições stripped -> original (necessário pois strip remove caracteres)
-  for (let i = 0; i < SECTIONS.length; i++) {
-    const titleStripped = strip(SECTIONS[i].key);
-    const pos = stripped.indexOf(titleStripped);
-    if (pos >= 0) {
-      const nextPos =
-        i + 1 < SECTIONS.length
-          ? stripped.indexOf(strip(SECTIONS[i + 1].key), pos + titleStripped.length)
-          : -1;
-      const end = nextPos > 0 ? nextPos : text.length;
-      result[i] = text.slice(pos + titleStripped.length, end)
-        .replace(/^[\s:\-*#\n]+/, "")
-        .replace(/\*\*/g, "")
-        .trim();
-    }
-  }
-  if (result.some(Boolean)) return result;
+  const titled = extractByMatches(text, collectMatches(text, getTitleSectionMatch));
+  if (titled.some(Boolean)) return titled;
 
   // 3) Último recurso: divide por parágrafos
   const paras = text.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
