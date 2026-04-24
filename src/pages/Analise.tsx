@@ -26,13 +26,15 @@ const strip = (s: string) =>
 
 const splitAnalise = (raw: string): string[] => {
   if (!raw) return [];
+  // Normaliza \n escapado (caso venha literal "\\n" de JSON aninhado)
+  const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "");
   const result: string[] = ["", "", "", "", ""];
 
-  // Captura marcadores "1." "1)" "01." "**1.**" "#1" "BLOCO 1" no início de linha
-  const re = /(?:^|\n)\s*(?:\*+|#+)?\s*(?:BLOCO\s*)?0?([1-5])[\.\)\-:]\s*([^\n]*)/gi;
+  // Captura marcadores "1." "1)" "01." "**1.**" "## 1." "### 1)" "BLOCO 1" no início de linha
+  const re = /(?:^|\n)[ \t]*(?:#{1,6}[ \t]*)?(?:\*+[ \t]*)?(?:BLOCO[ \t]*)?0?([1-5])[\.\)\-:][ \t]*([^\n]*)/gi;
   const matches: { idx: number; start: number; headerEnd: number }[] = [];
   let m: RegExpExecArray | null;
-  while ((m = re.exec(raw)) !== null) {
+  while ((m = re.exec(text)) !== null) {
     const n = parseInt(m[1], 10);
     if (n >= 1 && n <= 5) {
       matches.push({
@@ -47,8 +49,11 @@ const splitAnalise = (raw: string): string[] => {
     for (let i = 0; i < matches.length; i++) {
       const cur = matches[i];
       const next = matches[i + 1];
-      const body = raw.slice(cur.headerEnd, next ? next.start : raw.length);
-      const cleaned = body.replace(/^\**\s*/, "").replace(/\*\*/g, "").trim();
+      const body = text.slice(cur.headerEnd, next ? next.start : text.length);
+      const cleaned = body
+        .replace(/^[\s:\-*#]+/, "")
+        .replace(/\*\*/g, "")
+        .trim();
       if (!result[cur.idx]) result[cur.idx] = cleaned;
     }
     if (result.some((s) => s)) return result;
