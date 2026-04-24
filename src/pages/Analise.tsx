@@ -13,16 +13,71 @@ const blocks = [
   { n: "05", t: "Próximo Passo", icon: Compass },
 ];
 
+const SECTION_TITLES = [
+  "RESUMO DA SITUAÇÃO",
+  "SEUS DIREITOS",
+  "ESTRATÉGIA RECOMENDADA",
+  "PONTOS DE ATENÇÃO",
+  "PRÓXIMO PASSO",
+];
+
+const strip = (s: string) =>
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+
 const splitAnalise = (raw: string): string[] => {
   if (!raw) return [];
-  // tenta dividir por números 01..05 ou marcadores comuns
-  const parts = raw.split(/(?:\n|^)\s*(?:\d{1,2}[\.\)]|##+\s*\d|BLOCO\s*\d)/i).filter(Boolean);
-  if (parts.length >= 5) return parts.slice(0, 5).map((p) => p.trim());
-  // fallback: divide por linhas duplas em até 5 grupos
+  const result: string[] = ["", "", "", "", ""];
+
+  // Captura marcadores "1." "1)" "01." "**1.**" "#1" "BLOCO 1" no início de linha
+  const re = /(?:^|\n)\s*(?:\*+|#+)?\s*(?:BLOCO\s*)?0?([1-5])[\.\)\-:]\s*([^\n]*)/gi;
+  const matches: { idx: number; start: number; headerEnd: number }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(raw)) !== null) {
+    const n = parseInt(m[1], 10);
+    if (n >= 1 && n <= 5) {
+      matches.push({
+        idx: n - 1,
+        start: m.index + (m[0].startsWith("\n") ? 1 : 0),
+        headerEnd: m.index + m[0].length,
+      });
+    }
+  }
+
+  if (matches.length >= 2) {
+    for (let i = 0; i < matches.length; i++) {
+      const cur = matches[i];
+      const next = matches[i + 1];
+      const body = raw.slice(cur.headerEnd, next ? next.start : raw.length);
+      const cleaned = body.replace(/^\**\s*/, "").replace(/\*\*/g, "").trim();
+      if (!result[cur.idx]) result[cur.idx] = cleaned;
+    }
+    if (result.some((s) => s)) return result;
+  }
+
+  // Fallback: split pelos títulos em caixa alta
+  const stripped = strip(raw);
+  for (let i = 0; i < SECTION_TITLES.length; i++) {
+    const titleStripped = strip(SECTION_TITLES[i]);
+    const pos = stripped.indexOf(titleStripped);
+    if (pos >= 0) {
+      const nextPos =
+        i + 1 < SECTION_TITLES.length
+          ? stripped.indexOf(strip(SECTION_TITLES[i + 1]), pos + titleStripped.length)
+          : -1;
+      const end = nextPos > 0 ? nextPos : raw.length;
+      const slice = raw.slice(pos + titleStripped.length, end);
+      result[i] = slice.replace(/^[\s:\-*#\n]+/, "").replace(/\*\*/g, "").trim();
+    }
+  }
+  if (result.some((s) => s)) return result;
+
+  // Último recurso: divide por parágrafos em 5 grupos
   const paras = raw.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
-  if (paras.length <= 1) return [raw];
+  if (paras.length <= 1) return [raw, "", "", "", ""];
   const chunkSize = Math.ceil(paras.length / 5);
-  return Array.from({ length: 5 }, (_, i) => paras.slice(i * chunkSize, (i + 1) * chunkSize).join("\n\n")).filter(Boolean);
+  return Array.from({ length: 5 }, (_, i) =>
+    paras.slice(i * chunkSize, (i + 1) * chunkSize).join("\n\n"),
+  );
 };
 
 const Analise = () => {
