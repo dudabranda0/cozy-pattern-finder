@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, User, Users, CreditCard,
@@ -82,6 +82,22 @@ const Formulario = () => {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<FormState>(empty);
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Analisando sua situação...");
+
+  // Mensagens progressivas enquanto aguardamos a resposta do n8n (Claude pode demorar 15-30s)
+  useEffect(() => {
+    if (!loading) return;
+    const start = Date.now();
+    setLoadingMessage("Analisando sua situação...");
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - start;
+      if (elapsed < 10000) setLoadingMessage("Analisando sua situação...");
+      else if (elapsed < 20000) setLoadingMessage("Verificando seus direitos...");
+      else if (elapsed < 30000) setLoadingMessage("Elaborando sua estratégia...");
+      else setLoadingMessage("Finalizando sua análise...");
+    }, 500);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const update = <K extends keyof FormState>(k: K, v: FormState[K]) => setData((p) => ({ ...p, [k]: v }));
   const toggle = (k: "tipo_divida" | "bancos", v: string) =>
@@ -212,8 +228,10 @@ const Formulario = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <Loader2 className="w-14 h-14 text-primary animate-spin mx-auto" />
-          <h2 className="font-serif-lvb mt-6 text-2xl md:text-3xl font-bold">Gerando sua análise...</h2>
-          <p className="mt-3 text-muted-foreground">Estamos analisando sua situação. Isso leva menos de um minuto.</p>
+          <h2 className="font-serif-lvb mt-6 text-2xl md:text-3xl font-bold transition-opacity duration-300">
+            {loadingMessage}
+          </h2>
+          <p className="mt-3 text-muted-foreground">Isso pode levar até um minuto. Por favor, não feche esta janela.</p>
           <div className="mt-6 flex justify-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-primary dot-1" />
             <span className="w-2.5 h-2.5 rounded-full bg-primary dot-2" />
