@@ -9,7 +9,7 @@ export const SiteHeader = () => (
       </Link>
       <Link
         to="/formulario"
-        className="pill bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary-hover transition-colors"
+        className="btn-cta pill bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary-hover"
       >
         Fazer análise
       </Link>
