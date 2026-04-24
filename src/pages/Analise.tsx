@@ -60,7 +60,7 @@ const splitAnalise = (raw: string): string[] => {
   }
 
   // Fallback: split pelos títulos em caixa alta
-  const stripped = strip(raw);
+  const stripped = strip(text);
   for (let i = 0; i < SECTION_TITLES.length; i++) {
     const titleStripped = strip(SECTION_TITLES[i]);
     const pos = stripped.indexOf(titleStripped);
@@ -69,16 +69,16 @@ const splitAnalise = (raw: string): string[] => {
         i + 1 < SECTION_TITLES.length
           ? stripped.indexOf(strip(SECTION_TITLES[i + 1]), pos + titleStripped.length)
           : -1;
-      const end = nextPos > 0 ? nextPos : raw.length;
-      const slice = raw.slice(pos + titleStripped.length, end);
+      const end = nextPos > 0 ? nextPos : text.length;
+      const slice = text.slice(pos + titleStripped.length, end);
       result[i] = slice.replace(/^[\s:\-*#\n]+/, "").replace(/\*\*/g, "").trim();
     }
   }
   if (result.some((s) => s)) return result;
 
   // Último recurso: divide por parágrafos em 5 grupos
-  const paras = raw.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
-  if (paras.length <= 1) return [raw, "", "", "", ""];
+  const paras = text.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
+  if (paras.length <= 1) return [text, "", "", "", ""];
   const chunkSize = Math.ceil(paras.length / 5);
   return Array.from({ length: 5 }, (_, i) =>
     paras.slice(i * chunkSize, (i + 1) * chunkSize).join("\n\n"),
