@@ -59,7 +59,7 @@ type SectionMatch = { idx: number; start: number; headerEnd: number };
 const getNumberedSectionMatch = (line: string) => {
   const trimmed = line.trim();
   const match = trimmed.match(
-    /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-5])(?:\s*[\.)\-:])?\s*(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/i,
+    /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-5])(?:\s*[.)\-:])?\s*(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/i,
   );
 
   if (!match) return null;
@@ -79,7 +79,7 @@ const getNumberedSectionMatch = (line: string) => {
 
 const getTitleSectionMatch = (line: string) => {
   const normalized = normalizeHeader(line)
-    .replace(/^(?:BLOCO\s+)?0?[1-5](?:\s*[\.)\-:])?\s*/, "")
+    .replace(/^(?:BLOCO\s+)?0?[1-5](?:\s*[.)\-:])?\s*/, "")
     .trim();
 
   if (!normalized) return null;
