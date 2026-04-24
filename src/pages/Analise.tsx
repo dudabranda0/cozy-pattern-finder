@@ -13,15 +13,21 @@ import { COURSE_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
 /* ------------------------------------------------------------------ */
 
 const SECTIONS = [
-  { n: "01", title: "Resumo da Situação",     icon: FileText,      key: "RESUMO DA SITUACAO" },
-  { n: "02", title: "Seus Direitos",          icon: Scale,         key: "SEUS DIREITOS" },
-  { n: "03", title: "Estratégia Recomendada", icon: Target,        key: "ESTRATEGIA RECOMENDADA" },
-  { n: "04", title: "Pontos de Atenção",      icon: AlertTriangle, key: "PONTOS DE ATENCAO" },
-  { n: "05", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO" },
+  { n: "01", title: "Resumo da Situação",     icon: FileText,      key: "RESUMO DA SITUACAO",     keywords: ["RESUMO"] },
+  { n: "02", title: "Seus Direitos",          icon: Scale,         key: "SEUS DIREITOS",          keywords: ["DIREITOS"] },
+  { n: "03", title: "Estratégia Recomendada", icon: Target,        key: "ESTRATEGIA RECOMENDADA", keywords: ["ESTRATEGIA", "ESTRATÉGIA", "ESTRATEG"] },
+  { n: "04", title: "Pontos de Atenção",      icon: AlertTriangle, key: "PONTOS DE ATENCAO",      keywords: ["PONTOS", "ATENCAO", "ATENÇÃO"] },
+  { n: "05", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO",          keywords: ["PROXIMO", "PRÓXIMO", "PASSO"] },
 ] as const;
 
+/** Remove acentos (NFD), normaliza espaços e converte para caixa alta. */
 const strip = (s: string) =>
-  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+  s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .toUpperCase()
+    .trim();
 
 /** Quebra o texto bruto em 5 seções. Tolera `##`, `**`, `1.`, `1)`, "BLOCO 1" etc. */
 const splitAnalise = (raw: string): string[] => {
@@ -42,11 +48,14 @@ const splitAnalise = (raw: string): string[] => {
     const headerLine = m[2] || "";
     // Heurística: só aceita se a linha do header parece um título de seção
     // (vazia, em caixa alta, ou contém palavras-chave dos títulos esperados)
-    const headerStripped = strip(headerLine).trim();
+    const headerStripped = strip(headerLine);
+    const expected = SECTIONS[n - 1];
+    const expectedKeyStripped = strip(expected.key);
     const looksLikeTitle =
       !headerStripped ||
       headerStripped === headerStripped.toUpperCase() ||
-      SECTIONS.some((s) => headerStripped.includes(strip(s.key).slice(0, 8)));
+      headerStripped.includes(expectedKeyStripped) ||
+      expected.keywords.some((kw) => headerStripped.includes(strip(kw)));
     if (n >= 1 && n <= 5 && looksLikeTitle) {
       matches.push({
         idx: n - 1,
@@ -67,12 +76,20 @@ const splitAnalise = (raw: string): string[] => {
         .replace(/^[\s:\-*#]+/, "")
         .replace(/\*\*/g, "")
         .trim();
-      const titleStripped = strip(SECTIONS[cur.idx].key);
-      if (strip(cleaned).startsWith(titleStripped)) {
-        cleaned = cleaned
-          .slice(SECTIONS[cur.idx].key.length)
-          .replace(/^[\s:\-*#\n]+/, "")
-          .trim();
+      // Remove o título da seção se ele aparecer no início (com ou sem acento)
+      const expectedKeyStripped = strip(SECTIONS[cur.idx].key);
+      const cleanedStripped = strip(cleaned);
+      if (cleanedStripped.startsWith(expectedKeyStripped)) {
+        // Avança no texto original o número de chars equivalente ao título stripped
+        // (mais seguro que usar .length da key, pois o original pode ter acentos)
+        let consumed = 0;
+        let strippedConsumed = 0;
+        while (consumed < cleaned.length && strippedConsumed < expectedKeyStripped.length) {
+          const chStripped = strip(cleaned[consumed]);
+          consumed++;
+          strippedConsumed += chStripped.length;
+        }
+        cleaned = cleaned.slice(consumed).replace(/^[\s:\-*#\n]+/, "").trim();
       }
       if (!result[cur.idx]) result[cur.idx] = cleaned;
     }
@@ -82,8 +99,9 @@ const splitAnalise = (raw: string): string[] => {
     }
   }
 
-  // 2) Fallback: split pelos títulos em caixa alta
+  // 2) Fallback: split pelos títulos em caixa alta (com normalização de acentos)
   const stripped = strip(text);
+  // Mapa de posições stripped -> original (necessário pois strip remove caracteres)
   for (let i = 0; i < SECTIONS.length; i++) {
     const titleStripped = strip(SECTIONS[i].key);
     const pos = stripped.indexOf(titleStripped);
