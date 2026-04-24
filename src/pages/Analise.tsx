@@ -29,13 +29,25 @@ const splitAnalise = (raw: string): string[] => {
   const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\r/g, "");
   const result: string[] = ["", "", "", "", ""];
 
-  // 1) Tenta achar marcadores numerados 1..5 no início de linha
-  const re = /(?:^|\n)[ \t]*(?:#{1,6}[ \t]*)?(?:\*+[ \t]*)?(?:BLOCO[ \t]*)?0?([1-5])[\.\)\-:][ \t]*([^\n]*)/gi;
+  console.log("[Analise] parsing raw text, length:", text.length);
+  console.log("[Analise] first 300 chars:", text.slice(0, 300));
+
+  // 1) Tenta achar marcadores numerados 1..5 (com ou sem #, **, BLOCO etc.)
+  // Aceita: "## 1.", "# 1)", "### 1 -", "**1.**", "BLOCO 01", "1.", "1)" etc.
+  const re = /(?:^|\n)[ \t]*(?:#{1,6}[ \t]*)?(?:\*{1,3}[ \t]*)?(?:BLOCO[ \t]+)?0?([1-5])[ \t]*[\.\)\-:][ \t]*\*{0,3}[ \t]*([^\n]*)/gi;
   const matches: { idx: number; start: number; headerEnd: number }[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(text)) !== null) {
     const n = parseInt(m[1], 10);
-    if (n >= 1 && n <= 5) {
+    const headerLine = m[2] || "";
+    // Heurística: só aceita se a linha do header parece um título de seção
+    // (vazia, em caixa alta, ou contém palavras-chave dos títulos esperados)
+    const headerStripped = strip(headerLine).trim();
+    const looksLikeTitle =
+      !headerStripped ||
+      headerStripped === headerStripped.toUpperCase() ||
+      SECTIONS.some((s) => headerStripped.includes(strip(s.key).slice(0, 8)));
+    if (n >= 1 && n <= 5 && looksLikeTitle) {
       matches.push({
         idx: n - 1,
         start: m.index + (m[0].startsWith("\n") ? 1 : 0),
@@ -44,19 +56,30 @@ const splitAnalise = (raw: string): string[] => {
     }
   }
 
+  console.log("[Analise] numbered matches found:", matches.length, matches.map((x) => x.idx + 1));
+
   if (matches.length >= 2) {
     for (let i = 0; i < matches.length; i++) {
       const cur = matches[i];
       const next = matches[i + 1];
       const body = text.slice(cur.headerEnd, next ? next.start : text.length);
-      let cleaned = body.replace(/^[\s:\-*#]+/, "").replace(/\*\*/g, "").trim();
+      let cleaned = body
+        .replace(/^[\s:\-*#]+/, "")
+        .replace(/\*\*/g, "")
+        .trim();
       const titleStripped = strip(SECTIONS[cur.idx].key);
       if (strip(cleaned).startsWith(titleStripped)) {
-        cleaned = cleaned.slice(SECTIONS[cur.idx].key.length).replace(/^[\s:\-*#\n]+/, "").trim();
+        cleaned = cleaned
+          .slice(SECTIONS[cur.idx].key.length)
+          .replace(/^[\s:\-*#\n]+/, "")
+          .trim();
       }
       if (!result[cur.idx]) result[cur.idx] = cleaned;
     }
-    if (result.some(Boolean)) return result;
+    if (result.some(Boolean)) {
+      console.log("[Analise] section lengths:", result.map((s) => s.length));
+      return result;
+    }
   }
 
   // 2) Fallback: split pelos títulos em caixa alta
