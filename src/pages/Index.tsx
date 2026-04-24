@@ -103,13 +103,17 @@ const Sales = () => {
       <section className="bg-beige-deep py-16 md:py-24">
         <div className="container max-w-4xl">
           <h2 className="font-serif-lvb text-3xl md:text-5xl font-bold text-center leading-tight">
-            São situações como essas que <span className="text-primary">analisamos todos os dias</span>
+            São situações como essas que <span className="text-gradient-burgundy">analisamos todos os dias</span>
           </h2>
-          <div className="mt-10 space-y-3">
-            {recognize.map((q) => (
-              <div key={q} className="lvb-card p-5 md:p-6 flex items-start gap-3">
+          <div className="mt-12 space-y-3">
+            {recognize.map((q, i) => (
+              <div
+                key={q}
+                className="lvb-card lvb-card-hover p-5 md:p-6 flex items-start gap-4 animate-fade-up"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
                 <span className="mt-2 w-2 h-2 rounded-full bg-primary shrink-0" />
-                <p className="text-foreground/90 italic">{q}</p>
+                <p className="text-foreground/90 italic text-[15px] md:text-base">{q}</p>
               </div>
             ))}
           </div>
@@ -120,10 +124,17 @@ const Sales = () => {
       <section id="como-funciona" className="py-16 md:py-24 bg-card">
         <div className="container max-w-5xl">
           <h2 className="font-serif-lvb text-3xl md:text-5xl font-bold text-center">Simples assim</h2>
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {steps.map((s) => (
-              <div key={s.n} className="lvb-card p-6 flex gap-5 items-start hover:-translate-y-1 transition-transform">
-                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground font-serif-lvb text-2xl font-bold flex items-center justify-center shrink-0">
+          <p className="mt-4 text-center text-muted-foreground max-w-xl mx-auto">
+            Quatro passos para você ter clareza sobre suas opções.
+          </p>
+          <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {steps.map((s, i) => (
+              <div
+                key={s.n}
+                className="lvb-card lvb-card-hover p-6 md:p-7 flex gap-5 items-start animate-fade-up"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-hover text-primary-foreground font-serif-lvb text-2xl font-bold flex items-center justify-center shrink-0 shadow-md">
                   {s.n}
                 </div>
                 <div>
@@ -140,12 +151,16 @@ const Sales = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-3xl">
           <h2 className="font-serif-lvb text-3xl md:text-5xl font-bold text-center">
-            Sua análise <span className="text-primary">analisa tudo isso</span>
+            Sua análise <span className="text-gradient-burgundy">analisa tudo isso</span>
           </h2>
-          <ul className="mt-10 space-y-3">
-            {includes.map((i) => (
-              <li key={i} className="lvb-card px-5 py-4 flex items-center gap-3">
-                <span className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
+          <ul className="mt-12 space-y-3">
+            {includes.map((i, idx) => (
+              <li
+                key={i}
+                className="lvb-card lvb-card-hover px-5 py-4 flex items-center gap-3 animate-fade-up"
+                style={{ animationDelay: `${idx * 60}ms` }}
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-primary to-gold shrink-0" />
                 <span className="font-medium">{i}</span>
               </li>
             ))}
