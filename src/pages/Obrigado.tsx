@@ -33,7 +33,7 @@ const Obrigado = () => (
       </ol>
       <Link
         to="/formulario"
-        className="mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 font-semibold inline-flex items-center justify-center gap-2 transition-colors w-full"
+        className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 font-semibold inline-flex items-center justify-center gap-2 w-full"
       >
         Preencher meu formulário agora <ArrowRight className="w-5 h-5" />
       </Link>
