@@ -88,11 +88,17 @@ const Analise = () => {
   const [missing, setMissing] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem("lvb_analise") || "";
+    let raw = localStorage.getItem("lvb_analise") || "";
     const e = localStorage.getItem("lvb_email") || "";
     const n = localStorage.getItem("lvb_nome") || "";
     const t = localStorage.getItem("lvb_total_dividas") || "";
     setEmail(e); setNome(n); setTotal(t);
+
+    // Se o n8n devolveu a expressão literal (não avaliada), descarta o conteúdo
+    if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(raw) && raw.includes("}}")) {
+      raw = "";
+    }
+
     if (!raw && !e) { setMissing(true); return; }
     setAnaliseParts(splitAnalise(raw));
   }, []);
