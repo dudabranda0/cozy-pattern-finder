@@ -163,6 +163,22 @@ const Formulario = () => {
           analise = text;
         }
       }
+
+      // Detecta expressão n8n não avaliada (ex.: "{{ $('...').item.json... }}")
+      const unevaluated =
+        typeof analise === "string" &&
+        /\{\{\s*\$?\(?['"]?[\w$]+/.test(analise) &&
+        analise.includes("}}");
+      if (unevaluated) {
+        console.warn("[n8n] Resposta contém expressão não avaliada:", analise);
+        analise = "";
+        toast({
+          title: "Análise sendo processada",
+          description:
+            "Houve um atraso na resposta automática. Sua análise chegará por e-mail em instantes.",
+        });
+      }
+
       localStorage.setItem("lvb_analise", analise || "");
       nav("/analise");
     } catch (err) {
