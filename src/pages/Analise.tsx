@@ -105,13 +105,19 @@ const Analise = () => {
     const t = localStorage.getItem("lvb_total_dividas") || "";
     setEmail(e); setNome(n); setTotal(t);
 
+    console.log("[Analise] raw length:", raw.length);
+    console.log("[Analise] raw preview:", raw.slice(0, 300));
+
     // Se o n8n devolveu a expressão literal (não avaliada), descarta o conteúdo
     if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(raw) && raw.includes("}}")) {
+      console.warn("[Analise] expressão n8n não avaliada detectada");
       raw = "";
     }
 
     if (!raw && !e) { setMissing(true); return; }
-    setAnaliseParts(splitAnalise(raw));
+    const parts = splitAnalise(raw);
+    console.log("[Analise] parts lengths:", parts.map((p) => p.length));
+    setAnaliseParts(parts);
   }, []);
 
   const isLowDebt = /Até R\$ 5\.000|R\$ 5\.000 a R\$ 15\.000|R\$ 15\.000 a R\$ 30\.000/.test(total);
