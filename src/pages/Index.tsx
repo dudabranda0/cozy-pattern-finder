@@ -201,7 +201,7 @@ const Sales = () => {
                 </p>
                 <a
                   href={CAKTO_LINK}
-                  className="pill bg-primary hover:bg-primary-hover text-primary-foreground px-6 py-3 font-semibold inline-flex items-center gap-2 transition-colors"
+                  className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-6 py-3 font-semibold inline-flex items-center gap-2"
                 >
                   Ver minha análise agora <ArrowRight className="w-4 h-4" />
                 </a>
