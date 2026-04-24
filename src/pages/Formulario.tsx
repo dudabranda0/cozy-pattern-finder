@@ -162,40 +162,61 @@ const Formulario = () => {
       if (res.ok) {
         const text = await res.text();
         console.log("[n8n] raw response:", text.slice(0, 500));
+
+        // Helper: detecta expressão n8n não avaliada (ex.: "{{ $('...').item.json... }}")
+        const isUnevaluated = (s: any) =>
+          typeof s === "string" && s.includes("{{") && s.includes("}}");
+        const valid = (s: any) =>
+          typeof s === "string" && s.trim().length > 0 && !isUnevaluated(s);
+
+        // Extrai .content[0].text ou .content (string) de um objeto Anthropic-like
+        const fromContent = (obj: any): string => {
+          if (!obj) return "";
+          const c = obj.content;
+          if (Array.isArray(c) && c[0] && typeof c[0].text === "string") return c[0].text;
+          if (typeof c === "string") return c;
+          return "";
+        };
+
         try {
           let j: any = JSON.parse(text);
-          // n8n frequentemente retorna array: [{ analise: "..." }]
-          if (Array.isArray(j)) j = j[0] || {};
-          console.log("[n8n] parsed keys:", Object.keys(j || {}));
-          analise =
-            j.analise ||
-            j.output ||
-            j.text ||
-            j.message ||
-            j.result ||
-            (j.data && (j.data.analise || j.data.output)) ||
-            "";
-          // Se ainda vazio, usa o JSON todo como fallback textual
-          if (!analise && typeof j === "string") analise = j;
+          const arr = Array.isArray(j) ? j[0] || {} : j;
+          console.log("[n8n] parsed keys:", Object.keys(arr || {}));
+
+          // 1) j.analise — só se válido (não vazio e não expressão {{ }})
+          if (valid(arr.analise)) {
+            analise = arr.analise;
+          }
+
+          // 2) Fallback: content[0].text no objeto raiz/array
+          if (!analise) {
+            const c = fromContent(arr) || (Array.isArray(j) ? fromContent(j[0]) : "");
+            if (valid(c)) analise = c;
+          }
+
+          // 3) Outros campos comuns do n8n
+          if (!analise) {
+            const candidates = [
+              arr.output, arr.text, arr.message, arr.result,
+              arr.data && (arr.data.analise || arr.data.output || fromContent(arr.data)),
+            ];
+            const found = candidates.find((v) => valid(v));
+            if (found) analise = found;
+          }
+
+          if (!analise && typeof j === "string" && valid(j)) analise = j;
         } catch {
-          analise = text;
+          if (valid(text)) analise = text;
         }
         console.log("[n8n] analise length extraída:", analise.length);
-      }
 
-      // Detecta expressão n8n não avaliada (ex.: "{{ $('...').item.json... }}")
-      const unevaluated =
-        typeof analise === "string" &&
-        /\{\{\s*\$?\(?['"]?[\w$]+/.test(analise) &&
-        analise.includes("}}");
-      if (unevaluated) {
-        console.warn("[n8n] Resposta contém expressão não avaliada:", analise);
-        analise = "";
-        toast({
-          title: "Análise sendo processada",
-          description:
-            "Houve um atraso na resposta automática. Sua análise chegará por e-mail em instantes.",
-        });
+        if (!analise) {
+          toast({
+            title: "Análise sendo processada",
+            description:
+              "Houve um atraso na resposta automática. Sua análise chegará por e-mail em instantes.",
+          });
+        }
       }
 
       localStorage.setItem("lvb_analise", analise || "");
