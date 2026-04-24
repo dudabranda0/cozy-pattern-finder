@@ -225,7 +225,7 @@ const Analise = () => {
           </div>
 
           <p className="text-center text-gold-light/90 font-semibold tracking-[0.3em] text-xs uppercase mb-3">
-            Parecer Jurídico Personalizado
+            Análise Personalizada
           </p>
           <h1 className="font-serif-lvb text-center text-4xl md:text-6xl font-bold leading-[1.05]">
             {firstName ? (
