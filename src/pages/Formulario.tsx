@@ -184,14 +184,23 @@ const Formulario = () => {
 
       localStorage.setItem("lvb_analise", analise || "");
       nav("/analise");
-    } catch (err) {
-      // Mesmo com erro, leva pra /analise (e-mail pode chegar mesmo assim)
+    } catch (err: any) {
+      // Log detalhado pra diagnóstico
+      console.error("[n8n] fetch falhou:", err?.name, err?.message, err);
+      const isAbort = err?.name === "AbortError";
+      const isNetwork = err?.message?.includes("Failed to fetch") || err?.message?.includes("NetworkError");
       localStorage.setItem("lvb_analise", "");
       toast({
         title: "Análise enviada",
-        description: "Sua análise está sendo gerada e chegará por e-mail em instantes.",
+        description: isAbort
+          ? "O processamento demorou mais que o esperado. Sua análise chegará por e-mail em instantes."
+          : isNetwork
+          ? "Não foi possível conectar ao servidor de análise (verifique CORS no n8n). Sua análise chegará por e-mail."
+          : "Sua análise está sendo gerada e chegará por e-mail em instantes.",
       });
       nav("/analise");
+    } finally {
+      setLoading(false);
     }
   };
 
