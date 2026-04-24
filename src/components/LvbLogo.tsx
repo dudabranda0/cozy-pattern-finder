@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import lvbLogo from "@/assets/lvb-logo.png";
 
 interface LogoProps {
@@ -11,11 +12,14 @@ const sizes = {
   lg: "h-14",
 };
 
-export const LvbLogo = ({ className = "", size = "md" }: LogoProps) => (
+export const LvbLogo = forwardRef<HTMLImageElement, LogoProps>(({ className = "", size = "md" }, ref) => (
   <img
+    ref={ref}
     src={lvbLogo}
     alt="LVB — Larissa De Vargas Brandão Advogados"
     className={`${sizes[size]} w-auto select-none ${className}`}
     draggable={false}
   />
-);
+));
+
+LvbLogo.displayName = "LvbLogo";
