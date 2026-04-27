@@ -165,6 +165,7 @@ const Sales = () => {
                 <span className="font-medium">{i}</span>
               </li>
             ))}
+          </ul>
         </div>
       </section>
 
