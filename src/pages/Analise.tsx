@@ -215,9 +215,7 @@ const Analise = () => {
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
   const [total, setTotal] = useState("");
-  const [tempoDivida, setTempoDivida] = useState("");
-  const [cobrancaJudicial, setCobrancaJudicial] = useState("");
-  const [jaNegociou, setJaNegociou] = useState("");
+  const [tiposDivida, setTiposDivida] = useState<string[]>([]);
   const [missing, setMissing] = useState(false);
 
   useEffect(() => {
@@ -225,11 +223,11 @@ const Analise = () => {
     const e = localStorage.getItem("lvb_email") || "";
     const n = localStorage.getItem("lvb_nome") || "";
     const t = localStorage.getItem("lvb_total_dividas") || "";
-    const td = localStorage.getItem("lvb_tempo_divida") || "";
-    const cj = localStorage.getItem("lvb_cobranca_judicial") || "";
-    const jn = localStorage.getItem("lvb_ja_negociou") || "";
-    setEmail(e); setNome(n); setTotal(t);
-    setTempoDivida(td); setCobrancaJudicial(cj); setJaNegociou(jn);
+    const tipos = (localStorage.getItem("lvb_tipo_divida") || "")
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    setEmail(e); setNome(n); setTotal(t); setTiposDivida(tipos);
 
     if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(r) && r.includes("}}")) r = "";
     if (!r && !e) { setMissing(true); return; }
@@ -242,56 +240,23 @@ const Analise = () => {
   const firstName = nome.split(" ")[0] || "";
   const isLowDebt = /Até R\$ 5\.000|R\$ 5\.000 a R\$ 15\.000|R\$ 15\.000 a R\$ 30\.000/.test(total);
 
-  // Linha do tempo de urgência — calculada a partir das respostas do formulário
-  const urgencyTimeline = useMemo(() => {
-    // Item 1 — Tempo de atraso
-    const tempoMap: Record<string, { level: "alta" | "media" | "baixa"; desc: string }> = {
-      "Menos de 3 meses": { level: "baixa", desc: "Janela ideal para negociação preventiva" },
-      "Entre 3 e 12 meses": { level: "media", desc: "Risco crescente de protesto e negativação" },
-      "Entre 1 e 3 anos": { level: "alta", desc: "Alto risco de ação judicial e execução" },
-      "Mais de 3 anos": { level: "alta", desc: "Verificar prescrição (Art. 206 CC) — agir já" },
-      "Não estou em atraso, quero renegociar": { level: "baixa", desc: "Posição privilegiada para renegociar" },
+  // Matriz de Risco Patrimonial — uma linha por tipo de dívida marcado pelo cliente
+  const riscoPatrimonial = useMemo(() => {
+    const mapa: Record<string, { level: "alta" | "media" | "baixa"; desc: string }> = {
+      "Financiamento imobiliário": { level: "alta", desc: "Execução extrajudicial e leilão do imóvel" },
+      "Financiamento de veículo": { level: "alta", desc: "Risco de busca e apreensão do bem" },
+      "Crédito consignado": { level: "alta", desc: "Desconto direto em folha — comprometimento da renda" },
+      "Cartão de crédito": { level: "media", desc: "Alta probabilidade de juros abusivos" },
+      "Empréstimo pessoal": { level: "media", desc: "Recálculo de margem e revisão contratual" },
+      "Cheque especial": { level: "media", desc: "Juros entre os mais altos do mercado — revisão indicada" },
+      "Outro tipo de dívida": { level: "media", desc: "Análise individual recomendada" },
     };
-    // Item 2 — Cobrança judicial
-    const cobMap: Record<string, { level: "alta" | "media" | "baixa"; desc: string }> = {
-      "Sim, já recebi notificação": { level: "alta", desc: "Prazo legal correndo — defesa imediata" },
-      "Não, ainda não": { level: "media", desc: "Janela aberta para acordo extrajudicial" },
-      "Não sei ao certo": { level: "media", desc: "Consultar processos no nome (CPF) com urgência" },
-    };
-    // Item 3 — Já negociou
-    const negMap: Record<string, { level: "alta" | "media" | "baixa"; desc: string }> = {
-      "Sim, e fiz acordo": { level: "alta", desc: "Risco de confissão de dívida com anatocismo" },
-      "Sim, mas não fechei acordo": { level: "media", desc: "Histórico útil para nova proposta" },
-      "Não, nunca tentei": { level: "baixa", desc: "Estratégia inicial pode ser construída do zero" },
-    };
+    return tiposDivida.map((tipo) => ({
+      title: tipo,
+      ...(mapa[tipo] || { level: "media" as const, desc: "Análise individual recomendada" }),
+    }));
+  }, [tiposDivida]);
 
-    const fallback = { level: "media" as const, desc: "Aguardando informação do cliente" };
-
-    return [
-      {
-        title: "Tempo de atraso",
-        answer: tempoDivida || "Não informado",
-        ...(tempoMap[tempoDivida] || fallback),
-      },
-      {
-        title: "Cobrança judicial",
-        answer: cobrancaJudicial || "Não informado",
-        ...(cobMap[cobrancaJudicial] || fallback),
-      },
-      {
-        title: "Histórico de negociação",
-        answer: jaNegociou || "Não informado",
-        ...(negMap[jaNegociou] || fallback),
-      },
-    ];
-  }, [tempoDivida, cobrancaJudicial, jaNegociou]);
-
-  // Nível geral de urgência (pior caso vence)
-  const overallUrgency = useMemo(() => {
-    if (urgencyTimeline.some((i) => i.level === "alta")) return "alta";
-    if (urgencyTimeline.some((i) => i.level === "media")) return "media";
-    return "baixa";
-  }, [urgencyTimeline]);
 
   if (missing) {
     return (
