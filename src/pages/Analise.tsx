@@ -478,6 +478,42 @@ const Analise = () => {
           </div>
         </article>
 
+        {/* ============ BLOCO 02 — SEUS DIREITOS ============ */}
+        {hasDireitos && (
+          <section className="animate-fade-up" style={{ animationDelay: "160ms" }}>
+            <SectionLabel>02 · Seus Direitos</SectionLabel>
+            <div className="space-y-3">
+              {data.seus_direitos!.map((item, i) => (
+                <ContratualCard key={i} item={item} idx={i} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ============ BLOCO 03 — ESTRATÉGIA RECOMENDADA ============ */}
+        {hasEstrategiaRec && (
+          <section className="animate-fade-up" style={{ animationDelay: "200ms" }}>
+            <SectionLabel>03 · Estratégia Recomendada</SectionLabel>
+            <div className="space-y-3">
+              {data.estrategia_recomendada!.map((item, i) => (
+                <ContratualCard key={i} item={item} idx={i} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ============ BLOCO 04 — PONTOS DE ATENÇÃO ============ */}
+        {hasAtencao && (
+          <section className="animate-fade-up" style={{ animationDelay: "240ms" }}>
+            <SectionLabel>04 · Pontos de Atenção</SectionLabel>
+            <div className="space-y-3">
+              {data.pontos_atencao!.map((item, i) => (
+                <ContratualCard key={i} item={item} idx={i} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* ============ ANÁLISE CONTRATUAL / LEGAL ============ */}
         {hasContratual && (
           <section className="animate-fade-up" style={{ animationDelay: "200ms" }}>
