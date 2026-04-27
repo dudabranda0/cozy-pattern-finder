@@ -355,7 +355,7 @@ const Analise = () => {
             “Toda dívida tem uma saída — e a sua começa por entender exatamente onde você está
             hoje e quais são os próximos movimentos.”
           </p>
-          <p className="mt-3 text-sm text-muted-foreground">— Equipe LVB Advogados</p>
+          <p className="mt-3 text-sm text-muted-foreground">— Equipe LVB</p>
         </div>
 
         {/* Sections */}
