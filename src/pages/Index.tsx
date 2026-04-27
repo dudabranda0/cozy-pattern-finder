@@ -66,7 +66,7 @@ const Sales = () => {
               Pagamento único · acesso imediato
             </span>
             <div className="font-serif-lvb font-bold leading-none flex items-baseline gap-1 mt-1">
-              <span className="text-sm text-muted-foreground line-through mr-2">R$ 97</span>
+              <span className="text-sm text-muted-foreground line-through mr-2">R$ 200</span>
               <span className="text-5xl md:text-6xl text-primary">R$ 29</span>
               <span className="text-2xl md:text-3xl text-gradient-gold">,90</span>
             </div>
