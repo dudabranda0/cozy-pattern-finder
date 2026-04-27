@@ -200,7 +200,7 @@ const Sales = () => {
                   id="sobre-larissa"
                   className="font-serif-lvb mt-4 text-3xl md:text-5xl font-bold leading-tight text-foreground"
                 >
-                  Dra. Larissa De Vargas Brandão
+                  Larissa Brandão
                 </h2>
                 <p className="mt-2 text-sm md:text-base text-gold font-medium">
                   Advogada · Direito Bancário e do Consumidor
