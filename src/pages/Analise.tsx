@@ -214,7 +214,7 @@ const Analise = () => {
   const [raw, setRaw] = useState("");
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
-  const [total, setTotal] = useState("");
+  
   const [tiposDivida, setTiposDivida] = useState<string[]>([]);
   const [missing, setMissing] = useState(false);
 
@@ -227,7 +227,7 @@ const Analise = () => {
       .split("|")
       .map((s) => s.trim())
       .filter(Boolean);
-    setEmail(e); setNome(n); setTotal(t); setTiposDivida(tipos);
+    setEmail(e); setNome(n); setTiposDivida(tipos);
 
     if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(r) && r.includes("}}")) r = "";
     if (!r && !e) { setMissing(true); return; }
