@@ -50,7 +50,7 @@ const Sales = () => {
         <div className="max-w-3xl mx-auto text-center animate-fade-up">
           <span className="inline-flex items-center gap-2 pill bg-secondary/80 backdrop-blur text-foreground px-4 py-1.5 text-xs md:text-sm font-medium border border-border shadow-sm">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-dot" />
-            Quanto mais o tempo passa, mais a dívida pode crescer
+            Quanto mais o tempo passa, mais sua dívida pode crescer
           </span>
           <h1 className="font-serif-lvb mt-7 text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.02] tracking-tight">
             Você pode estar pagando <span className="text-gradient-burgundy">mais do que deveria</span> e ainda não percebeu.
