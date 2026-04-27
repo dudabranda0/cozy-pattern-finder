@@ -22,7 +22,7 @@ export const SiteFooter = () => (
     <div className="container max-w-6xl py-10 flex flex-col md:flex-row items-center justify-between gap-4">
       <LvbLogo size="md" className="brightness-110" />
       <p className="text-xs md:text-sm text-primary-foreground/60 text-center md:text-right max-w-md">
-        © {new Date().getFullYear()} LVB — Larissa De Vargas Brandão Advogados.
+        © {new Date().getFullYear()} LVB — Larissa De Vargas Brandão.
         Suas informações são tratadas com total confidencialidade.
       </p>
     </div>
