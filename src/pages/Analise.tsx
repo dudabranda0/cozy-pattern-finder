@@ -112,7 +112,7 @@ const parseAnalise = (raw: string): AnaliseEstruturada => {
   // tentar JSON primeiro
   try {
     const j = JSON.parse(raw);
-    if (j && typeof j === "object" && (j.resumo || j.analise_contratual || j.matriz_risco || j.estrategia_defesa || j.proximo_passo)) {
+    if (j && typeof j === "object" && (j.resumo || j.seus_direitos || j.estrategia_recomendada || j.pontos_atencao || j.analise_contratual || j.matriz_risco || j.estrategia_defesa || j.proximo_passo)) {
       return j as AnaliseEstruturada;
     }
   } catch { /* não é JSON */ }
