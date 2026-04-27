@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Mail, ArrowRight, MessageCircle, FileText, Scale, Target,
-  AlertTriangle, Compass, ShieldCheck, Sparkles, CheckCircle2, Quote,
+  Mail, ArrowRight, MessageCircle, FileText, Compass,
+  ShieldCheck, Sparkles, CheckCircle2, Quote, Scale,
+  AlertTriangle, ShieldAlert, Gavel, FileSearch, ScrollText,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { SiteFooter } from "@/components/SiteChrome";
@@ -10,148 +11,115 @@ import { COURSE_LINK, WHATSAPP_LINK, CAKTO_LINK } from "@/lib/lvb-constants";
 
 
 /* ------------------------------------------------------------------ */
-/*  PARSER                                                             */
+/*  TIPOS DA RESPOSTA ESTRUTURADA                                      */
 /* ------------------------------------------------------------------ */
 
-const SECTIONS = [
-  { n: "01", title: "Resumo da Situação",     icon: FileText,      key: "RESUMO DA SITUACAO",     keywords: ["RESUMO"] },
-  { n: "02", title: "Seus Direitos",          icon: Scale,         key: "SEUS DIREITOS",          keywords: ["DIREITOS"] },
-  { n: "03", title: "Estratégia Recomendada", icon: Target,        key: "ESTRATEGIA RECOMENDADA", keywords: ["ESTRATEGIA", "ESTRATÉGIA", "ESTRATEG"] },
-  { n: "04", title: "Pontos de Atenção",      icon: AlertTriangle, key: "PONTOS DE ATENCAO",      keywords: ["PONTOS", "ATENCAO", "ATENÇÃO"] },
-  { n: "05", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO",          keywords: ["PROXIMO", "PRÓXIMO", "PASSO"] },
-] as const;
+type RiscoNivel = "alta" | "media" | "baixa";
 
-/** Remove acentos (NFD), normaliza espaços e converte para caixa alta. */
+type AnaliseContratualItem = {
+  titulo: string;
+  descricao: string;
+  cor?: "purple" | "amber" | "neutral"; // cor lateral do card
+  link_label?: string;                   // ex: "Verificar unidade mais próxima →"
+  link_url?: string;
+};
+
+type MatrizRiscoItem = {
+  titulo: string;
+  descricao: string;
+  nivel: RiscoNivel;
+};
+
+type EstrategiaPasso = {
+  numero: string; // "01"..."04"
+  texto: string;
+};
+
+type AnaliseEstruturada = {
+  resumo?: string;            // bloco 01
+  analise_contratual?: AnaliseContratualItem[];
+  matriz_risco?: MatrizRiscoItem[];
+  estrategia_defesa?: EstrategiaPasso[];
+  proximo_passo?: string;     // bloco final
+};
+
+/* ------------------------------------------------------------------ */
+/*  PARSER: aceita JSON estruturado OU texto legado                    */
+/* ------------------------------------------------------------------ */
+
 const strip = (s: string) =>
-  s
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ")
-    .toUpperCase()
-    .trim();
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").toUpperCase().trim();
 
-const normalizeHeader = (s: string) =>
-  strip(
-    s
-      .replace(/\uFEFF/g, "")
-      .replace(/["“”'‘’`´]/g, " ")
-      .replace(/\*+/g, " ")
-      .replace(/\s+/g, " "),
-  );
+const LEGACY_SECTIONS = [
+  { key: "RESUMO",   field: "resumo" as const },
+  { key: "PROXIMO",  field: "proximo_passo" as const },
+  { key: "PRÓXIMO",  field: "proximo_passo" as const },
+  { key: "PASSO",    field: "proximo_passo" as const },
+];
 
-const cleanSectionBody = (value: string, idx: number) => {
-  let cleaned = value
-    .replace(/^\s+/, "")
-    .replace(/^[:\-*#\s]+/, "")
-    .replace(/\*\*/g, "")
-    .trim();
-
-  const expectedKey = strip(SECTIONS[idx].key);
-  const cleanedHeader = normalizeHeader(cleaned.split("\n")[0] || "");
-  if (cleanedHeader.includes(expectedKey)) {
-    cleaned = cleaned.split("\n").slice(1).join("\n").trim();
-  }
-
-  return cleaned;
-};
-
-type SectionMatch = { idx: number; start: number; headerEnd: number };
-
-const getNumberedSectionMatch = (line: string) => {
-  const trimmed = line.trim();
-  const match = trimmed.match(
-    /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-5])(?:\s*[.)\-:])?\s*(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/i,
-  );
-
-  if (!match) return null;
-
-  const prefix = match[1] || "";
-  const idx = Number(match[2]) - 1;
-  const title = normalizeHeader(match[3] || "");
-  const expected = SECTIONS[idx];
-  const looksLikeTitle =
-    !title ||
-    title.includes(strip(expected.key)) ||
-    expected.keywords.some((keyword) => title.includes(strip(keyword)));
-  const hasStructuredPrefix = /#|\*|BLOCO/i.test(prefix);
-
-  return hasStructuredPrefix || looksLikeTitle ? idx : null;
-};
-
-const getTitleSectionMatch = (line: string) => {
-  const normalized = normalizeHeader(line)
-    .replace(/^(?:BLOCO\s+)?0?[1-5](?:\s*[.)\-:])?\s*/, "")
-    .trim();
-
-  if (!normalized) return null;
-
-  return SECTIONS.findIndex((section) => {
-    const expectedKey = strip(section.key);
-    const keywordHits = section.keywords.filter((keyword) => normalized.includes(strip(keyword))).length;
-    return normalized.includes(expectedKey) || keywordHits >= Math.min(2, section.keywords.length);
-  });
-};
-
-const extractByMatches = (text: string, matches: SectionMatch[]) => {
-  const result = ["", "", "", "", ""];
-  const ordered = [...matches]
-    .sort((a, b) => a.start - b.start)
-    .filter((match, index, arr) => arr.findIndex((item) => item.idx === match.idx) === index);
-
-  for (let i = 0; i < ordered.length; i++) {
-    const current = ordered[i];
-    const next = ordered[i + 1];
-    const body = text.slice(current.headerEnd, next ? next.start : text.length);
-    result[current.idx] = cleanSectionBody(body, current.idx);
-  }
-
-  return result;
-};
-
-const collectMatches = (
-  text: string,
-  resolver: (line: string) => number | null,
-): SectionMatch[] => {
+/** Tenta extrair Resumo e Próximo Passo de um texto livre (formato antigo). */
+const parseLegacyText = (raw: string): AnaliseEstruturada => {
+  if (!raw) return {};
+  const text = raw.replace(/\\n/g, "\n").replace(/\r/g, "");
   const lines = text.split("\n");
-  const matches: SectionMatch[] = [];
-  let cursor = 0;
+  const out: AnaliseEstruturada = {};
 
-  for (const line of lines) {
-    const idx = resolver(line);
-    if (idx !== null && idx >= 0) {
-      matches.push({ idx, start: cursor, headerEnd: cursor + line.length });
+  type Match = { idx: number; field: "resumo" | "proximo_passo" };
+  const matches: { pos: number; line: number; field: "resumo" | "proximo_passo" }[] = [];
+
+  let cursor = 0;
+  lines.forEach((line, i) => {
+    const norm = strip(line.replace(/[#*"`]/g, " "));
+    if (/(^|\s)0?1[\.\)]?/.test(norm) || norm.includes("RESUMO")) {
+      if (norm.includes("RESUMO") || /^0?1[\.\)\s]/.test(norm.trim())) {
+        matches.push({ pos: cursor, line: i, field: "resumo" });
+      }
+    }
+    if (norm.includes("PROXIMO") || norm.includes("PRÓXIMO") || norm.includes("PASSO")) {
+      matches.push({ pos: cursor, line: i, field: "proximo_passo" });
     }
     cursor += line.length + 1;
+  });
+
+  // dedupe por field, mantendo primeira ocorrência
+  const seen = new Set<string>();
+  const ordered = matches.filter(m => (seen.has(m.field) ? false : (seen.add(m.field), true)))
+                         .sort((a, b) => a.pos - b.pos);
+
+  ordered.forEach((m, i) => {
+    const next = ordered[i + 1];
+    const startLine = m.line + 1;
+    const endLine = next ? next.line : lines.length;
+    const body = lines.slice(startLine, endLine).join("\n")
+      .replace(/^[\s:\-*#]+/, "")
+      .replace(/\*\*/g, "")
+      .trim();
+    out[m.field] = body;
+  });
+
+  if (!out.resumo && !out.proximo_passo) {
+    out.resumo = text.trim();
   }
 
-  return matches;
+  return out;
 };
 
-/** Quebra o texto bruto em 5 seções. Tolera `##`, `**`, `1.`, `1)`, "BLOCO 1" etc. */
-const splitAnalise = (raw: string): string[] => {
-  if (!raw) return ["", "", "", "", ""];
-  const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\r/g, "").replace(/\uFEFF/g, "");
-
-  const numbered = extractByMatches(text, collectMatches(text, getNumberedSectionMatch));
-  if (numbered.some(Boolean)) return numbered;
-
-  const titled = extractByMatches(text, collectMatches(text, getTitleSectionMatch));
-  if (titled.some(Boolean)) return titled;
-
-  // 3) Último recurso: divide por parágrafos
-  const paras = text.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
-  if (paras.length <= 1) return [text, "", "", "", ""];
-  const chunkSize = Math.ceil(paras.length / 5);
-  return Array.from({ length: 5 }, (_, i) =>
-    paras.slice(i * chunkSize, (i + 1) * chunkSize).join("\n\n"),
-  );
+const parseAnalise = (raw: string): AnaliseEstruturada => {
+  if (!raw) return {};
+  // tentar JSON primeiro
+  try {
+    const j = JSON.parse(raw);
+    if (j && typeof j === "object" && (j.resumo || j.analise_contratual || j.matriz_risco || j.estrategia_defesa || j.proximo_passo)) {
+      return j as AnaliseEstruturada;
+    }
+  } catch { /* não é JSON */ }
+  return parseLegacyText(raw);
 };
 
 /* ------------------------------------------------------------------ */
-/*  RICH CONTENT RENDERER                                              */
+/*  RENDERER DE TEXTO RICO (negrito + listas)                          */
 /* ------------------------------------------------------------------ */
 
-/** Renderiza texto com suporte a **negrito**, listas com `-`/`•`/`*` e parágrafos. */
 const RichContent = ({ text }: { text: string }) => {
   if (!text?.trim()) {
     return (
@@ -207,6 +175,122 @@ const RichContent = ({ text }: { text: string }) => {
 };
 
 /* ------------------------------------------------------------------ */
+/*  COMPONENTES VISUAIS DAS NOVAS SEÇÕES                               */
+/* ------------------------------------------------------------------ */
+
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-[11px] md:text-xs font-semibold tracking-[0.28em] uppercase text-muted-foreground/80 mb-4 mt-2">
+    {children}
+  </p>
+);
+
+const COR_MAP = {
+  purple: {
+    border: "border-l-[5px] border-l-[#9B72CF]",
+    iconBg: "bg-[#EDE5FA] text-[#5B3A99]",
+    title: "text-[#2A1B45]",
+    body: "text-[#3F2D5C]/85",
+  },
+  amber: {
+    border: "border-l-[5px] border-l-[#E8B84A]",
+    iconBg: "bg-[#FBEED4] text-[#9B6B16]",
+    title: "text-[#7A3E0B]",
+    body: "text-[#7A3E0B]/85",
+  },
+  neutral: {
+    border: "border-l-[5px] border-l-transparent",
+    iconBg: "bg-secondary text-foreground/70",
+    title: "text-foreground",
+    body: "text-foreground/75",
+  },
+} as const;
+
+const ICONS_CONTRATUAL = [Scale, ShieldCheck, AlertTriangle, Gavel, FileSearch, ScrollText];
+
+const ContratualCard = ({ item, idx }: { item: AnaliseContratualItem; idx: number }) => {
+  const Icon = ICONS_CONTRATUAL[idx % ICONS_CONTRATUAL.length];
+  const cor = COR_MAP[item.cor || "neutral"];
+  return (
+    <div className={`bg-card rounded-2xl ${cor.border} border border-border shadow-sm p-5 md:p-6 flex gap-4`}>
+      <div className={`w-11 h-11 rounded-full ${cor.iconBg} flex items-center justify-center shrink-0`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div className="min-w-0">
+        <h3 className={`font-serif-lvb font-bold text-lg md:text-xl ${cor.title} leading-snug`}>
+          {item.titulo}
+        </h3>
+        <p className={`mt-1.5 text-[14px] md:text-[15px] leading-relaxed ${cor.body}`}>
+          {item.descricao}
+        </p>
+        {item.link_label && item.link_url && (
+          <a
+            href={item.link_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block text-sm font-semibold text-foreground underline underline-offset-4 decoration-2 decoration-foreground/40 hover:decoration-primary"
+          >
+            {item.link_label}
+          </a>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const NIVEL_STYLE = {
+  alta:  { dot: "bg-[#FF5A6E]", label: "ALTA",  text: "text-[#E5354A]" },
+  media: { dot: "bg-[#F2B441]", label: "MÉDIA", text: "text-[#C8861A]" },
+  baixa: { dot: "bg-[#3FB984]", label: "BAIXA", text: "text-[#1F8556]" },
+} as const;
+
+const RiscoRow = ({ item, isLast }: { item: MatrizRiscoItem; isLast: boolean }) => {
+  const s = NIVEL_STYLE[item.nivel] || NIVEL_STYLE.media;
+  const dotsCount = item.nivel === "alta" ? 3 : item.nivel === "media" ? 2 : 1;
+  return (
+    <div className={`flex items-center justify-between gap-4 py-4 md:py-5 ${isLast ? "" : "border-b border-border"}`}>
+      <div className="min-w-0 flex-1">
+        <h3 className="font-serif-lvb font-bold text-lg md:text-xl text-foreground leading-tight">
+          {item.titulo}
+        </h3>
+        <p className="mt-1 text-[13px] md:text-sm text-muted-foreground">
+          {item.descricao}
+        </p>
+      </div>
+      <div className="flex flex-col items-end shrink-0">
+        <div className="flex gap-1">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className={`w-2.5 h-2.5 rounded-full ${i < dotsCount ? s.dot : "bg-muted"}`}
+            />
+          ))}
+        </div>
+        <span className={`mt-1.5 text-[10px] md:text-xs font-bold tracking-[0.18em] ${s.text}`}>
+          {s.label}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const EstrategiaCard = ({ passos }: { passos: EstrategiaPasso[] }) => (
+  <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
+    <ol className="space-y-7">
+      {passos.map((p, i) => (
+        <li key={i} className="flex flex-col gap-3">
+          <span className="w-12 h-12 rounded-full bg-[#E6EAE5] text-[#1F3D2A] flex items-center justify-center text-sm font-bold tracking-wider">
+            {p.numero}
+          </span>
+          <p className="text-[15px] md:text-base leading-relaxed text-foreground/85">
+            {p.texto}
+          </p>
+        </li>
+      ))}
+    </ol>
+  </div>
+);
+
+/* ------------------------------------------------------------------ */
 /*  PAGE                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -231,7 +315,7 @@ const Analise = () => {
     window.scrollTo({ top: 0 });
   }, []);
 
-  const parts = useMemo(() => splitAnalise(raw), [raw]);
+  const data = useMemo(() => parseAnalise(raw), [raw]);
   const firstName = nome.split(" ")[0] || "";
   const isLowDebt = /Até R\$ 5\.000|R\$ 5\.000 a R\$ 15\.000|R\$ 15\.000 a R\$ 30\.000/.test(total);
 
@@ -255,11 +339,14 @@ const Analise = () => {
     );
   }
 
+  const hasContratual = (data.analise_contratual?.length ?? 0) > 0;
+  const hasMatriz = (data.matriz_risco?.length ?? 0) > 0;
+  const hasEstrategia = (data.estrategia_defesa?.length ?? 0) > 0;
+
   return (
     <div className="min-h-screen bg-background">
       {/* ============ HERO ============ */}
       <header className="relative overflow-hidden bg-[#1A1005] text-primary-foreground">
-        {/* gradient + decorative shapes */}
         <div className="absolute inset-0 opacity-40" style={{ background: "var(--gradient-burgundy)" }} />
         <div className="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-gold/20 blur-3xl" />
         <div className="absolute -bottom-32 -left-20 w-[380px] h-[380px] rounded-full bg-primary/40 blur-3xl" />
@@ -318,7 +405,6 @@ const Analise = () => {
           </div>
         </div>
 
-        {/* curved bottom */}
         <svg
           className="absolute bottom-0 left-0 right-0 w-full text-background"
           viewBox="0 0 1440 80"
@@ -331,7 +417,6 @@ const Analise = () => {
 
       {/* ============ MAIN ============ */}
       <main className="container max-w-4xl -mt-20 relative z-10 pb-20 space-y-6">
-        {/* Email confirmation card */}
         {email && (
           <div className="lvb-card border-2 border-emerald-400/40 bg-gradient-to-br from-emerald-50 to-emerald-50/30 p-5 md:p-6 flex gap-4 items-start animate-fade-up">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-700 flex items-center justify-center shrink-0">
@@ -349,7 +434,6 @@ const Analise = () => {
           </div>
         )}
 
-        {/* Quote / intro */}
         <div className="lvb-card p-6 md:p-8 bg-gradient-to-br from-card to-secondary/40 animate-fade-up" style={{ animationDelay: "60ms" }}>
           <Quote className="w-8 h-8 text-gold/60" />
           <p className="font-serif-lvb mt-3 text-xl md:text-2xl text-foreground/90 leading-snug italic">
@@ -359,47 +443,98 @@ const Analise = () => {
           <p className="mt-3 text-sm text-muted-foreground">— Equipe LVB</p>
         </div>
 
-        {/* Sections */}
-        {SECTIONS.map((s, i) => {
-          const I = s.icon;
-          const content = parts[i] || "";
-          return (
-            <article
-              key={s.n}
-              className="lvb-card overflow-hidden animate-fade-up group"
-              style={{ animationDelay: `${120 + i * 80}ms` }}
-            >
-              {/* Section header */}
-              <div className="relative bg-gradient-to-r from-primary via-primary to-[#4A0D17] text-primary-foreground px-6 py-5 md:px-8 md:py-6 overflow-hidden">
-                <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-gold/10 blur-2xl" />
-                <div className="relative flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary-foreground/10 border border-primary-foreground/15 flex items-center justify-center shrink-0 backdrop-blur-sm">
-                      <I className="w-5 h-5 md:w-6 md:h-6 text-gold-light" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] md:text-xs font-semibold tracking-[0.25em] uppercase text-gold-light/80">
-                        Bloco {s.n}
-                      </p>
-                      <h2 className="font-serif-lvb text-xl md:text-3xl font-bold leading-tight truncate">
-                        {s.title}
-                      </h2>
-                    </div>
-                  </div>
-                  <span className="font-serif-lvb text-4xl md:text-6xl text-primary-foreground/10 font-bold leading-none select-none">
-                    {s.n}
-                  </span>
+        {/* ============ BLOCO 01 — RESUMO ============ */}
+        <article className="lvb-card overflow-hidden animate-fade-up" style={{ animationDelay: "120ms" }}>
+          <div className="relative bg-gradient-to-r from-primary via-primary to-[#4A0D17] text-primary-foreground px-6 py-5 md:px-8 md:py-6 overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-gold/10 blur-2xl" />
+            <div className="relative flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary-foreground/10 border border-primary-foreground/15 flex items-center justify-center shrink-0 backdrop-blur-sm">
+                  <FileText className="w-5 h-5 md:w-6 md:h-6 text-gold-light" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] md:text-xs font-semibold tracking-[0.25em] uppercase text-gold-light/80">
+                    Bloco 01
+                  </p>
+                  <h2 className="font-serif-lvb text-xl md:text-3xl font-bold leading-tight truncate">
+                    Resumo da Situação
+                  </h2>
                 </div>
               </div>
+              <span className="font-serif-lvb text-4xl md:text-6xl text-primary-foreground/10 font-bold leading-none select-none">
+                01
+              </span>
+            </div>
+          </div>
+          <div className="p-6 md:p-8 lg:p-10 bg-card relative">
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold via-gold-light to-transparent opacity-60" />
+            <RichContent text={data.resumo || ""} />
+          </div>
+        </article>
 
-              {/* Section body */}
-              <div className="p-6 md:p-8 lg:p-10 bg-card relative">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold via-gold-light to-transparent opacity-60" />
-                <RichContent text={content} />
+        {/* ============ ANÁLISE CONTRATUAL / LEGAL ============ */}
+        {hasContratual && (
+          <section className="animate-fade-up" style={{ animationDelay: "200ms" }}>
+            <SectionLabel>Análise Contratual / Legal</SectionLabel>
+            <div className="space-y-3">
+              {data.analise_contratual!.map((item, i) => (
+                <ContratualCard key={i} item={item} idx={i} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ============ MATRIZ DE RISCO PATRIMONIAL ============ */}
+        {hasMatriz && (
+          <section className="animate-fade-up" style={{ animationDelay: "280ms" }}>
+            <SectionLabel>Matriz de Risco Patrimonial</SectionLabel>
+            <div className="bg-card rounded-2xl border border-border shadow-sm px-5 md:px-7">
+              {data.matriz_risco!.map((item, i, arr) => (
+                <RiscoRow key={i} item={item} isLast={i === arr.length - 1} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ============ ESTRATÉGIA DE DEFESA RECOMENDADA ============ */}
+        {hasEstrategia && (
+          <section className="animate-fade-up" style={{ animationDelay: "360ms" }}>
+            <SectionLabel>Estratégia de Defesa Recomendada</SectionLabel>
+            <EstrategiaCard passos={data.estrategia_defesa!} />
+          </section>
+        )}
+
+        {/* ============ PRÓXIMO PASSO ============ */}
+        {data.proximo_passo && (
+          <article className="lvb-card overflow-hidden animate-fade-up" style={{ animationDelay: "440ms" }}>
+            <div className="relative bg-gradient-to-r from-primary via-primary to-[#4A0D17] text-primary-foreground px-6 py-5 md:px-8 md:py-6 overflow-hidden">
+              <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-gold/10 blur-2xl" />
+              <div className="relative flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary-foreground/10 border border-primary-foreground/15 flex items-center justify-center shrink-0 backdrop-blur-sm">
+                    <Compass className="w-5 h-5 md:w-6 md:h-6 text-gold-light" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] md:text-xs font-semibold tracking-[0.25em] uppercase text-gold-light/80">
+                      Bloco 05
+                    </p>
+                    <h2 className="font-serif-lvb text-xl md:text-3xl font-bold leading-tight truncate">
+                      Próximo Passo
+                    </h2>
+                  </div>
+                </div>
+                <span className="font-serif-lvb text-4xl md:text-6xl text-primary-foreground/10 font-bold leading-none select-none">
+                  05
+                </span>
               </div>
-            </article>
-          );
-        })}
+            </div>
+            <div className="p-6 md:p-8 lg:p-10 bg-card relative">
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold via-gold-light to-transparent opacity-60" />
+              <RichContent text={data.proximo_passo} />
+            </div>
+          </article>
+        )}
+
         {/* ============ CTA ============ */}
         {isLowDebt ? (
           <div
