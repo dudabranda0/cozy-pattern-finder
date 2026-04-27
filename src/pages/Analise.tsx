@@ -7,6 +7,7 @@ import {
 import { LvbLogo } from "@/components/LvbLogo";
 import { SiteFooter } from "@/components/SiteChrome";
 import { COURSE_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
+import larissaFoto from "@/assets/larissa-brandao.jpg";
 
 /* ------------------------------------------------------------------ */
 /*  PARSER                                                             */
@@ -399,6 +400,67 @@ const Analise = () => {
             </article>
           );
         })}
+
+        {/* ============ Quem embasa esta análise ============ */}
+        <section
+          className="relative lvb-card overflow-hidden animate-fade-up"
+          style={{ animationDelay: "560ms" }}
+          aria-labelledby="sobre-larissa"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/60 via-card to-card" />
+          <div className="relative grid md:grid-cols-[minmax(0,260px)_1fr] gap-6 md:gap-10 p-6 md:p-10 items-center">
+            {/* Foto */}
+            <div className="relative mx-auto md:mx-0 w-44 h-44 md:w-full md:h-72 max-w-[260px]">
+              <div className="absolute -inset-2 rounded-[28px] bg-gradient-to-br from-gold/40 via-gold/10 to-transparent blur-xl opacity-70" />
+              <div className="relative w-full h-full rounded-[24px] overflow-hidden ring-1 ring-gold/30 shadow-deep">
+                <img
+                  src={larissaFoto}
+                  alt="Dra. Larissa De Vargas Brandão, advogada especialista em Direito Bancário"
+                  className="w-full h-full object-cover object-top"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="text-center md:text-left">
+              <span className="pill bg-gold/15 border border-gold/30 text-gold px-3 py-1 text-[10px] md:text-xs font-semibold inline-flex items-center gap-1.5 tracking-wider uppercase">
+                <ShieldCheck className="w-3.5 h-3.5" /> Quem embasa esta análise
+              </span>
+              <h2
+                id="sobre-larissa"
+                className="font-serif-lvb mt-4 text-2xl md:text-4xl font-bold leading-tight text-foreground"
+              >
+                Dra. Larissa De Vargas Brandão
+              </h2>
+              <p className="mt-1 text-sm md:text-base text-gold font-medium">
+                Advogada · Direito Bancário e do Consumidor
+              </p>
+              <p className="mt-5 text-foreground/80 leading-relaxed text-base md:text-lg">
+                Atuo na defesa de consumidores contra abusos de instituições financeiras,
+                com foco na análise estratégica de contratos, juros e cobranças indevidas.
+                Meu objetivo é te ajudar a entender exatamente o que você está pagando e
+                identificar possíveis irregularidades, para que você tome decisões mais
+                seguras e evite prejuízos.
+              </p>
+              <p className="mt-4 text-sm text-muted-foreground italic">
+                Esta análise foi construída com base no método e na experiência prática do
+                escritório LVB no atendimento de centenas de casos de superendividamento.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
+                <a
+                  href={WHATSAPP_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pill bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 text-sm font-semibold inline-flex items-center gap-2 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" /> Falar com o escritório
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* ============ CTA ============ */}
         {isLowDebt ? (
