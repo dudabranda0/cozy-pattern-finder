@@ -310,9 +310,6 @@ const Sales = () => {
               >
                 Fazer análise agora <ArrowRight className="w-5 h-5" />
               </a>
-              <p className="text-xs text-muted-foreground mt-3 inline-flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5" /> Garantia de 7 dias
-              </p>
             </div>
           </div>
         </div>
