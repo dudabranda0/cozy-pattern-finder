@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { SiteFooter } from "@/components/SiteChrome";
-import { COURSE_LINK, WHATSAPP_LINK, CAKTO_LINK } from "@/lib/lvb-constants";
+import { WHATSAPP_LINK } from "@/lib/lvb-constants";
 
 
 /* ------------------------------------------------------------------ */
@@ -214,7 +214,7 @@ const Analise = () => {
   const [raw, setRaw] = useState("");
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
-  const [total, setTotal] = useState("");
+  
   const [tiposDivida, setTiposDivida] = useState<string[]>([]);
   const [missing, setMissing] = useState(false);
 
@@ -222,12 +222,12 @@ const Analise = () => {
     let r = localStorage.getItem("lvb_analise") || "";
     const e = localStorage.getItem("lvb_email") || "";
     const n = localStorage.getItem("lvb_nome") || "";
-    const t = localStorage.getItem("lvb_total_dividas") || "";
+    
     const tipos = (localStorage.getItem("lvb_tipo_divida") || "")
       .split("|")
       .map((s) => s.trim())
       .filter(Boolean);
-    setEmail(e); setNome(n); setTotal(t); setTiposDivida(tipos);
+    setEmail(e); setNome(n); setTiposDivida(tipos);
 
     if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(r) && r.includes("}}")) r = "";
     if (!r && !e) { setMissing(true); return; }
@@ -238,7 +238,7 @@ const Analise = () => {
 
   const parts = useMemo(() => splitAnalise(raw), [raw]);
   const firstName = nome.split(" ")[0] || "";
-  const isLowDebt = /Até R\$ 5\.000|R\$ 5\.000 a R\$ 15\.000|R\$ 15\.000 a R\$ 30\.000/.test(total);
+  
 
   // Matriz de Risco Patrimonial — uma linha por tipo de dívida marcado pelo cliente
   const riscoPatrimonial = useMemo(() => {
@@ -482,64 +482,34 @@ const Analise = () => {
 
         {/* ============ CTA ============ */}
 
-        {isLowDebt ? (
-          <div
-            className="relative rounded-[28px] overflow-hidden p-8 md:p-12 text-center text-white shadow-deep animate-fade-up"
-            style={{ animationDelay: "600ms" }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#0D4A20] via-[#0F5A28] to-[#072F14]" />
-            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-emerald-400/20 blur-3xl" />
-            <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-emerald-300/10 blur-3xl" />
-            <div className="relative">
-              <span className="pill bg-emerald-300/20 border border-emerald-300/40 text-emerald-100 px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" /> Indicado para o seu perfil
-              </span>
-              <h3 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight max-w-2xl mx-auto">
-                Aprenda a negociar sua dívida e consiga até{" "}
-                <span className="text-emerald-200">90% de desconto</span>
-              </h3>
-              <p className="mt-4 text-white/80 max-w-xl mx-auto text-base md:text-lg">
-                Curso completo com o método LVB para você renegociar com força, sabendo
-                exatamente quais são seus direitos.
-              </p>
-              <a
-                href={COURSE_LINK}
-                className="btn-cta mt-8 pill bg-white text-[#0D4A20] hover:bg-white/95 px-8 py-4 font-bold inline-flex items-center gap-2 shadow-2xl"
-              >
-                Acessar o Curso Agora <ArrowRight className="w-5 h-5" />
-              </a>
-            </div>
+        <div
+          className="relative rounded-[28px] overflow-hidden p-8 md:p-12 text-center text-primary-foreground shadow-deep animate-fade-up"
+          style={{ animationDelay: "600ms" }}
+        >
+          <div className="absolute inset-0" style={{ background: "var(--gradient-burgundy)" }} />
+          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-gold/25 blur-3xl" />
+          <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-primary/40 blur-3xl" />
+          <div className="relative">
+            <span className="pill bg-gold/25 border border-gold/40 text-gold-light px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5" /> Atendimento personalizado
+            </span>
+            <h3 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight max-w-2xl mx-auto">
+              Seu caso merece <span className="text-gradient-gold">atenção especializada</span>
+            </h3>
+            <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto text-base md:text-lg">
+              Nossa equipe está pronta para conduzir seu processo com a estratégia certa para a
+              sua situação específica.
+            </p>
+            <a
+              href={WHATSAPP_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-cta mt-8 pill bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 font-bold inline-flex items-center gap-2 shadow-2xl"
+            >
+              <MessageCircle className="w-5 h-5" /> Falar com Nossa Equipe
+            </a>
           </div>
-        ) : (
-          <div
-            className="relative rounded-[28px] overflow-hidden p-8 md:p-12 text-center text-primary-foreground shadow-deep animate-fade-up"
-            style={{ animationDelay: "600ms" }}
-          >
-            <div className="absolute inset-0" style={{ background: "var(--gradient-burgundy)" }} />
-            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-gold/25 blur-3xl" />
-            <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-primary/40 blur-3xl" />
-            <div className="relative">
-              <span className="pill bg-gold/25 border border-gold/40 text-gold-light px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-2">
-                <ShieldCheck className="w-3.5 h-3.5" /> Atendimento personalizado
-              </span>
-              <h3 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight max-w-2xl mx-auto">
-                Seu caso merece <span className="text-gradient-gold">atenção especializada</span>
-              </h3>
-              <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto text-base md:text-lg">
-                Nossa equipe está pronta para conduzir seu processo com a estratégia certa para a
-                sua situação específica.
-              </p>
-              <a
-                href={WHATSAPP_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-cta mt-8 pill bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 font-bold inline-flex items-center gap-2 shadow-2xl"
-              >
-                <MessageCircle className="w-5 h-5" /> Falar com Nossa Equipe
-              </a>
-            </div>
-          </div>
-        )}
+        </div>
 
         {/* Nova Análise (modo teste — libera o formulário sem pagar) */}
         <div className="text-center pt-4">
