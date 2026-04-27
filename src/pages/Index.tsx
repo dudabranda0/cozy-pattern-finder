@@ -50,20 +50,20 @@ const Sales = () => {
         <div className="max-w-3xl mx-auto text-center animate-fade-up">
           <span className="inline-flex items-center gap-2 pill bg-secondary/80 backdrop-blur text-foreground px-4 py-1.5 text-xs md:text-sm font-medium border border-border shadow-sm">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-dot" />
-            Resultado em menos de 5 minutos
+            Quanto mais o tempo passa, maior a dívida pode crescer
           </span>
           <h1 className="font-serif-lvb mt-7 text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.02] tracking-tight">
-            Descubra quanto você pode <span className="text-gradient-burgundy">reduzir</span> das suas dívidas.
+            Você pode estar pagando <span className="text-gradient-burgundy">mais do que deveria</span> e ainda não percebeu.
           </h1>
           <p className="mt-7 text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            A metodologia LVB analisa sua situação e calcula seu potencial real de
-            negociação: juros abusivos, Lei do Superendividamento, revisão contratual e mais.
+            Uma análise inicial que avalia sua dívida, seus riscos e possíveis caminhos
+            para você entender melhor a sua situação antes de tomar qualquer decisão.
           </p>
 
           {/* PREÇO EM DESTAQUE NO HERO */}
           <div className="mt-10 inline-flex flex-col items-center gap-1 rounded-3xl border-2 border-primary/20 bg-card px-7 py-5 shadow-[0_20px_50px_-20px_hsl(var(--primary)/0.35)] animate-scale-in" style={{ animationDelay: "200ms" }}>
             <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-muted-foreground font-semibold">
-              Pagamento único · acesso imediato
+              Análise inicial · acesso imediato
             </span>
             <div className="font-serif-lvb font-bold leading-none flex items-baseline gap-1 mt-1">
               <span className="text-sm text-muted-foreground line-through mr-2">R$ 200</span>
@@ -80,7 +80,7 @@ const Sales = () => {
               href={CAKTO_LINK}
               className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 text-base font-semibold inline-flex items-center justify-center gap-2"
             >
-              Quero minha análise por R$ 29,90 <ArrowRight className="w-5 h-5" />
+              Quero entender minha situação <ArrowRight className="w-5 h-5" />
             </a>
             <a
               href="#como-funciona"
