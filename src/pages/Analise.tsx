@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Mail, ArrowRight, MessageCircle, FileText, Scale, Target,
   AlertTriangle, Compass, ShieldCheck, Sparkles, CheckCircle2, Quote,
+  Clock, Gavel, Handshake, Hourglass,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { SiteFooter } from "@/components/SiteChrome";
@@ -215,6 +216,9 @@ const Analise = () => {
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
   const [total, setTotal] = useState("");
+  const [tempoDivida, setTempoDivida] = useState("");
+  const [cobrancaJudicial, setCobrancaJudicial] = useState("");
+  const [jaNegociou, setJaNegociou] = useState("");
   const [missing, setMissing] = useState(false);
 
   useEffect(() => {
@@ -222,7 +226,11 @@ const Analise = () => {
     const e = localStorage.getItem("lvb_email") || "";
     const n = localStorage.getItem("lvb_nome") || "";
     const t = localStorage.getItem("lvb_total_dividas") || "";
+    const td = localStorage.getItem("lvb_tempo_divida") || "";
+    const cj = localStorage.getItem("lvb_cobranca_judicial") || "";
+    const jn = localStorage.getItem("lvb_ja_negociou") || "";
     setEmail(e); setNome(n); setTotal(t);
+    setTempoDivida(td); setCobrancaJudicial(cj); setJaNegociou(jn);
 
     if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(r) && r.includes("}}")) r = "";
     if (!r && !e) { setMissing(true); return; }
@@ -234,6 +242,60 @@ const Analise = () => {
   const parts = useMemo(() => splitAnalise(raw), [raw]);
   const firstName = nome.split(" ")[0] || "";
   const isLowDebt = /Até R\$ 5\.000|R\$ 5\.000 a R\$ 15\.000|R\$ 15\.000 a R\$ 30\.000/.test(total);
+
+  // Linha do tempo de urgência — calculada a partir das respostas do formulário
+  const urgencyTimeline = useMemo(() => {
+    // Item 1 — Tempo de atraso
+    const tempoMap: Record<string, { level: "alta" | "media" | "baixa"; desc: string }> = {
+      "Menos de 3 meses": { level: "baixa", desc: "Janela ideal para negociação preventiva" },
+      "Entre 3 e 12 meses": { level: "media", desc: "Risco crescente de protesto e negativação" },
+      "Entre 1 e 3 anos": { level: "alta", desc: "Alto risco de ação judicial e execução" },
+      "Mais de 3 anos": { level: "alta", desc: "Verificar prescrição (Art. 206 CC) — agir já" },
+      "Não estou em atraso, quero renegociar": { level: "baixa", desc: "Posição privilegiada para renegociar" },
+    };
+    // Item 2 — Cobrança judicial
+    const cobMap: Record<string, { level: "alta" | "media" | "baixa"; desc: string }> = {
+      "Sim, já recebi notificação": { level: "alta", desc: "Prazo legal correndo — defesa imediata" },
+      "Não, ainda não": { level: "media", desc: "Janela aberta para acordo extrajudicial" },
+      "Não sei ao certo": { level: "media", desc: "Consultar processos no nome (CPF) com urgência" },
+    };
+    // Item 3 — Já negociou
+    const negMap: Record<string, { level: "alta" | "media" | "baixa"; desc: string }> = {
+      "Sim, e fiz acordo": { level: "alta", desc: "Risco de confissão de dívida com anatocismo" },
+      "Sim, mas não fechei acordo": { level: "media", desc: "Histórico útil para nova proposta" },
+      "Não, nunca tentei": { level: "baixa", desc: "Estratégia inicial pode ser construída do zero" },
+    };
+
+    const fallback = { level: "media" as const, desc: "Aguardando informação do cliente" };
+
+    return [
+      {
+        icon: Hourglass,
+        title: "Tempo de atraso",
+        answer: tempoDivida || "Não informado",
+        ...(tempoMap[tempoDivida] || fallback),
+      },
+      {
+        icon: Gavel,
+        title: "Cobrança judicial",
+        answer: cobrancaJudicial || "Não informado",
+        ...(cobMap[cobrancaJudicial] || fallback),
+      },
+      {
+        icon: Handshake,
+        title: "Histórico de negociação",
+        answer: jaNegociou || "Não informado",
+        ...(negMap[jaNegociou] || fallback),
+      },
+    ];
+  }, [tempoDivida, cobrancaJudicial, jaNegociou]);
+
+  // Nível geral de urgência (pior caso vence)
+  const overallUrgency = useMemo(() => {
+    if (urgencyTimeline.some((i) => i.level === "alta")) return "alta";
+    if (urgencyTimeline.some((i) => i.level === "media")) return "media";
+    return "baixa";
+  }, [urgencyTimeline]);
 
   if (missing) {
     return (
@@ -400,7 +462,113 @@ const Analise = () => {
             </article>
           );
         })}
+
+        {/* ============ LINHA DO TEMPO DE URGÊNCIA ============ */}
+        <section
+          className="animate-fade-up"
+          style={{ animationDelay: `${120 + SECTIONS.length * 80}ms` }}
+          aria-labelledby="urgencia-title"
+        >
+          <p className="text-center text-muted-foreground font-semibold tracking-[0.25em] text-[11px] md:text-xs uppercase mb-5">
+            Linha do Tempo de Urgência
+          </p>
+
+          <div className="lvb-card overflow-hidden">
+            {/* Header com nível geral */}
+            <div className="relative bg-gradient-to-r from-[#1A1005] via-primary to-[#4A0D17] text-primary-foreground px-6 py-5 md:px-8 md:py-6 overflow-hidden">
+              <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-gold/15 blur-2xl" />
+              <div className="relative flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary-foreground/10 border border-primary-foreground/15 flex items-center justify-center shrink-0 backdrop-blur-sm">
+                    <Clock className="w-5 h-5 md:w-6 md:h-6 text-gold-light" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] md:text-xs font-semibold tracking-[0.25em] uppercase text-gold-light/80">
+                      Diagnóstico de tempo
+                    </p>
+                    <h2 id="urgencia-title" className="font-serif-lvb text-xl md:text-3xl font-bold leading-tight">
+                      Janela de ação
+                    </h2>
+                  </div>
+                </div>
+                <span
+                  className={`pill px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 shrink-0 ${
+                    overallUrgency === "alta"
+                      ? "bg-rose-500/20 border border-rose-300/40 text-rose-100"
+                      : overallUrgency === "media"
+                      ? "bg-gold/25 border border-gold/40 text-gold-light"
+                      : "bg-emerald-500/20 border border-emerald-300/40 text-emerald-100"
+                  }`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      overallUrgency === "alta"
+                        ? "bg-rose-300 animate-pulse-dot"
+                        : overallUrgency === "media"
+                        ? "bg-gold-light"
+                        : "bg-emerald-300"
+                    }`}
+                  />
+                  Urgência {overallUrgency === "alta" ? "Alta" : overallUrgency === "media" ? "Média" : "Baixa"}
+                </span>
+              </div>
+            </div>
+
+            {/* Lista — estilo idêntico ao bloco "Matriz de Risco" */}
+            <div className="bg-card divide-y divide-border">
+              {urgencyTimeline.map((item, i) => {
+                const I = item.icon;
+                const dotColor =
+                  item.level === "alta"
+                    ? "bg-rose-500"
+                    : item.level === "media"
+                    ? "bg-gold"
+                    : "bg-emerald-500";
+                const labelColor =
+                  item.level === "alta"
+                    ? "text-rose-600"
+                    : item.level === "media"
+                    ? "text-gold"
+                    : "text-emerald-600";
+                const labelText =
+                  item.level === "alta" ? "ALTA" : item.level === "media" ? "MÉDIA" : "BAIXA";
+
+                return (
+                  <div
+                    key={i}
+                    className="flex items-start gap-4 p-5 md:p-6"
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-secondary/70 text-primary flex items-center justify-center shrink-0">
+                      <I className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-serif-lvb font-bold text-base md:text-lg text-foreground leading-tight">
+                        {item.title}
+                      </h3>
+                      <p className="mt-1 text-xs md:text-sm text-muted-foreground italic">
+                        “{item.answer}”
+                      </p>
+                      <p className="mt-1.5 text-sm text-foreground/80">{item.desc}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <div className="flex gap-1">
+                        <span className={`w-2 h-2 rounded-full ${dotColor}`} />
+                        <span className={`w-2 h-2 rounded-full ${item.level !== "baixa" ? dotColor : "bg-border"}`} />
+                        <span className={`w-2 h-2 rounded-full ${item.level === "alta" ? dotColor : "bg-border"}`} />
+                      </div>
+                      <span className={`text-[10px] md:text-xs font-bold tracking-wider ${labelColor}`}>
+                        {labelText}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* ============ CTA ============ */}
+
         {isLowDebt ? (
           <div
             className="relative rounded-[28px] overflow-hidden p-8 md:p-12 text-center text-white shadow-deep animate-fade-up"
