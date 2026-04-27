@@ -424,59 +424,61 @@ const Analise = () => {
           );
         })}
 
-        {/* ============ LINHA DO TEMPO DE URGÊNCIA ============ */}
-        <section
-          className="animate-fade-up pt-2"
-          style={{ animationDelay: `${120 + SECTIONS.length * 80}ms` }}
-          aria-labelledby="urgencia-title"
-        >
-          <h2
-            id="urgencia-title"
-            className="text-muted-foreground font-semibold tracking-[0.25em] text-[11px] md:text-xs uppercase mb-4 px-1"
+        {/* ============ MATRIZ DE RISCO PATRIMONIAL ============ */}
+        {riscoPatrimonial.length > 0 && (
+          <section
+            className="animate-fade-up pt-2"
+            style={{ animationDelay: `${120 + SECTIONS.length * 80}ms` }}
+            aria-labelledby="risco-title"
           >
-            Linha do Tempo de Urgência
-          </h2>
+            <h2
+              id="risco-title"
+              className="text-muted-foreground font-semibold tracking-[0.25em] text-[11px] md:text-xs uppercase mb-4 px-1"
+            >
+              Matriz de Risco Patrimonial
+            </h2>
 
-          <div className="lvb-card overflow-hidden bg-card divide-y divide-border">
-            {urgencyTimeline.map((item, i) => {
-              const dotColor =
-                item.level === "alta"
-                  ? "bg-rose-500"
-                  : item.level === "media"
-                  ? "bg-gold"
-                  : "bg-emerald-500";
-              const labelColor =
-                item.level === "alta"
-                  ? "text-rose-600"
-                  : item.level === "media"
-                  ? "text-gold"
-                  : "text-emerald-600";
-              const labelText =
-                item.level === "alta" ? "ALTA" : item.level === "media" ? "MÉDIA" : "BAIXA";
+            <div className="lvb-card overflow-hidden bg-card divide-y divide-border">
+              {riscoPatrimonial.map((item, i) => {
+                const dotColor =
+                  item.level === "alta"
+                    ? "bg-rose-500"
+                    : item.level === "media"
+                    ? "bg-gold"
+                    : "bg-emerald-500";
+                const labelColor =
+                  item.level === "alta"
+                    ? "text-rose-600"
+                    : item.level === "media"
+                    ? "text-gold"
+                    : "text-emerald-600";
+                const labelText =
+                  item.level === "alta" ? "ALTA" : item.level === "media" ? "MÉDIA" : "BAIXA";
 
-              return (
-                <div key={i} className="flex items-start justify-between gap-4 p-5 md:p-6">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-serif-lvb font-bold text-base md:text-lg text-foreground leading-tight">
-                      {item.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5 shrink-0">
-                    <div className="flex gap-1.5">
-                      <span className={`w-2.5 h-2.5 rounded-full ${dotColor}`} />
-                      <span className={`w-2.5 h-2.5 rounded-full ${item.level !== "baixa" ? dotColor : "bg-border"}`} />
-                      <span className={`w-2.5 h-2.5 rounded-full ${item.level === "alta" ? dotColor : "bg-border"}`} />
+                return (
+                  <div key={i} className="flex items-start justify-between gap-4 p-5 md:p-6">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-serif-lvb font-bold text-base md:text-lg text-foreground leading-tight">
+                        {item.title}
+                      </h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
                     </div>
-                    <span className={`text-[10px] md:text-xs font-bold tracking-wider ${labelColor}`}>
-                      {labelText}
-                    </span>
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <div className="flex gap-1.5">
+                        <span className={`w-2.5 h-2.5 rounded-full ${dotColor}`} />
+                        <span className={`w-2.5 h-2.5 rounded-full ${item.level !== "baixa" ? dotColor : "bg-border"}`} />
+                        <span className={`w-2.5 h-2.5 rounded-full ${item.level === "alta" ? dotColor : "bg-border"}`} />
+                      </div>
+                      <span className={`text-[10px] md:text-xs font-bold tracking-wider ${labelColor}`}>
+                        {labelText}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* ============ CTA ============ */}
 
