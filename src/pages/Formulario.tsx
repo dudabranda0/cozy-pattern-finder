@@ -84,17 +84,17 @@ const Formulario = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Analisando sua situação...");
 
-  // Bloqueio desativado temporariamente para testes
-  // useEffect(() => {
-  //   if (typeof window !== "undefined" && localStorage.getItem("lvb_usado") === "true") {
-  //     toast({
-  //       title: "Você já utilizou sua análise",
-  //       description: "Para uma nova análise, adquira novamente por R$ 29,90.",
-  //       variant: "destructive",
-  //     });
-  //     window.location.href = CAKTO_LINK;
-  //   }
-  // }, []);
+  // Bloqueio: cliente já utilizou sua análise — redireciona para checkout
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("lvb_usado") === "true") {
+      toast({
+        title: "Você já utilizou sua análise",
+        description: "Para uma nova análise, adquira novamente por R$ 29,90.",
+        variant: "destructive",
+      });
+      window.location.href = CAKTO_LINK;
+    }
+  }, []);
 
   // Mensagens progressivas enquanto aguardamos a resposta do n8n (Claude pode demorar 15-30s)
   useEffect(() => {
