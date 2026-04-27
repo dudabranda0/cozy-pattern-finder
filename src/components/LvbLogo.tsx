@@ -16,7 +16,7 @@ export const LvbLogo = forwardRef<HTMLImageElement, LogoProps>(({ className = ""
   <img
     ref={ref}
     src={lvbLogo}
-    alt="LVB — Larissa De Vargas Brandão Advogados"
+    alt="LVB — Larissa De Vargas Brandão"
     className={`${sizes[size]} w-auto select-none ${className}`}
     draggable={false}
   />
