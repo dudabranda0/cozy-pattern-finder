@@ -37,6 +37,9 @@ type EstrategiaPasso = {
 
 type AnaliseEstruturada = {
   resumo?: string;            // bloco 01
+  seus_direitos?: AnaliseContratualItem[];      // bloco 02
+  estrategia_recomendada?: AnaliseContratualItem[]; // bloco 03
+  pontos_atencao?: AnaliseContratualItem[];     // bloco 04
   analise_contratual?: AnaliseContratualItem[];
   matriz_risco?: MatrizRiscoItem[];
   estrategia_defesa?: EstrategiaPasso[];
@@ -109,7 +112,7 @@ const parseAnalise = (raw: string): AnaliseEstruturada => {
   // tentar JSON primeiro
   try {
     const j = JSON.parse(raw);
-    if (j && typeof j === "object" && (j.resumo || j.analise_contratual || j.matriz_risco || j.estrategia_defesa || j.proximo_passo)) {
+    if (j && typeof j === "object" && (j.resumo || j.seus_direitos || j.estrategia_recomendada || j.pontos_atencao || j.analise_contratual || j.matriz_risco || j.estrategia_defesa || j.proximo_passo)) {
       return j as AnaliseEstruturada;
     }
   } catch { /* não é JSON */ }
@@ -339,6 +342,9 @@ const Analise = () => {
     );
   }
 
+  const hasDireitos = (data.seus_direitos?.length ?? 0) > 0;
+  const hasEstrategiaRec = (data.estrategia_recomendada?.length ?? 0) > 0;
+  const hasAtencao = (data.pontos_atencao?.length ?? 0) > 0;
   const hasContratual = (data.analise_contratual?.length ?? 0) > 0;
   const hasMatriz = (data.matriz_risco?.length ?? 0) > 0;
   const hasEstrategia = (data.estrategia_defesa?.length ?? 0) > 0;
@@ -471,6 +477,42 @@ const Analise = () => {
             <RichContent text={data.resumo || ""} />
           </div>
         </article>
+
+        {/* ============ BLOCO 02 — SEUS DIREITOS ============ */}
+        {hasDireitos && (
+          <section className="animate-fade-up" style={{ animationDelay: "160ms" }}>
+            <SectionLabel>02 · Seus Direitos</SectionLabel>
+            <div className="space-y-3">
+              {data.seus_direitos!.map((item, i) => (
+                <ContratualCard key={i} item={item} idx={i} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ============ BLOCO 03 — ESTRATÉGIA RECOMENDADA ============ */}
+        {hasEstrategiaRec && (
+          <section className="animate-fade-up" style={{ animationDelay: "200ms" }}>
+            <SectionLabel>03 · Estratégia Recomendada</SectionLabel>
+            <div className="space-y-3">
+              {data.estrategia_recomendada!.map((item, i) => (
+                <ContratualCard key={i} item={item} idx={i} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ============ BLOCO 04 — PONTOS DE ATENÇÃO ============ */}
+        {hasAtencao && (
+          <section className="animate-fade-up" style={{ animationDelay: "240ms" }}>
+            <SectionLabel>04 · Pontos de Atenção</SectionLabel>
+            <div className="space-y-3">
+              {data.pontos_atencao!.map((item, i) => (
+                <ContratualCard key={i} item={item} idx={i} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ============ ANÁLISE CONTRATUAL / LEGAL ============ */}
         {hasContratual && (
