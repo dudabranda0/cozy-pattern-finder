@@ -163,15 +163,50 @@ const RichContent = ({ text }: { text: string }) => {
 
   const blocks = text.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
 
-  const renderInline = (s: string) => {
-    const parts = s.split(/(\*\*[^*]+\*\*)/g);
-    return parts.map((p, i) =>
-      p.startsWith("**") && p.endsWith("**") ? (
-        <strong key={i} className="font-semibold text-primary">{p.slice(2, -2)}</strong>
-      ) : (
-        <span key={i}>{p}</span>
-      ),
-    );
+  const renderInline = (s: string): React.ReactNode[] => {
+    // 1) Negrito **texto**
+    const boldParts = s.split(/(\*\*[^*]+\*\*)/g);
+    const nodes: React.ReactNode[] = [];
+    boldParts.forEach((p, i) => {
+      if (p.startsWith("**") && p.endsWith("**")) {
+        nodes.push(
+          <strong key={`b-${i}`} className="font-semibold text-primary">
+            {p.slice(2, -2)}
+          </strong>,
+        );
+        return;
+      }
+      // 2) Links: markdown [texto](url) OU URLs cruas (http/https/www)
+      const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s)]+|www\.[^\s)]+)/g;
+      let last = 0;
+      let m: RegExpExecArray | null;
+      let k = 0;
+      while ((m = linkRegex.exec(p)) !== null) {
+        if (m.index > last) {
+          nodes.push(<span key={`t-${i}-${k}`}>{p.slice(last, m.index)}</span>);
+        }
+        const label = m[1] ?? m[3] ?? m[2];
+        const rawUrl = m[2] ?? m[3] ?? "";
+        const href = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
+        nodes.push(
+          <a
+            key={`a-${i}-${k}`}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline underline-offset-2 hover:text-primary/80 break-words font-medium"
+          >
+            {label}
+          </a>,
+        );
+        last = m.index + m[0].length;
+        k++;
+      }
+      if (last < p.length) {
+        nodes.push(<span key={`t-${i}-end`}>{p.slice(last)}</span>);
+      }
+    });
+    return nodes;
   };
 
   return (
