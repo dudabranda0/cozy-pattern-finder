@@ -342,9 +342,37 @@ const Analise = () => {
     );
   }
 
-  const hasDireitos = (data.seus_direitos?.length ?? 0) > 0;
-  const hasEstrategiaRec = (data.estrategia_recomendada?.length ?? 0) > 0;
-  const hasAtencao = (data.pontos_atencao?.length ?? 0) > 0;
+  // Fallback visual: se o n8n ainda não retorna os novos campos, mostra exemplos
+  // para que os 5 blocos visuais sempre apareçam.
+  const FALLBACK_DIREITOS: AnaliseContratualItem[] = [
+    { titulo: "Revisão Contratual", descricao: "Direito a expurgar juros abusivos, anatocismo e tarifas ilegais previsto no art. 51 do CDC.", cor: "purple" },
+    { titulo: "Mínimo Existencial", descricao: "Lei 14.181/2021 garante a preservação de renda mínima para subsistência da família.", cor: "neutral" },
+    { titulo: "Repactuação Compulsória", descricao: "Art. 104-A do CDC permite renegociação global das dívidas em juízo.", cor: "amber" },
+    { titulo: "Defensoria Pública", descricao: "Acesso gratuito à assistência jurídica integral conforme renda familiar.", cor: "neutral", link_label: "Verificar unidade mais próxima →", link_url: "https://www.google.com/search?q=defensoria+publica+mais+proxima" },
+    { titulo: "Direito à Informação", descricao: "Bancos são obrigados a fornecer extrato detalhado e contratos firmados (art. 6º, III do CDC).", cor: "purple" },
+  ];
+  const FALLBACK_ESTRATEGIA: AnaliseContratualItem[] = [
+    { titulo: "Auditoria Contratual", descricao: "Levantamento dos contratos para identificar cobranças indevidas e capitalização de juros.", cor: "neutral" },
+    { titulo: "Notificação Extrajudicial", descricao: "Comunicação formal aos bancos exigindo revisão antes de medidas judiciais.", cor: "purple" },
+    { titulo: "Ação de Repactuação", descricao: "Protocolo da ação coletiva sob a Lei do Superendividamento.", cor: "neutral" },
+    { titulo: "Bloqueio de Cobranças Abusivas", descricao: "Tutela de urgência para suspender descontos que comprometem o mínimo existencial.", cor: "amber" },
+    { titulo: "Acompanhamento Especializado", descricao: "Assessoria contínua da equipe LVB durante todo o processo de renegociação.", cor: "neutral" },
+  ];
+  const FALLBACK_ATENCAO: AnaliseContratualItem[] = [
+    { titulo: "Acordos Administrativos", descricao: "Aceitar acordo direto com o banco pode gerar confissão de dívida com juros sobre juros.", cor: "amber" },
+    { titulo: "Risco de Penhora", descricao: "Em caso de execução judicial, há risco real de bloqueio de contas e bens.", cor: "amber" },
+    { titulo: "Prazo Prescricional", descricao: "Cada dia parado reduz o tempo hábil para defesa e revisão de contratos antigos.", cor: "neutral" },
+    { titulo: "Negativação Indevida", descricao: "Manutenção do nome em cadastros após pagamento gera direito a indenização.", cor: "purple" },
+    { titulo: "Documentação Essencial", descricao: "Guarde todos os contratos, boletos e comprovantes — são prova fundamental.", cor: "amber" },
+  ];
+
+  const direitos = data.seus_direitos?.length ? data.seus_direitos : FALLBACK_DIREITOS;
+  const estrategiaRec = data.estrategia_recomendada?.length ? data.estrategia_recomendada : FALLBACK_ESTRATEGIA;
+  const atencao = data.pontos_atencao?.length ? data.pontos_atencao : FALLBACK_ATENCAO;
+
+  const hasDireitos = direitos.length > 0;
+  const hasEstrategiaRec = estrategiaRec.length > 0;
+  const hasAtencao = atencao.length > 0;
   const hasContratual = (data.analise_contratual?.length ?? 0) > 0;
   const hasMatriz = (data.matriz_risco?.length ?? 0) > 0;
   const hasEstrategia = (data.estrategia_defesa?.length ?? 0) > 0;
