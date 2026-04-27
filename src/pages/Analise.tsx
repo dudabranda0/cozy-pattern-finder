@@ -342,6 +342,9 @@ const Analise = () => {
     );
   }
 
+  const hasDireitos = (data.seus_direitos?.length ?? 0) > 0;
+  const hasEstrategiaRec = (data.estrategia_recomendada?.length ?? 0) > 0;
+  const hasAtencao = (data.pontos_atencao?.length ?? 0) > 0;
   const hasContratual = (data.analise_contratual?.length ?? 0) > 0;
   const hasMatriz = (data.matriz_risco?.length ?? 0) > 0;
   const hasEstrategia = (data.estrategia_defesa?.length ?? 0) > 0;
