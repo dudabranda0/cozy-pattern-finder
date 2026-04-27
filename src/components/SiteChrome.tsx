@@ -8,14 +8,12 @@ export const SiteHeader = () => (
       <Link to="/" aria-label="LVB Início">
         <LvbLogo size="md" />
       </Link>
-      <a
-        href={CAKTO_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        to="/formulario"
         className="btn-cta pill bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary-hover"
       >
         Fazer análise
-      </a>
+      </Link>
     </div>
   </header>
 );
