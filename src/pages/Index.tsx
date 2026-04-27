@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Lock, Shield, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Lock, Shield, ShieldCheck, Sparkles, MessageCircle } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
-import { CAKTO_LINK } from "@/lib/lvb-constants";
+import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
+import larissaFoto from "@/assets/larissa-brandao.jpg";
 
 const recognize = [
   "Minha dívida cresce todo mês mesmo pagando em dia...",
@@ -165,6 +166,70 @@ const Sales = () => {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      {/* QUEM EMBASA A ANÁLISE */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-5xl">
+          <div
+            className="relative lvb-card overflow-hidden animate-fade-up"
+            aria-labelledby="sobre-larissa"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-secondary/60 via-card to-card" />
+            <div className="relative grid md:grid-cols-[minmax(0,300px)_1fr] gap-6 md:gap-12 p-6 md:p-12 items-center">
+              {/* Foto */}
+              <div className="relative mx-auto md:mx-0 w-52 h-52 md:w-full md:h-80 max-w-[300px]">
+                <div className="absolute -inset-2 rounded-[28px] bg-gradient-to-br from-gold/40 via-gold/10 to-transparent blur-xl opacity-70" />
+                <div className="relative w-full h-full rounded-[24px] overflow-hidden ring-1 ring-gold/30 shadow-deep">
+                  <img
+                    src={larissaFoto}
+                    alt="Dra. Larissa De Vargas Brandão, advogada especialista em Direito Bancário"
+                    className="w-full h-full object-cover object-top"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="text-center md:text-left">
+                <span className="pill bg-gold/15 border border-gold/30 text-gold px-3 py-1 text-[10px] md:text-xs font-semibold inline-flex items-center gap-1.5 tracking-wider uppercase">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Quem embasa a análise
+                </span>
+                <h2
+                  id="sobre-larissa"
+                  className="font-serif-lvb mt-4 text-3xl md:text-5xl font-bold leading-tight text-foreground"
+                >
+                  Dra. Larissa De Vargas Brandão
+                </h2>
+                <p className="mt-2 text-sm md:text-base text-gold font-medium">
+                  Advogada · Direito Bancário e do Consumidor
+                </p>
+                <p className="mt-5 text-foreground/80 leading-relaxed text-base md:text-lg">
+                  Atuo na defesa de consumidores contra abusos de instituições financeiras,
+                  com foco na análise estratégica de contratos, juros e cobranças indevidas.
+                  Meu objetivo é te ajudar a entender exatamente o que você está pagando e
+                  identificar possíveis irregularidades, para que você tome decisões mais
+                  seguras e evite prejuízos.
+                </p>
+                <p className="mt-4 text-sm text-muted-foreground italic">
+                  Cada análise é construída com base no método e na experiência prática do
+                  escritório LVB no atendimento de centenas de casos de superendividamento.
+                </p>
+
+                <div className="mt-7 flex flex-wrap gap-3 justify-center md:justify-start">
+                  <a
+                    href={WHATSAPP_LINK}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pill bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 text-sm font-semibold inline-flex items-center gap-2 transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" /> Falar com o escritório
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
