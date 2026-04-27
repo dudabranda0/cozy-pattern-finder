@@ -465,105 +465,55 @@ const Analise = () => {
 
         {/* ============ LINHA DO TEMPO DE URGÊNCIA ============ */}
         <section
-          className="animate-fade-up"
+          className="animate-fade-up pt-2"
           style={{ animationDelay: `${120 + SECTIONS.length * 80}ms` }}
           aria-labelledby="urgencia-title"
         >
-          <p className="text-center text-muted-foreground font-semibold tracking-[0.25em] text-[11px] md:text-xs uppercase mb-5">
+          <h2
+            id="urgencia-title"
+            className="text-muted-foreground font-semibold tracking-[0.25em] text-[11px] md:text-xs uppercase mb-4 px-1"
+          >
             Linha do Tempo de Urgência
-          </p>
+          </h2>
 
-          <div className="lvb-card overflow-hidden">
-            {/* Header com nível geral */}
-            <div className="relative bg-gradient-to-r from-[#1A1005] via-primary to-[#4A0D17] text-primary-foreground px-6 py-5 md:px-8 md:py-6 overflow-hidden">
-              <div className="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-gold/15 blur-2xl" />
-              <div className="relative flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-primary-foreground/10 border border-primary-foreground/15 flex items-center justify-center shrink-0 backdrop-blur-sm">
-                    <Clock className="w-5 h-5 md:w-6 md:h-6 text-gold-light" />
+          <div className="lvb-card overflow-hidden bg-card divide-y divide-border">
+            {urgencyTimeline.map((item, i) => {
+              const dotColor =
+                item.level === "alta"
+                  ? "bg-rose-500"
+                  : item.level === "media"
+                  ? "bg-gold"
+                  : "bg-emerald-500";
+              const labelColor =
+                item.level === "alta"
+                  ? "text-rose-600"
+                  : item.level === "media"
+                  ? "text-gold"
+                  : "text-emerald-600";
+              const labelText =
+                item.level === "alta" ? "ALTA" : item.level === "media" ? "MÉDIA" : "BAIXA";
+
+              return (
+                <div key={i} className="flex items-start justify-between gap-4 p-5 md:p-6">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-serif-lvb font-bold text-base md:text-lg text-foreground leading-tight">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] md:text-xs font-semibold tracking-[0.25em] uppercase text-gold-light/80">
-                      Diagnóstico de tempo
-                    </p>
-                    <h2 id="urgencia-title" className="font-serif-lvb text-xl md:text-3xl font-bold leading-tight">
-                      Janela de ação
-                    </h2>
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <div className="flex gap-1.5">
+                      <span className={`w-2.5 h-2.5 rounded-full ${dotColor}`} />
+                      <span className={`w-2.5 h-2.5 rounded-full ${item.level !== "baixa" ? dotColor : "bg-border"}`} />
+                      <span className={`w-2.5 h-2.5 rounded-full ${item.level === "alta" ? dotColor : "bg-border"}`} />
+                    </div>
+                    <span className={`text-[10px] md:text-xs font-bold tracking-wider ${labelColor}`}>
+                      {labelText}
+                    </span>
                   </div>
                 </div>
-                <span
-                  className={`pill px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 shrink-0 ${
-                    overallUrgency === "alta"
-                      ? "bg-rose-500/20 border border-rose-300/40 text-rose-100"
-                      : overallUrgency === "media"
-                      ? "bg-gold/25 border border-gold/40 text-gold-light"
-                      : "bg-emerald-500/20 border border-emerald-300/40 text-emerald-100"
-                  }`}
-                >
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      overallUrgency === "alta"
-                        ? "bg-rose-300 animate-pulse-dot"
-                        : overallUrgency === "media"
-                        ? "bg-gold-light"
-                        : "bg-emerald-300"
-                    }`}
-                  />
-                  Urgência {overallUrgency === "alta" ? "Alta" : overallUrgency === "media" ? "Média" : "Baixa"}
-                </span>
-              </div>
-            </div>
-
-            {/* Lista — estilo idêntico ao bloco "Matriz de Risco" */}
-            <div className="bg-card divide-y divide-border">
-              {urgencyTimeline.map((item, i) => {
-                const I = item.icon;
-                const dotColor =
-                  item.level === "alta"
-                    ? "bg-rose-500"
-                    : item.level === "media"
-                    ? "bg-gold"
-                    : "bg-emerald-500";
-                const labelColor =
-                  item.level === "alta"
-                    ? "text-rose-600"
-                    : item.level === "media"
-                    ? "text-gold"
-                    : "text-emerald-600";
-                const labelText =
-                  item.level === "alta" ? "ALTA" : item.level === "media" ? "MÉDIA" : "BAIXA";
-
-                return (
-                  <div
-                    key={i}
-                    className="flex items-start gap-4 p-5 md:p-6"
-                  >
-                    <div className="w-11 h-11 rounded-xl bg-secondary/70 text-primary flex items-center justify-center shrink-0">
-                      <I className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-serif-lvb font-bold text-base md:text-lg text-foreground leading-tight">
-                        {item.title}
-                      </h3>
-                      <p className="mt-1 text-xs md:text-sm text-muted-foreground italic">
-                        “{item.answer}”
-                      </p>
-                      <p className="mt-1.5 text-sm text-foreground/80">{item.desc}</p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1 shrink-0">
-                      <div className="flex gap-1">
-                        <span className={`w-2 h-2 rounded-full ${dotColor}`} />
-                        <span className={`w-2 h-2 rounded-full ${item.level !== "baixa" ? dotColor : "bg-border"}`} />
-                        <span className={`w-2 h-2 rounded-full ${item.level === "alta" ? dotColor : "bg-border"}`} />
-                      </div>
-                      <span className={`text-[10px] md:text-xs font-bold tracking-wider ${labelColor}`}>
-                        {labelText}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+              );
+            })}
           </div>
         </section>
 
