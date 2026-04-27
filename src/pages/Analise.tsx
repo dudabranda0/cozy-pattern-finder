@@ -546,24 +546,6 @@ const Analise = () => {
           </div>
         </div>
 
-        {/* Nova Análise (modo teste — libera o formulário sem pagar) */}
-        <div className="text-center pt-4">
-          <button
-            type="button"
-            onClick={() => {
-              localStorage.removeItem("lvb_usado");
-              localStorage.removeItem("lvb_analise");
-              window.location.href = "/formulario";
-            }}
-            className="pill border-2 border-primary/30 bg-card hover:bg-primary/5 text-primary px-6 py-3 font-semibold inline-flex items-center gap-2 transition-colors"
-          >
-            Fazer Nova Análise <ArrowRight className="w-4 h-4" />
-          </button>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Modo teste — libera o formulário sem pagar
-          </p>
-        </div>
-
         {/* LGPD notice */}
         <div className="bg-secondary/60 border border-border rounded-2xl p-5 text-xs md:text-sm text-muted-foreground text-center max-w-2xl mx-auto">
           <ShieldCheck className="w-4 h-4 inline mr-1.5 -mt-0.5" />
