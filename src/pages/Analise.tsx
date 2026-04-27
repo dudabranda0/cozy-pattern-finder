@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { SiteFooter } from "@/components/SiteChrome";
-import { COURSE_LINK, WHATSAPP_LINK, CAKTO_LINK } from "@/lib/lvb-constants";
+import { WHATSAPP_LINK } from "@/lib/lvb-constants";
 
 
 /* ------------------------------------------------------------------ */
@@ -238,7 +238,7 @@ const Analise = () => {
 
   const parts = useMemo(() => splitAnalise(raw), [raw]);
   const firstName = nome.split(" ")[0] || "";
-  const isLowDebt = /Até R\$ 5\.000|R\$ 5\.000 a R\$ 15\.000|R\$ 15\.000 a R\$ 30\.000/.test(total);
+  
 
   // Matriz de Risco Patrimonial — uma linha por tipo de dívida marcado pelo cliente
   const riscoPatrimonial = useMemo(() => {
