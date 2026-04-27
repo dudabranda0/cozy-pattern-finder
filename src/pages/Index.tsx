@@ -244,31 +244,39 @@ const Sales = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-gold-light animate-pulse-dot" />
               <span className="font-semibold text-sm">Análise sendo gerada...</span>
             </div>
-            <div className="p-6 md:p-8 space-y-5">
-              <div>
-                <div className="flex justify-between text-sm font-semibold mb-2">
-                  <span>Potencial de redução</span>
-                  <span className="text-primary">72%</span>
+            <div className="p-6 md:p-8 space-y-4">
+              {[
+                { n: "01", t: "Resumo da Situação" },
+                { n: "02", t: "Seus Direitos" },
+                { n: "03", t: "Estratégia Recomendada" },
+                { n: "04", t: "Pontos de Atenção" },
+                { n: "05", t: "Próximo Passo" },
+              ].map((item, idx) => (
+                <div key={item.n} className="flex items-start gap-3">
+                  <span className="font-serif-lvb text-sm font-bold text-primary shrink-0 mt-0.5">
+                    {item.n}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm md:text-base">{item.t}</p>
+                    <div
+                      className="mt-2 space-y-1.5 select-none"
+                      style={{ filter: idx === 0 ? "blur(3px)" : "blur(5px)" }}
+                    >
+                      <div className="h-2 bg-secondary rounded w-full" />
+                      <div className="h-2 bg-secondary rounded w-10/12" />
+                    </div>
+                  </div>
                 </div>
-                <div className="h-3 rounded-full bg-secondary overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: "72%", background: "var(--gradient-progress)" }} />
-                </div>
-              </div>
-              <div className="space-y-2.5 select-none" style={{ filter: "blur(5px)" }}>
-                <div className="h-3 bg-secondary rounded w-full" />
-                <div className="h-3 bg-secondary rounded w-11/12" />
-                <div className="h-3 bg-secondary rounded w-10/12" />
-                <div className="h-3 bg-secondary rounded w-9/12" />
-              </div>
-              <div className="pt-2 flex flex-col items-center gap-3">
-                <p className="text-sm text-muted-foreground inline-flex items-center gap-2">
-                  <Lock className="w-4 h-4" /> Liberar resultado completo
+              ))}
+              <div className="pt-3 flex flex-col items-center gap-3 border-t border-border mt-2">
+                <p className="text-sm text-muted-foreground inline-flex items-center gap-2 mt-3">
+                  <Lock className="w-4 h-4" /> Liberar análise completa
                 </p>
                 <a
                   href={CAKTO_LINK}
                   className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-6 py-3 font-semibold inline-flex items-center gap-2"
                 >
-                  Ver minha análise agora <ArrowRight className="w-4 h-4" />
+                  Quero entender minha situação <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
             </div>
