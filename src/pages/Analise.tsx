@@ -511,7 +511,7 @@ const Analise = () => {
           <section className="animate-fade-up" style={{ animationDelay: "160ms" }}>
             <SectionLabel>02 · Seus Direitos</SectionLabel>
             <div className="space-y-3">
-              {data.seus_direitos!.map((item, i) => (
+              {direitos.map((item, i) => (
                 <ContratualCard key={i} item={item} idx={i} />
               ))}
             </div>
@@ -523,7 +523,7 @@ const Analise = () => {
           <section className="animate-fade-up" style={{ animationDelay: "200ms" }}>
             <SectionLabel>03 · Estratégia Recomendada</SectionLabel>
             <div className="space-y-3">
-              {data.estrategia_recomendada!.map((item, i) => (
+              {estrategiaRec.map((item, i) => (
                 <ContratualCard key={i} item={item} idx={i} />
               ))}
             </div>
@@ -535,7 +535,7 @@ const Analise = () => {
           <section className="animate-fade-up" style={{ animationDelay: "240ms" }}>
             <SectionLabel>04 · Pontos de Atenção</SectionLabel>
             <div className="space-y-3">
-              {data.pontos_atencao!.map((item, i) => (
+              {atencao.map((item, i) => (
                 <ContratualCard key={i} item={item} idx={i} />
               ))}
             </div>
