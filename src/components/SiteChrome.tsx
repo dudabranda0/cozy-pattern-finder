@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { LvbLogo } from "./LvbLogo";
+import { CAKTO_LINK } from "@/lib/lvb-constants";
 
 export const SiteHeader = () => (
   <header className="sticky top-0 z-50 glass-header border-b border-border/60">
@@ -7,12 +8,14 @@ export const SiteHeader = () => (
       <Link to="/" aria-label="LVB Início">
         <LvbLogo size="md" />
       </Link>
-      <Link
-        to="/formulario"
+      <a
+        href={CAKTO_LINK}
+        target="_blank"
+        rel="noopener noreferrer"
         className="btn-cta pill bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary-hover"
       >
         Fazer análise
-      </Link>
+      </a>
     </div>
   </header>
 );
