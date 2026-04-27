@@ -37,6 +37,9 @@ type EstrategiaPasso = {
 
 type AnaliseEstruturada = {
   resumo?: string;            // bloco 01
+  seus_direitos?: AnaliseContratualItem[];      // bloco 02
+  estrategia_recomendada?: AnaliseContratualItem[]; // bloco 03
+  pontos_atencao?: AnaliseContratualItem[];     // bloco 04
   analise_contratual?: AnaliseContratualItem[];
   matriz_risco?: MatrizRiscoItem[];
   estrategia_defesa?: EstrategiaPasso[];
