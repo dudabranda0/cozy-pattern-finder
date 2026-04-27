@@ -222,7 +222,7 @@ const Analise = () => {
     let r = localStorage.getItem("lvb_analise") || "";
     const e = localStorage.getItem("lvb_email") || "";
     const n = localStorage.getItem("lvb_nome") || "";
-    const t = localStorage.getItem("lvb_total_dividas") || "";
+    
     const tipos = (localStorage.getItem("lvb_tipo_divida") || "")
       .split("|")
       .map((s) => s.trim())
