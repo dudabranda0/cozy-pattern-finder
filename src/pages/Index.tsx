@@ -179,13 +179,13 @@ const Sales = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-secondary/60 via-card to-card" />
             <div className="relative grid md:grid-cols-[minmax(0,320px)_1fr] gap-8 md:gap-12 p-6 md:p-12 items-center">
               {/* Foto */}
-              <div className="relative mx-auto md:mx-0 w-64 md:w-full max-w-[320px] aspect-[3/4]">
+              <div className="relative mx-auto md:mx-0 w-64 md:w-full max-w-[340px] aspect-[4/5]">
                 <div className="absolute -inset-2 rounded-[28px] bg-gradient-to-br from-gold/40 via-gold/10 to-transparent blur-xl opacity-70" />
                 <div className="relative w-full h-full rounded-[24px] overflow-hidden ring-1 ring-gold/30 shadow-deep bg-secondary">
                   <img
                     src={larissaFoto}
                     alt="Dra. Larissa De Vargas Brandão, advogada especialista em Direito Bancário"
-                    className="w-full h-full object-cover object-[50%_20%]"
+                    className="w-full h-full object-cover object-[58%_38%] scale-[1.35] origin-[58%_38%]"
                     loading="lazy"
                   />
                 </div>
