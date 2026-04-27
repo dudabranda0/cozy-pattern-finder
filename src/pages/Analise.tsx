@@ -460,21 +460,21 @@ const Analise = () => {
           </div>
         )}
 
-        {/* Nova Análise */}
+        {/* Nova Análise (modo teste — libera o formulário sem pagar) */}
         <div className="text-center pt-4">
           <button
             type="button"
             onClick={() => {
               localStorage.removeItem("lvb_usado");
               localStorage.removeItem("lvb_analise");
-              window.location.href = CAKTO_LINK;
+              window.location.href = "/formulario";
             }}
             className="pill border-2 border-primary/30 bg-card hover:bg-primary/5 text-primary px-6 py-3 font-semibold inline-flex items-center gap-2 transition-colors"
           >
             Fazer Nova Análise <ArrowRight className="w-4 h-4" />
           </button>
           <p className="mt-2 text-xs text-muted-foreground">
-            Nova análise por R$ 29,90
+            Modo teste — libera o formulário sem pagar
           </p>
         </div>
 
