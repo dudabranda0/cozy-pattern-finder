@@ -185,7 +185,7 @@ const Sales = () => {
                   <img
                     src={larissaFoto}
                     alt="Dra. Larissa De Vargas Brandão, advogada especialista em Direito Bancário"
-                    className="w-full h-full object-cover object-[58%_38%] scale-[1.35] origin-[58%_38%]"
+                    className="w-full h-full object-cover object-[58%_75%] scale-[1.35] origin-[58%_55%]"
                     loading="lazy"
                   />
                 </div>
