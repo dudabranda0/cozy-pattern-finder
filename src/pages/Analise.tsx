@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   Mail, ArrowRight, MessageCircle, FileText, Scale, Target,
   AlertTriangle, Compass, ShieldCheck, Sparkles, CheckCircle2, Quote,
-  Clock, Gavel, Handshake, Hourglass,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { SiteFooter } from "@/components/SiteChrome";
