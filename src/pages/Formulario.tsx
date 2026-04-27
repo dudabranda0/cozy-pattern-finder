@@ -153,6 +153,9 @@ const Formulario = () => {
       localStorage.setItem("lvb_nome", data.nome);
       localStorage.setItem("lvb_email", data.email);
       localStorage.setItem("lvb_total_dividas", data.total_dividas);
+      localStorage.setItem("lvb_tempo_divida", data.tempo_divida);
+      localStorage.setItem("lvb_cobranca_judicial", data.cobranca_judicial);
+      localStorage.setItem("lvb_ja_negociou", data.ja_negociou);
 
       // Timeout de 90s — Claude + envio de e-mail pelo n8n pode demorar
       const controller = new AbortController();
