@@ -5,7 +5,7 @@ import {
   AlertCircle, Shield, Loader2,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, CAKTO_LINK } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 
 type FormState = {
@@ -83,6 +83,18 @@ const Formulario = () => {
   const [data, setData] = useState<FormState>(empty);
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Analisando sua situação...");
+
+  // Bloqueio: cliente já utilizou sua análise — redireciona para checkout
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("lvb_usado") === "true") {
+      toast({
+        title: "Você já utilizou sua análise",
+        description: "Para uma nova análise, adquira novamente por R$ 29,90.",
+        variant: "destructive",
+      });
+      window.location.href = CAKTO_LINK;
+    }
+  }, []);
 
   // Mensagens progressivas enquanto aguardamos a resposta do n8n (Claude pode demorar 15-30s)
   useEffect(() => {
@@ -213,6 +225,7 @@ const Formulario = () => {
       }
 
       localStorage.setItem("lvb_analise", analise || "");
+      localStorage.setItem("lvb_usado", "true");
       nav("/analise");
     } catch (err: any) {
       // Log detalhado pra diagnóstico
