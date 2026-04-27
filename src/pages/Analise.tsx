@@ -269,19 +269,16 @@ const Analise = () => {
 
     return [
       {
-        icon: Hourglass,
         title: "Tempo de atraso",
         answer: tempoDivida || "Não informado",
         ...(tempoMap[tempoDivida] || fallback),
       },
       {
-        icon: Gavel,
         title: "Cobrança judicial",
         answer: cobrancaJudicial || "Não informado",
         ...(cobMap[cobrancaJudicial] || fallback),
       },
       {
-        icon: Handshake,
         title: "Histórico de negociação",
         answer: jaNegociou || "Não informado",
         ...(negMap[jaNegociou] || fallback),
