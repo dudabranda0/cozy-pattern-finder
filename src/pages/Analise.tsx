@@ -293,6 +293,11 @@ const Analise = () => {
     }));
   }, [tiposDivida]);
 
+  const elegivelCurso = useMemo(() => {
+    const faixasAte35k = ["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 30.000"];
+    return faixasAte35k.includes(totalDividas);
+  }, [totalDividas]);
+
 
   if (missing) {
     return (
