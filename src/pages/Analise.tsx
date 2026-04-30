@@ -526,23 +526,16 @@ const Analise = () => {
           <div className="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-primary/40 blur-3xl" />
           <div className="relative">
             <span className="pill bg-gold/25 border border-gold/40 text-gold-light px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-2">
-              <ShieldCheck className="w-3.5 h-3.5" /> Atendimento personalizado
+              <ShieldCheck className="w-3.5 h-3.5" /> Próximo passo recomendado
             </span>
             <h3 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight max-w-2xl mx-auto">
               Seu caso merece <span className="text-gradient-gold">atenção especializada</span>
             </h3>
             <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto text-base md:text-lg">
-              Nossa equipe está pronta para conduzir seu processo com a estratégia certa para a
+              Recomendamos que você procure um advogado especialista em Direito Bancário e do
+              Consumidor de sua confiança para conduzir seu caso com a estratégia certa para a
               sua situação específica.
             </p>
-            <a
-              href={WHATSAPP_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-cta mt-8 pill bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 font-bold inline-flex items-center gap-2 shadow-2xl"
-            >
-              <MessageCircle className="w-5 h-5" /> Falar com Nossa Equipe
-            </a>
           </div>
         </div>
 
