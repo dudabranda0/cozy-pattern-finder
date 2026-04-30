@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { SiteFooter } from "@/components/SiteChrome";
-import { WHATSAPP_LINK } from "@/lib/lvb-constants";
+import { WHATSAPP_LINK, COURSE_LINK } from "@/lib/lvb-constants";
 
 
 /* ------------------------------------------------------------------ */
@@ -249,7 +249,7 @@ const Analise = () => {
   const [raw, setRaw] = useState("");
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
-  
+  const [totalDividas, setTotalDividas] = useState("");
   const [tiposDivida, setTiposDivida] = useState<string[]>([]);
   const [missing, setMissing] = useState(false);
 
@@ -257,12 +257,13 @@ const Analise = () => {
     let r = localStorage.getItem("lvb_analise") || "";
     const e = localStorage.getItem("lvb_email") || "";
     const n = localStorage.getItem("lvb_nome") || "";
-    
+    const total = localStorage.getItem("lvb_total_dividas") || "";
+
     const tipos = (localStorage.getItem("lvb_tipo_divida") || "")
       .split("|")
       .map((s) => s.trim())
       .filter(Boolean);
-    setEmail(e); setNome(n); setTiposDivida(tipos);
+    setEmail(e); setNome(n); setTiposDivida(tipos); setTotalDividas(total);
 
     if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(r) && r.includes("}}")) r = "";
     if (!r && !e) { setMissing(true); return; }
