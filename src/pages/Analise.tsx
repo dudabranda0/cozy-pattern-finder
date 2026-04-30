@@ -521,6 +521,59 @@ const Analise = () => {
           </section>
         )}
 
+        {/* ============ CURSO MÉTODO DÍVIDA ZERO (até R$ 35 mil) ============ */}
+        {elegivelCurso && (
+          <div
+            className="lvb-card overflow-hidden border-2 border-gold/40 bg-gradient-to-br from-card via-card to-secondary/30 animate-fade-up"
+            style={{ animationDelay: "560ms" }}
+          >
+            <div className="bg-gradient-to-r from-gold via-gold-light to-gold text-[#1A1005] px-6 py-2.5 text-center">
+              <span className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase">
+                Recomendação especial para o seu perfil
+              </span>
+            </div>
+            <div className="p-6 md:p-10 text-center">
+              <span className="pill bg-primary/10 border border-primary/20 text-primary px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" /> Método Dívida Zero
+              </span>
+              <h3 className="font-serif-lvb mt-5 text-2xl md:text-4xl font-bold leading-tight max-w-2xl mx-auto text-foreground">
+                Você pode <span className="text-gradient-burgundy">negociar sozinho</span> e sair das dívidas com método
+              </h3>
+              <p className="mt-4 text-foreground/75 max-w-xl mx-auto text-base md:text-lg leading-relaxed">
+                Pelo seu perfil, sua dívida ainda está em uma faixa em que é totalmente possível
+                negociar diretamente com os credores — sem precisar de processo judicial. O{" "}
+                <strong className="text-primary">Método Dívida Zero</strong> é o curso da Dra.
+                Larissa Brandão que ensina, passo a passo, como conduzir essa negociação com
+                segurança jurídica e conseguir os melhores descontos.
+              </p>
+              <ul className="mt-6 space-y-2.5 text-left max-w-md mx-auto">
+                {[
+                  "Como abordar o banco e o que dizer (e o que NÃO dizer)",
+                  "Modelos de proposta e scripts de negociação",
+                  "Seus direitos na Lei do Superendividamento",
+                  "Quando aceitar e quando recusar uma proposta",
+                ].map((b) => (
+                  <li key={b} className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0 text-gold" />
+                    <span className="text-sm md:text-base text-foreground/85">{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={COURSE_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 text-base font-semibold inline-flex items-center justify-center gap-2"
+              >
+                Conhecer o Método Dívida Zero <ArrowRight className="w-5 h-5" />
+              </a>
+              <p className="mt-4 text-xs text-muted-foreground">
+                Curso 100% online · acesso imediato
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* ============ CTA ============ */}
 
         <div
