@@ -199,12 +199,18 @@ const Formulario = () => {
 
           try {
             const j: any = JSON.parse(text);
-            if (valid(j?.analise)) analise = j.analise;
-            if (!analise && valid(j?.content?.[0]?.text)) analise = j.content[0].text;
-            if (!analise && Array.isArray(j) && valid(j[0]?.content?.[0]?.text)) analise = j[0].content[0].text;
-            if (!analise && Array.isArray(j) && valid(j[0]?.analise)) analise = j[0].analise;
-            if (!analise && valid(j?.output)) analise = j.output;
-            if (!analise && valid(j?.text)) analise = j.text;
+            const collectText = (value: any): string[] => {
+              if (valid(value) && value.trim().length > 20) return [value.trim()];
+              if (Array.isArray(value)) return value.flatMap(collectText);
+              if (!value || typeof value !== "object") return [];
+
+              const preferred = ["analise", "analysis", "resposta", "output", "text", "message", "content", "data"];
+              const keys = [...preferred, ...Object.keys(value).filter((key) => !preferred.includes(key))];
+              return keys.flatMap((key) => collectText(value[key]));
+            };
+
+            const candidates = Array.from(new Set(collectText(j)));
+            analise = candidates.join("\n\n");
           } catch {
             if (valid(text)) analise = text;
           }
