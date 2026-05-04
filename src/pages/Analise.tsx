@@ -66,15 +66,15 @@ const getNumberedSectionMatch = (line: string) => {
   // Remove asteriscos de markdown e aspas decorativas antes de testar
   const trimmed = line.trim().replace(/^\*+|\*+$/g, "").replace(/^["“”'‘’`´]+|["“”'‘’`´]+$/g, "").trim();
 
-  // Tenta arábico: "1.", "01)", "## 2", "BLOCO 3" etc. (texto opcional depois)
-  const arabic = trimmed.match(
-    /^(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-6])(?:\s*[.)\-:])?\s*(.*?)\s*$/i,
+  // Tenta romano PRIMEIRO (mais específico) — aceita "IV. ESTRATÉGIA", "## III", etc.
+  const roman = trimmed.match(
+    /^(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?(VI|IV|V|III|II|I)(?:\s*[.)\-:])\s*(.*?)\s*$/,
   );
 
-  // Tenta romano: "I.", "II)", "## III", "VI" sozinho ou com texto
-  const roman = !arabic
+  // Tenta arábico: "1.", "01)", "## 2", "BLOCO 3" etc. (texto opcional depois)
+  const arabic = !roman
     ? trimmed.match(
-        /^(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?(I{1,3}|IV|V|VI)(?:\s*[.)\-:])?\s*(.*?)\s*$/,
+        /^(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-6])(?:\s*[.)\-:])?\s*(.*?)\s*$/i,
       )
     : null;
 
