@@ -268,6 +268,8 @@ const RichContent = ({ text }: { text: string }) => {
 /*  PAGE                                                               */
 /* ------------------------------------------------------------------ */
 
+type AnaliseStatus = "pending" | "ready" | "email_only" | "idle";
+
 const Analise = () => {
   const [raw, setRaw] = useState("");
   const [email, setEmail] = useState("");
@@ -275,28 +277,56 @@ const Analise = () => {
   const [totalDividas, setTotalDividas] = useState("");
   const [tiposDivida, setTiposDivida] = useState<string[]>([]);
   const [missing, setMissing] = useState(false);
+  const [status, setStatus] = useState<AnaliseStatus>("idle");
 
   useEffect(() => {
-    let r = localStorage.getItem("lvb_analise") || "";
-    const e = localStorage.getItem("lvb_email") || "";
-    const n = localStorage.getItem("lvb_nome") || "";
-    const total = localStorage.getItem("lvb_total_dividas") || "";
+    const load = () => {
+      let r = localStorage.getItem("lvb_analise") || "";
+      const e = localStorage.getItem("lvb_email") || "";
+      const n = localStorage.getItem("lvb_nome") || "";
+      const total = localStorage.getItem("lvb_total_dividas") || "";
+      const st = (localStorage.getItem("lvb_analise_status") || "idle") as AnaliseStatus;
 
-    const tipos = (localStorage.getItem("lvb_tipo_divida") || "")
-      .split("|")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    setEmail(e); setNome(n); setTiposDivida(tipos); setTotalDividas(total);
+      const tipos = (localStorage.getItem("lvb_tipo_divida") || "")
+        .split("|")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      setEmail(e); setNome(n); setTiposDivida(tipos); setTotalDividas(total);
 
-    if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(r) && r.includes("}}")) r = "";
-    if (!r && !e) { setMissing(true); return; }
-    setRaw(r);
+      if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(r) && r.includes("}}")) r = "";
 
+      if (!r && !e && st !== "pending") { setMissing(true); return; }
+      setMissing(false);
+      setRaw(r);
+      setStatus(st);
+    };
+
+    load();
     window.scrollTo({ top: 0 });
+
+    const onUpdate = () => load();
+    const onStorage = (ev: StorageEvent) => {
+      if (!ev.key || ev.key.startsWith("lvb_")) load();
+    };
+    window.addEventListener("lvb:analise-updated", onUpdate);
+    window.addEventListener("storage", onStorage);
+
+    const interval = setInterval(() => {
+      const st = localStorage.getItem("lvb_analise_status");
+      const r = localStorage.getItem("lvb_analise") || "";
+      if ((st && st !== "pending") || r) load();
+    }, 1500);
+
+    return () => {
+      window.removeEventListener("lvb:analise-updated", onUpdate);
+      window.removeEventListener("storage", onStorage);
+      clearInterval(interval);
+    };
   }, []);
 
   const parts = useMemo(() => splitAnalise(raw), [raw]);
   const firstName = nome.split(" ")[0] || "";
+  const isPending = status === "pending" && !raw;
   
 
   // Matriz de Risco Patrimonial — uma linha por tipo de dívida marcado pelo cliente
