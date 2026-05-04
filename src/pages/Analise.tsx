@@ -174,10 +174,10 @@ const buildRiskFallback = (nome: string, totalDividas: string, tiposDivida: stri
   const firstName = nome.split(" ")[0] || "Sua situação";
   const tipos = tiposDivida.length > 0 ? tiposDivida.join(", ") : "as dívidas informadas";
   const total = totalDividas || "o valor informado";
-  const tempo = tempoDivida ? `, com atraso de ${tempo.toLowerCase()}` : "";
+  const tempoInfo = tempoDivida ? `, com atraso de ${tempoDivida.toLowerCase()}` : "";
   const judicial = cobrancaJudicial === "sim" ? " Como já existe cobrança judicial, o risco exige atenção imediata." : "";
 
-  return `${firstName}, considerando ${tipos}, no total de ${total}${tempo}, há risco de aumento rápido do saldo por juros, negativação e intensificação das cobranças.${judicial} O ponto mais importante agora é evitar novas renegociações sem revisar antes as condições, encargos e possibilidades de defesa ou redução.`;
+  return `${firstName}, considerando ${tipos}, no total de ${total}${tempoInfo}, há risco de aumento rápido do saldo por juros, negativação e intensificação das cobranças.${judicial} O ponto mais importante agora é evitar novas renegociações sem revisar antes as condições, encargos e possibilidades de defesa ou redução.`;
 };
 
 /* ------------------------------------------------------------------ */
