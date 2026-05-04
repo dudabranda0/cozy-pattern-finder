@@ -22,12 +22,22 @@ export const SiteHeader = () => (
 
 export const SiteFooter = () => (
   <footer className="bg-[#1A1005] text-primary-foreground/80">
-    <div className="container max-w-6xl py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div className="container max-w-6xl py-10 flex flex-col md:flex-row items-center justify-between gap-6">
       <LvbLogo size="md" className="brightness-110" />
-      <p className="text-xs md:text-sm text-primary-foreground/60 text-center md:text-right max-w-md">
-        © {new Date().getFullYear()} LVB — Larissa De Vargas Brandão.
-        Suas informações são tratadas com total confidencialidade.
-      </p>
+      <div className="flex flex-col items-center md:items-end gap-3">
+        <nav className="flex gap-6 text-xs md:text-sm">
+          <Link to="/termos" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+            Termos de Uso
+          </Link>
+          <Link to="/privacidade" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+            Política de Privacidade
+          </Link>
+        </nav>
+        <p className="text-xs md:text-sm text-primary-foreground/60 text-center md:text-right max-w-md">
+          © {new Date().getFullYear()} LVB — Larissa De Vargas Brandão.
+          Suas informações são tratadas com total confidencialidade.
+        </p>
+      </div>
     </div>
   </footer>
 );
