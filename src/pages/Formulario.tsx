@@ -5,7 +5,7 @@ import {
   AlertCircle, Shield, Loader2,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, CAKTO_LINK } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 
 type FormState = {
@@ -162,6 +162,10 @@ const Formulario = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 90000);
 
+      // Elegibilidade ao curso: dívidas até R$ 50.000
+      const faixasElegiveis = ["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 50.000"];
+      const elegivelCurso = faixasElegiveis.includes(data.total_dividas);
+
       const res = await fetch(N8N_WEBHOOK, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -171,6 +175,8 @@ const Formulario = () => {
           tipo_divida: data.tipo_divida.join(", "),
           bancos: data.bancos.join(", "),
           enviado_em: new Date().toISOString(),
+          elegivel_curso: elegivelCurso,
+          course_link: elegivelCurso ? COURSE_LINK : "",
         }),
       }).finally(() => clearTimeout(timeoutId));
 
