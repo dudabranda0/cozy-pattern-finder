@@ -8,7 +8,12 @@ export const SiteHeader = () => (
       <Link to="/" aria-label="LVB Início">
         <LvbLogo size="md" />
       </Link>
-      {/* Botão "Fazer análise" desativado temporariamente para testes */}
+      <Link
+        to="/formulario"
+        className="btn-cta pill bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary-hover"
+      >
+        Fazer análise
+      </Link>
     </div>
   </header>
 );
