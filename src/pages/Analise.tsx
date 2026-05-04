@@ -462,9 +462,31 @@ const Analise = () => {
                 Uma cópia também foi enviada para <strong className="text-emerald-900">{email}</strong>.
                 Verifique a caixa de entrada e a pasta de spam.
               </p>
+          </div>
+        )}
+
+        {/* Pending banner — análise ainda sendo gerada */}
+        {isPending && (
+          <div className="lvb-card border-2 border-gold/40 bg-gradient-to-br from-gold/5 to-card p-5 md:p-6 flex gap-4 items-center animate-fade-up">
+            <div className="w-12 h-12 rounded-2xl bg-gold/15 text-primary flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 animate-pulse" />
+            </div>
+            <div className="text-sm md:text-base flex-1">
+              <p className="font-semibold text-foreground">
+                {firstName ? `${firstName}, sua análise` : "Sua análise"} está sendo gerada agora.
+              </p>
+              <p className="mt-1 text-foreground/70">
+                Em poucos instantes os blocos abaixo serão preenchidos automaticamente — pode aguardar nesta tela.
+              </p>
+            </div>
+            <div className="flex gap-1.5 shrink-0">
+              <span className="w-2 h-2 rounded-full bg-primary dot-1" />
+              <span className="w-2 h-2 rounded-full bg-primary dot-2" />
+              <span className="w-2 h-2 rounded-full bg-primary dot-3" />
             </div>
           </div>
         )}
+
 
         {/* Quote / intro */}
         <div className="lvb-card p-6 md:p-8 bg-gradient-to-br from-card to-secondary/40 animate-fade-up" style={{ animationDelay: "60ms" }}>
