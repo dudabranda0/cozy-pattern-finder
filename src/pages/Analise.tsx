@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Mail, ArrowRight, MessageCircle, FileText, Scale, Target,
+  Mail, ArrowRight, MessageCircle, FileText, ShieldAlert, Scale, Target,
   AlertTriangle, Compass, ShieldCheck, Sparkles, CheckCircle2, Quote,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
@@ -14,11 +14,12 @@ import { WHATSAPP_LINK, COURSE_LINK } from "@/lib/lvb-constants";
 /* ------------------------------------------------------------------ */
 
 const SECTIONS = [
-  { n: "01", title: "Resumo da Situação",     icon: FileText,      key: "RESUMO DA SITUACAO",     keywords: ["RESUMO"] },
-  { n: "02", title: "Seus Direitos",          icon: Scale,         key: "SEUS DIREITOS",          keywords: ["DIREITOS"] },
-  { n: "03", title: "Estratégia Recomendada", icon: Target,        key: "ESTRATEGIA RECOMENDADA", keywords: ["ESTRATEGIA", "ESTRATÉGIA", "ESTRATEG"] },
-  { n: "04", title: "Pontos de Atenção",      icon: AlertTriangle, key: "PONTOS DE ATENCAO",      keywords: ["PONTOS", "ATENCAO", "ATENÇÃO"] },
-  { n: "05", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO",          keywords: ["PROXIMO", "PRÓXIMO", "PASSO"] },
+  { n: "01", title: "Resumo",                 icon: FileText,      key: "RESUMO",                 keywords: ["RESUMO"] },
+  { n: "02", title: "Risco",                  icon: ShieldAlert,   key: "RISCO",                  keywords: ["RISCO"] },
+  { n: "03", title: "Direitos (em tese)",     icon: Scale,         key: "DIREITOS",               keywords: ["DIREITOS", "TESE"] },
+  { n: "04", title: "Estratégia",             icon: Target,        key: "ESTRATEGIA",             keywords: ["ESTRATEGIA", "ESTRATÉGIA", "ESTRATEG"] },
+  { n: "05", title: "Atenção",                icon: AlertTriangle, key: "ATENCAO",                keywords: ["ATENCAO", "ATENÇÃO", "ATENC"] },
+  { n: "06", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO",          keywords: ["PROXIMO", "PRÓXIMO", "PASSO"] },
 ] as const;
 
 /** Remove acentos (NFD), normaliza espaços e converte para caixa alta. */
@@ -57,16 +58,34 @@ const cleanSectionBody = (value: string, idx: number) => {
 
 type SectionMatch = { idx: number; start: number; headerEnd: number };
 
+const ROMAN_TO_IDX: Record<string, number> = {
+  I: 0, II: 1, III: 2, IV: 3, V: 4, VI: 5,
+};
+
 const getNumberedSectionMatch = (line: string) => {
   const trimmed = line.trim();
-  const match = trimmed.match(
-    /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-5])(?:\s*[.)\-:])?\s*(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/i,
+
+  // Tenta arábico: "1.", "01)", "## 2", "BLOCO 3" etc.
+  const arabic = trimmed.match(
+    /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-6])(?:\s*[.)\-:])?\s+(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/i,
   );
 
+  // Tenta romano: "I.", "II)", "## III", "VI - Próximo Passo"
+  const roman = !arabic
+    ? trimmed.match(
+        /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?(I{1,3}|IV|V|VI)(?:\s*[.)\-:])?\s+(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/,
+      )
+    : null;
+
+  const match = arabic || roman;
   if (!match) return null;
 
   const prefix = match[1] || "";
-  const idx = Number(match[2]) - 1;
+  const idx = arabic
+    ? Number(match[2]) - 1
+    : ROMAN_TO_IDX[(match[2] || "").toUpperCase()];
+  if (idx === undefined || idx < 0 || idx >= SECTIONS.length) return null;
+
   const title = normalizeHeader(match[3] || "");
   const expected = SECTIONS[idx];
   const looksLikeTitle =
@@ -80,7 +99,7 @@ const getNumberedSectionMatch = (line: string) => {
 
 const getTitleSectionMatch = (line: string) => {
   const normalized = normalizeHeader(line)
-    .replace(/^(?:BLOCO\s+)?0?[1-5](?:\s*[.)\-:])?\s*/, "")
+    .replace(/^(?:BLOCO\s+)?(?:0?[1-6]|I{1,3}|IV|V|VI)(?:\s*[.)\-:])?\s*/, "")
     .trim();
 
   if (!normalized) return null;
@@ -93,7 +112,7 @@ const getTitleSectionMatch = (line: string) => {
 };
 
 const extractByMatches = (text: string, matches: SectionMatch[]) => {
-  const result = ["", "", "", "", ""];
+  const result = SECTIONS.map(() => "");
   const ordered = [...matches]
     .sort((a, b) => a.start - b.start)
     .filter((match, index, arr) => arr.findIndex((item) => item.idx === match.idx) === index);
@@ -129,7 +148,8 @@ const collectMatches = (
 
 /** Quebra o texto bruto em 5 seções. Tolera `##`, `**`, `1.`, `1)`, "BLOCO 1" etc. */
 const splitAnalise = (raw: string): string[] => {
-  if (!raw) return ["", "", "", "", ""];
+  const empty = SECTIONS.map(() => "");
+  if (!raw) return empty;
   const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\r/g, "").replace(/\uFEFF/g, "");
 
   const numbered = extractByMatches(text, collectMatches(text, getNumberedSectionMatch));
@@ -140,9 +160,9 @@ const splitAnalise = (raw: string): string[] => {
 
   // 3) Último recurso: divide por parágrafos
   const paras = text.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
-  if (paras.length <= 1) return [text, "", "", "", ""];
-  const chunkSize = Math.ceil(paras.length / 5);
-  return Array.from({ length: 5 }, (_, i) =>
+  if (paras.length <= 1) return [text, ...empty.slice(1)];
+  const chunkSize = Math.ceil(paras.length / SECTIONS.length);
+  return Array.from({ length: SECTIONS.length }, (_, i) =>
     paras.slice(i * chunkSize, (i + 1) * chunkSize).join("\n\n"),
   );
 };
