@@ -170,6 +170,16 @@ const splitAnalise = (raw: string): string[] => {
   );
 };
 
+const buildRiskFallback = (nome: string, totalDividas: string, tiposDivida: string[], tempoDivida: string, cobrancaJudicial: string) => {
+  const firstName = nome.split(" ")[0] || "Sua situação";
+  const tipos = tiposDivida.length > 0 ? tiposDivida.join(", ") : "as dívidas informadas";
+  const total = totalDividas || "o valor informado";
+  const tempoInfo = tempoDivida ? `, com atraso de ${tempoDivida.toLowerCase()}` : "";
+  const judicial = cobrancaJudicial === "sim" ? " Como já existe cobrança judicial, o risco exige atenção imediata." : "";
+
+  return `${firstName}, considerando ${tipos}, no total de ${total}${tempoInfo}, há risco de aumento rápido do saldo por juros, negativação e intensificação das cobranças.${judicial} O ponto mais importante agora é evitar novas renegociações sem revisar antes as condições, encargos e possibilidades de defesa ou redução.`;
+};
+
 /* ------------------------------------------------------------------ */
 /*  RICH CONTENT RENDERER                                              */
 /* ------------------------------------------------------------------ */
@@ -275,6 +285,8 @@ const Analise = () => {
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
   const [totalDividas, setTotalDividas] = useState("");
+  const [tempoDivida, setTempoDivida] = useState("");
+  const [cobrancaJudicial, setCobrancaJudicial] = useState("");
   const [tiposDivida, setTiposDivida] = useState<string[]>([]);
   const [missing, setMissing] = useState(false);
   const [status, setStatus] = useState<AnaliseStatus>("idle");
@@ -285,13 +297,15 @@ const Analise = () => {
       const e = localStorage.getItem("lvb_email") || "";
       const n = localStorage.getItem("lvb_nome") || "";
       const total = localStorage.getItem("lvb_total_dividas") || "";
+      const tempo = localStorage.getItem("lvb_tempo_divida") || "";
+      const judicial = localStorage.getItem("lvb_cobranca_judicial") || "";
       const st = (localStorage.getItem("lvb_analise_status") || "idle") as AnaliseStatus;
 
       const tipos = (localStorage.getItem("lvb_tipo_divida") || "")
         .split("|")
         .map((s) => s.trim())
         .filter(Boolean);
-      setEmail(e); setNome(n); setTiposDivida(tipos); setTotalDividas(total);
+      setEmail(e); setNome(n); setTiposDivida(tipos); setTotalDividas(total); setTempoDivida(tempo); setCobrancaJudicial(judicial);
 
       if (/\{\{\s*\$?\(?['"]?[\w$]+/.test(r) && r.includes("}}")) r = "";
 
@@ -324,7 +338,13 @@ const Analise = () => {
     };
   }, []);
 
-  const parts = useMemo(() => splitAnalise(raw), [raw]);
+  const parts = useMemo(() => {
+    const parsed = splitAnalise(raw);
+    if (!parsed[1]?.trim() && (raw || status !== "pending")) {
+      parsed[1] = buildRiskFallback(nome, totalDividas, tiposDivida, tempoDivida, cobrancaJudicial);
+    }
+    return parsed;
+  }, [raw, status, nome, totalDividas, tiposDivida, tempoDivida, cobrancaJudicial]);
   const firstName = nome.split(" ")[0] || "";
   const isPending = status === "pending" && !raw;
   
