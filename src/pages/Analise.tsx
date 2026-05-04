@@ -58,16 +58,34 @@ const cleanSectionBody = (value: string, idx: number) => {
 
 type SectionMatch = { idx: number; start: number; headerEnd: number };
 
+const ROMAN_TO_IDX: Record<string, number> = {
+  I: 0, II: 1, III: 2, IV: 3, V: 4, VI: 5,
+};
+
 const getNumberedSectionMatch = (line: string) => {
   const trimmed = line.trim();
-  const match = trimmed.match(
-    /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-5])(?:\s*[.)\-:])?\s*(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/i,
+
+  // Tenta arábico: "1.", "01)", "## 2", "BLOCO 3" etc.
+  const arabic = trimmed.match(
+    /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-6])(?:\s*[.)\-:])?\s+(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/i,
   );
 
+  // Tenta romano: "I.", "II)", "## III", "VI - Próximo Passo"
+  const roman = !arabic
+    ? trimmed.match(
+        /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?(I{1,3}|IV|V|VI)(?:\s*[.)\-:])?\s+(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/,
+      )
+    : null;
+
+  const match = arabic || roman;
   if (!match) return null;
 
   const prefix = match[1] || "";
-  const idx = Number(match[2]) - 1;
+  const idx = arabic
+    ? Number(match[2]) - 1
+    : ROMAN_TO_IDX[(match[2] || "").toUpperCase()];
+  if (idx === undefined || idx < 0 || idx >= SECTIONS.length) return null;
+
   const title = normalizeHeader(match[3] || "");
   const expected = SECTIONS[idx];
   const looksLikeTitle =
@@ -81,7 +99,7 @@ const getNumberedSectionMatch = (line: string) => {
 
 const getTitleSectionMatch = (line: string) => {
   const normalized = normalizeHeader(line)
-    .replace(/^(?:BLOCO\s+)?0?[1-5](?:\s*[.)\-:])?\s*/, "")
+    .replace(/^(?:BLOCO\s+)?(?:0?[1-6]|I{1,3}|IV|V|VI)(?:\s*[.)\-:])?\s*/, "")
     .trim();
 
   if (!normalized) return null;
