@@ -148,113 +148,81 @@ const Formulario = () => {
     e.preventDefault();
     const err = validateStep();
     if (err) { toast({ title: "Atenção", description: err, variant: "destructive" }); return; }
-    setLoading(true);
-    try {
-      localStorage.setItem("lvb_nome", data.nome);
-      localStorage.setItem("lvb_email", data.email);
-      localStorage.setItem("lvb_total_dividas", data.total_dividas);
-      localStorage.setItem("lvb_tempo_divida", data.tempo_divida);
-      localStorage.setItem("lvb_cobranca_judicial", data.cobranca_judicial);
-      localStorage.setItem("lvb_ja_negociou", data.ja_negociou);
-      localStorage.setItem("lvb_tipo_divida", data.tipo_divida.join("|"));
 
-      // Timeout de 90s — Claude + envio de e-mail pelo n8n pode demorar
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 90000);
+    // Persiste dados do cliente imediatamente
+    localStorage.setItem("lvb_nome", data.nome);
+    localStorage.setItem("lvb_email", data.email);
+    localStorage.setItem("lvb_total_dividas", data.total_dividas);
+    localStorage.setItem("lvb_tempo_divida", data.tempo_divida);
+    localStorage.setItem("lvb_cobranca_judicial", data.cobranca_judicial);
+    localStorage.setItem("lvb_ja_negociou", data.ja_negociou);
+    localStorage.setItem("lvb_tipo_divida", data.tipo_divida.join("|"));
+    // Marca análise como pendente (a tela /analise mostra skeleton enquanto isso)
+    localStorage.setItem("lvb_analise", "");
+    localStorage.setItem("lvb_analise_status", "pending");
+    localStorage.setItem("lvb_usado", "true");
 
-      // Elegibilidade ao curso: dívidas até R$ 50.000
-      const faixasElegiveis = ["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 50.000"];
-      const elegivelCurso = faixasElegiveis.includes(data.total_dividas);
+    // Elegibilidade ao curso: dívidas até R$ 50.000
+    const faixasElegiveis = ["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 50.000"];
+    const elegivelCurso = faixasElegiveis.includes(data.total_dividas);
 
-      const res = await fetch(N8N_WEBHOOK, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          ...data,
-          tipo_divida: data.tipo_divida.join(", "),
-          bancos: data.bancos.join(", "),
-          enviado_em: new Date().toISOString(),
-          elegivel_curso: elegivelCurso,
-          course_link: elegivelCurso ? COURSE_LINK : "",
-        }),
-      }).finally(() => clearTimeout(timeoutId));
+    const payload = {
+      ...data,
+      tipo_divida: data.tipo_divida.join(", "),
+      bancos: data.bancos.join(", "),
+      enviado_em: new Date().toISOString(),
+      elegivel_curso: elegivelCurso,
+      course_link: elegivelCurso ? COURSE_LINK : "",
+    };
 
-      let analise = "";
-      if (res.ok) {
-        const text = await res.text();
-        console.log("[n8n] raw response:", text.slice(0, 500));
+    // Dispara o fetch em background — não bloqueia a navegação
+    (async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000);
 
-        // Considera inválido: vazio ou expressão n8n não avaliada (ex.: "{{ ... }}")
-        const isExpr = (s: any) =>
-          typeof s === "string" && s.includes("{{");
-        const valid = (s: any) =>
-          typeof s === "string" && s.trim().length > 0 && !isExpr(s);
+        const res = await fetch(N8N_WEBHOOK, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify(payload),
+        }).finally(() => clearTimeout(timeoutId));
 
-        try {
-          const j: any = JSON.parse(text);
-          console.log("[n8n] parsed keys:", j && typeof j === "object" ? Object.keys(j) : typeof j);
+        let analise = "";
+        if (res.ok) {
+          const text = await res.text();
+          console.log("[n8n] raw response:", text.slice(0, 500));
 
-          // 1) j.analise (se não for expressão {{ }})
-          if (valid(j?.analise)) {
-            analise = j.analise;
+          const isExpr = (s: any) => typeof s === "string" && s.includes("{{");
+          const valid = (s: any) =>
+            typeof s === "string" && s.trim().length > 0 && !isExpr(s);
+
+          try {
+            const j: any = JSON.parse(text);
+            if (valid(j?.analise)) analise = j.analise;
+            if (!analise && valid(j?.content?.[0]?.text)) analise = j.content[0].text;
+            if (!analise && Array.isArray(j) && valid(j[0]?.content?.[0]?.text)) analise = j[0].content[0].text;
+            if (!analise && Array.isArray(j) && valid(j[0]?.analise)) analise = j[0].analise;
+            if (!analise && valid(j?.output)) analise = j.output;
+            if (!analise && valid(j?.text)) analise = j.text;
+          } catch {
+            if (valid(text)) analise = text;
           }
-          // Fallbacks exatos pedidos:
-          // 2) j.content?.[0]?.text
-          if (!analise && valid(j?.content?.[0]?.text)) {
-            analise = j.content[0].text;
-          }
-          // 3) j[0]?.content?.[0]?.text
-          if (!analise && Array.isArray(j) && valid(j[0]?.content?.[0]?.text)) {
-            analise = j[0].content[0].text;
-          }
-          // 3b) Se for array, tenta também j[0].analise
-          if (!analise && Array.isArray(j) && valid(j[0]?.analise)) {
-            analise = j[0].analise;
-          }
-          // 4) j.output
-          if (!analise && valid(j?.output)) {
-            analise = j.output;
-          }
-          // 5) j.text
-          if (!analise && valid(j?.text)) {
-            analise = j.text;
-          }
-        } catch {
-          if (valid(text)) analise = text;
         }
-        console.log("[n8n] analise length extraída:", analise.length);
 
-        if (!analise) {
-          toast({
-            title: "Análise sendo processada",
-            description:
-              "Houve um atraso na resposta automática. Sua análise chegará por e-mail em instantes.",
-          });
-        }
+        localStorage.setItem("lvb_analise", analise || "");
+        localStorage.setItem("lvb_analise_status", analise ? "ready" : "email_only");
+        // Notifica a tela /analise (mesma aba — storage event não dispara na própria aba)
+        window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
+      } catch (err: any) {
+        console.error("[n8n] fetch falhou:", err?.name, err?.message, err);
+        localStorage.setItem("lvb_analise_status", "email_only");
+        window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
       }
+    })();
 
-      localStorage.setItem("lvb_analise", analise || "");
-      localStorage.setItem("lvb_usado", "true");
-      nav("/analise");
-    } catch (err: any) {
-      // Log detalhado pra diagnóstico
-      console.error("[n8n] fetch falhou:", err?.name, err?.message, err);
-      const isAbort = err?.name === "AbortError";
-      const isNetwork = err?.message?.includes("Failed to fetch") || err?.message?.includes("NetworkError");
-      localStorage.setItem("lvb_analise", "");
-      toast({
-        title: "Análise enviada",
-        description: isAbort
-          ? "O processamento demorou mais que o esperado. Sua análise chegará por e-mail em instantes."
-          : isNetwork
-          ? "Não foi possível conectar ao servidor de análise (verifique CORS no n8n). Sua análise chegará por e-mail."
-          : "Sua análise está sendo gerada e chegará por e-mail em instantes.",
-      });
-      nav("/analise");
-    } finally {
-      setLoading(false);
-    }
+    // Navega imediatamente para a tela de análise (que mostra skeleton)
+    nav("/analise");
   };
 
   const Icon = stepIcons[step - 1];
