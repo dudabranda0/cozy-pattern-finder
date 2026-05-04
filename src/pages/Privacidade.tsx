@@ -5,7 +5,7 @@ const Privacidade = () => (
     <SiteHeader />
     <main className="flex-1 container max-w-3xl py-12 md:py-16">
       <h1 className="font-serif-lvb text-4xl md:text-5xl text-primary mb-2">Política de Privacidade</h1>
-      <p className="text-sm text-muted-foreground mb-10">Última atualização: maio de 2025</p>
+      <p className="text-sm text-muted-foreground mb-10">Última atualização: maio de 2026</p>
 
       <article className="space-y-8 text-foreground/90 leading-relaxed">
         <section>
