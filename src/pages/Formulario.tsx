@@ -355,7 +355,7 @@ const Formulario = () => {
               <>
                 <Field label="Valor total aproximado das suas dívidas? *">
                   <div className="space-y-2">
-                    {["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 30.000", "R$ 30.000 a R$ 80.000", "Acima de R$ 80.000", "Não sei o valor exato"].map((o) => (
+                    {["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 50.000", "R$ 50.001 a R$ 80.000", "Acima de R$ 80.000", "Não sei o valor exato"].map((o) => (
                       <Radio key={o} name="total" value={o} checked={data.total_dividas === o} onChange={() => update("total_dividas", o)} label={o} />
                     ))}
                   </div>
