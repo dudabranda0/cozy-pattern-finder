@@ -343,7 +343,7 @@ const Formulario = () => {
                 </Field>
                 <Field label="Qual sua renda mensal familiar? *">
                   <div className="space-y-2">
-                    {["Até R$ 1.500", "R$ 1.500 a R$ 3.000", "R$ 3.000 a R$ 5.000", "R$ 5.000 a R$ 10.000", "Acima de R$ 10.000", "Não tenho renda fixa"].map((o) => (
+                    {["Até R$ 1.500", "R$ 1.500 a R$ 3.999", "R$ 3.999 a R$ 5.000", "R$ 5.000 a R$ 10.000", "Acima de R$ 10.000", "Não tenho renda fixa"].map((o) => (
                       <Radio key={o} name="renda" value={o} checked={data.renda_mensal === o} onChange={() => update("renda_mensal", o)} label={o} />
                     ))}
                   </div>
