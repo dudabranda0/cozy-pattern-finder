@@ -25,15 +25,11 @@ const Termos = () => (
           <p>O valor de R$ 29,90 é cobrado por análise, em pagamento único. Não há cobrança recorrente. O acesso à análise é liberado imediatamente após a confirmação do pagamento.</p>
         </section>
         <section>
-          <h2 className="font-serif-lvb text-2xl text-primary mb-2">5. Reembolso</h2>
-          <p>Em caso de problemas técnicos que impeçam a entrega da análise, o reembolso será realizado em até 7 dias úteis.</p>
-        </section>
-        <section>
-          <h2 className="font-serif-lvb text-2xl text-primary mb-2">6. Propriedade intelectual</h2>
+          <h2 className="font-serif-lvb text-2xl text-primary mb-2">5. Propriedade intelectual</h2>
           <p>Todo o conteúdo do site é de propriedade do escritório LVB e não pode ser reproduzido sem autorização prévia.</p>
         </section>
         <section>
-          <h2 className="font-serif-lvb text-2xl text-primary mb-2">7. Contato</h2>
+          <h2 className="font-serif-lvb text-2xl text-primary mb-2">6. Contato</h2>
           <p>Dúvidas: <a href="mailto:larissabrandaolah23@gmail.com" className="text-primary underline underline-offset-4">larissabrandaolah23@gmail.com</a></p>
         </section>
       </article>
