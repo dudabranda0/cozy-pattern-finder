@@ -97,6 +97,22 @@ const Sales = () => {
               </span>
             ))}
           </div>
+
+          {/* AVISO IMPORTANTE PÓS-PAGAMENTO */}
+          <div className="mt-8 max-w-2xl mx-auto lvb-card border border-gold/40 bg-gold/5 p-5 md:p-6 text-left animate-fade-up" style={{ animationDelay: "600ms" }}>
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+              <div className="text-sm md:text-[15px] text-foreground/90 leading-relaxed">
+                <p className="font-semibold text-foreground">Aviso importante sobre o pagamento</p>
+                <p className="mt-2">
+                  Após o pagamento, a <strong>Cakto</strong> envia um e-mail apenas <strong>confirmando o recebimento</strong>. Esse e-mail <strong>não libera a análise</strong>.
+                </p>
+                <p className="mt-2">
+                  Para acessar sua análise, <strong>volte para este site</strong> (a mesma página onde você fez o pagamento) e siga para preencher o formulário. É por aqui que sua análise será liberada.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
