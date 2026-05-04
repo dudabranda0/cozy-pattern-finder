@@ -94,7 +94,7 @@ const getTitleSectionMatch = (line: string) => {
 };
 
 const extractByMatches = (text: string, matches: SectionMatch[]) => {
-  const result = ["", "", "", "", ""];
+  const result = SECTIONS.map(() => "");
   const ordered = [...matches]
     .sort((a, b) => a.start - b.start)
     .filter((match, index, arr) => arr.findIndex((item) => item.idx === match.idx) === index);
@@ -130,7 +130,8 @@ const collectMatches = (
 
 /** Quebra o texto bruto em 5 seções. Tolera `##`, `**`, `1.`, `1)`, "BLOCO 1" etc. */
 const splitAnalise = (raw: string): string[] => {
-  if (!raw) return ["", "", "", "", ""];
+  const empty = SECTIONS.map(() => "");
+  if (!raw) return empty;
   const text = raw.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\r/g, "").replace(/\uFEFF/g, "");
 
   const numbered = extractByMatches(text, collectMatches(text, getNumberedSectionMatch));
@@ -141,9 +142,9 @@ const splitAnalise = (raw: string): string[] => {
 
   // 3) Último recurso: divide por parágrafos
   const paras = text.split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
-  if (paras.length <= 1) return [text, "", "", "", ""];
-  const chunkSize = Math.ceil(paras.length / 5);
-  return Array.from({ length: 5 }, (_, i) =>
+  if (paras.length <= 1) return [text, ...empty.slice(1)];
+  const chunkSize = Math.ceil(paras.length / SECTIONS.length);
+  return Array.from({ length: SECTIONS.length }, (_, i) =>
     paras.slice(i * chunkSize, (i + 1) * chunkSize).join("\n\n"),
   );
 };
