@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Mail, ArrowRight, MessageCircle, FileText, Scale, Target,
+  Mail, ArrowRight, MessageCircle, FileText, ShieldAlert, Scale, Target,
   AlertTriangle, Compass, ShieldCheck, Sparkles, CheckCircle2, Quote,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
@@ -14,11 +14,12 @@ import { WHATSAPP_LINK, COURSE_LINK } from "@/lib/lvb-constants";
 /* ------------------------------------------------------------------ */
 
 const SECTIONS = [
-  { n: "01", title: "Resumo da Situação",     icon: FileText,      key: "RESUMO DA SITUACAO",     keywords: ["RESUMO"] },
-  { n: "02", title: "Seus Direitos",          icon: Scale,         key: "SEUS DIREITOS",          keywords: ["DIREITOS"] },
-  { n: "03", title: "Estratégia Recomendada", icon: Target,        key: "ESTRATEGIA RECOMENDADA", keywords: ["ESTRATEGIA", "ESTRATÉGIA", "ESTRATEG"] },
-  { n: "04", title: "Pontos de Atenção",      icon: AlertTriangle, key: "PONTOS DE ATENCAO",      keywords: ["PONTOS", "ATENCAO", "ATENÇÃO"] },
-  { n: "05", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO",          keywords: ["PROXIMO", "PRÓXIMO", "PASSO"] },
+  { n: "01", title: "Resumo",                 icon: FileText,      key: "RESUMO",                 keywords: ["RESUMO"] },
+  { n: "02", title: "Risco",                  icon: ShieldAlert,   key: "RISCO",                  keywords: ["RISCO"] },
+  { n: "03", title: "Direitos (em tese)",     icon: Scale,         key: "DIREITOS",               keywords: ["DIREITOS", "TESE"] },
+  { n: "04", title: "Estratégia",             icon: Target,        key: "ESTRATEGIA",             keywords: ["ESTRATEGIA", "ESTRATÉGIA", "ESTRATEG"] },
+  { n: "05", title: "Atenção",                icon: AlertTriangle, key: "ATENCAO",                keywords: ["ATENCAO", "ATENÇÃO", "ATENC"] },
+  { n: "06", title: "Próximo Passo",          icon: Compass,       key: "PROXIMO PASSO",          keywords: ["PROXIMO", "PRÓXIMO", "PASSO"] },
 ] as const;
 
 /** Remove acentos (NFD), normaliza espaços e converte para caixa alta. */
