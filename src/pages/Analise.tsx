@@ -63,17 +63,18 @@ const ROMAN_TO_IDX: Record<string, number> = {
 };
 
 const getNumberedSectionMatch = (line: string) => {
-  const trimmed = line.trim();
+  // Remove asteriscos de markdown e aspas decorativas antes de testar
+  const trimmed = line.trim().replace(/^\*+|\*+$/g, "").replace(/^["“”'‘’`´]+|["“”'‘’`´]+$/g, "").trim();
 
-  // Tenta arábico: "1.", "01)", "## 2", "BLOCO 3" etc.
+  // Tenta arábico: "1.", "01)", "## 2", "BLOCO 3" etc. (texto opcional depois)
   const arabic = trimmed.match(
-    /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-6])(?:\s*[.)\-:])?\s+(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/i,
+    /^(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?0?([1-6])(?:\s*[.)\-:])?\s*(.*?)\s*$/i,
   );
 
-  // Tenta romano: "I.", "II)", "## III", "VI - Próximo Passo"
+  // Tenta romano: "I.", "II)", "## III", "VI" sozinho ou com texto
   const roman = !arabic
     ? trimmed.match(
-        /^(?:["“”'‘’`´]\s*)?(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?(I{1,3}|IV|V|VI)(?:\s*[.)\-:])?\s+(.*?)(?:\*{1,3})?\s*(?:["“”'‘’`´])?$/,
+        /^(#{1,6}\s*|\*{1,3}\s*|BLOCO\s+)?(I{1,3}|IV|V|VI)(?:\s*[.)\-:])?\s*(.*?)\s*$/,
       )
     : null;
 
@@ -94,6 +95,8 @@ const getNumberedSectionMatch = (line: string) => {
     expected.keywords.some((keyword) => title.includes(strip(keyword)));
   const hasStructuredPrefix = /#|\*|BLOCO/i.test(prefix);
 
+  // Para arábico sem prefixo estruturado, exige que pareça título (evita capturar "1 banco" no meio do texto)
+  // Para romano, é mais raro aparecer no meio do texto, então aceita mais facilmente
   return hasStructuredPrefix || looksLikeTitle ? idx : null;
 };
 
