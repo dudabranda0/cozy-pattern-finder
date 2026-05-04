@@ -462,6 +462,7 @@ const Analise = () => {
                 Uma cópia também foi enviada para <strong className="text-emerald-900">{email}</strong>.
                 Verifique a caixa de entrada e a pasta de spam.
               </p>
+            </div>
           </div>
         )}
 
