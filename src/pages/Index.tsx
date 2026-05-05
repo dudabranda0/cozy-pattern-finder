@@ -105,7 +105,7 @@ const Sales = () => {
               <div className="text-sm md:text-[15px] text-foreground/90 leading-relaxed">
                 <p className="font-semibold text-foreground">Aviso importante sobre o pagamento</p>
                 <p className="mt-2">
-                  Após o pagamento, a <strong>Cakto</strong> envia um <strong>e-mail ou mensagem no WhatsApp</strong> apenas <strong>confirmando o recebimento</strong>. Essa mensagem <strong>não libera a análise</strong>.
+                  Após o pagamento, a <strong>Kiwify</strong> envia um <strong>e-mail ou mensagem no WhatsApp</strong> apenas <strong>confirmando o recebimento</strong>. Essa mensagem <strong>não libera a análise</strong>.
                 </p>
                 <p className="mt-2">
                   Para acessar sua análise, <strong>volte para este site</strong> (a mesma página onde você fez o pagamento) e siga para preencher o formulário. É por aqui que sua análise será liberada.
