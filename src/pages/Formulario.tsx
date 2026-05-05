@@ -31,6 +31,38 @@ const empty: FormState = {
 const stepIcons = [User, Users, CreditCard, AlertCircle, Shield];
 const stepTitles = ["Dados Pessoais", "Perfil Financeiro", "Suas Dívidas", "Situação Atual", "Garantias e Finalização"];
 
+const DESC_MAX = 2000;
+
+const sanitizeText = (value: unknown): string => {
+  if (value === null || value === undefined) return "";
+  return String(value)
+    .replace(/\r\n/g, "\n")
+    .replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, "")
+    .trim();
+};
+
+const sanitizePayload = <T extends Record<string, any>>(data: T): T => {
+  const result: any = Array.isArray(data) ? [] : {};
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === "string") {
+      result[key] = sanitizeText(value);
+    } else if (Array.isArray(value)) {
+      result[key] = value.map((item) =>
+        typeof item === "string"
+          ? sanitizeText(item)
+          : item && typeof item === "object"
+          ? sanitizePayload(item as any)
+          : item,
+      );
+    } else if (value && typeof value === "object") {
+      result[key] = sanitizePayload(value as any);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result as T;
+};
+
 const maskPhone = (v: string) => {
   const d = v.replace(/\D/g, "").slice(0, 11);
   if (d.length <= 2) return d;
