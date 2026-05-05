@@ -198,14 +198,15 @@ const Formulario = () => {
     const faixasElegiveis = ["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 50.000"];
     const elegivelCurso = faixasElegiveis.includes(data.total_dividas);
 
-    const payload = {
+    const payload = sanitizePayload({
       ...data,
+      descricao_livre: data.descricao_livre.slice(0, DESC_MAX),
       tipo_divida: data.tipo_divida.join(", "),
       bancos: data.bancos.join(", "),
       enviado_em: new Date().toISOString(),
       elegivel_curso: elegivelCurso,
       course_link: elegivelCurso ? COURSE_LINK : "",
-    };
+    });
 
     // Dispara o fetch em background — não bloqueia a navegação
     (async () => {
