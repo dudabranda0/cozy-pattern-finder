@@ -31,6 +31,38 @@ const empty: FormState = {
 const stepIcons = [User, Users, CreditCard, AlertCircle, Shield];
 const stepTitles = ["Dados Pessoais", "Perfil Financeiro", "Suas Dívidas", "Situação Atual", "Garantias e Finalização"];
 
+const DESC_MAX = 2000;
+
+const sanitizeText = (value: unknown): string => {
+  if (value === null || value === undefined) return "";
+  return String(value)
+    .replace(/\r\n/g, "\n")
+    .replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, "")
+    .trim();
+};
+
+const sanitizePayload = <T extends Record<string, any>>(data: T): T => {
+  const result: any = Array.isArray(data) ? [] : {};
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === "string") {
+      result[key] = sanitizeText(value);
+    } else if (Array.isArray(value)) {
+      result[key] = value.map((item) =>
+        typeof item === "string"
+          ? sanitizeText(item)
+          : item && typeof item === "object"
+          ? sanitizePayload(item as any)
+          : item,
+      );
+    } else if (value && typeof value === "object") {
+      result[key] = sanitizePayload(value as any);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result as T;
+};
+
 const maskPhone = (v: string) => {
   const d = v.replace(/\D/g, "").slice(0, 11);
   if (d.length <= 2) return d;
@@ -166,14 +198,15 @@ const Formulario = () => {
     const faixasElegiveis = ["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 50.000"];
     const elegivelCurso = faixasElegiveis.includes(data.total_dividas);
 
-    const payload = {
+    const payload = sanitizePayload({
       ...data,
+      descricao_livre: data.descricao_livre.slice(0, DESC_MAX),
       tipo_divida: data.tipo_divida.join(", "),
       bancos: data.bancos.join(", "),
       enviado_em: new Date().toISOString(),
       elegivel_curso: elegivelCurso,
       course_link: elegivelCurso ? COURSE_LINK : "",
-    };
+    });
 
     // Dispara o fetch em background — não bloqueia a navegação
     (async () => {
@@ -407,8 +440,17 @@ const Formulario = () => {
                   </div>
                 </Field>
                 <Field label="Descreva brevemente sua situação (opcional)">
-                  <textarea value={data.descricao_livre} onChange={(e) => update("descricao_livre", e.target.value)} rows={4}
-                    className="w-full rounded-2xl border border-border bg-card px-4 py-3 outline-none focus:border-primary resize-none" placeholder="Conte um pouco mais sobre sua situação..." />
+                  <textarea
+                    value={data.descricao_livre}
+                    onChange={(e) => update("descricao_livre", e.target.value.slice(0, DESC_MAX))}
+                    rows={4}
+                    maxLength={DESC_MAX}
+                    className="w-full rounded-2xl border border-border bg-card px-4 py-3 outline-none focus:border-primary resize-none"
+                    placeholder="Conte um pouco mais sobre sua situação..."
+                  />
+                  <div className="mt-1 text-right text-xs text-muted-foreground">
+                    {data.descricao_livre.length}/{DESC_MAX}
+                  </div>
                 </Field>
                 <div className="rounded-2xl border-2 border-gold/40 bg-gold/5 p-5">
                   <h3 className="font-bold flex items-center gap-2"><Shield className="w-4 h-4 text-gold" /> Autorização LGPD *</h3>
