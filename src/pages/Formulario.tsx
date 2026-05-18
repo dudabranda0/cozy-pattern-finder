@@ -36,8 +36,12 @@ const DESC_MAX = 2000;
 const sanitizeText = (value: unknown): string => {
   if (value === null || value === undefined) return "";
   return String(value)
-    .replace(/\r\n/g, "\n")
+    // Remove caracteres de controle não imprimíveis (exceto os de whitespace tratados abaixo)
     .replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, "")
+    // Converte quebras de linha, retorno de carro e tabulações em espaço simples
+    .replace(/[\r\n\t]+/g, " ")
+    // Colapsa múltiplos espaços
+    .replace(/ {2,}/g, " ")
     .trim();
 };
 
