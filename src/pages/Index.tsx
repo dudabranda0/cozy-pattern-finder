@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Lock, Shield, ShieldCheck, Sparkles, MessageCircle } from "lucide-react";
+import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, MessageCircle } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
 import larissaFoto from "@/assets/larissa-brandao.jpg";
@@ -100,28 +100,6 @@ const Sales = () => {
             ))}
           </div>
 
-          {/* AVISO IMPORTANTE PÓS-PAGAMENTO */}
-          <div className="mt-8 max-w-2xl mx-auto lvb-card border border-gold/40 bg-gold/5 p-5 md:p-6 text-left animate-fade-up" style={{ animationDelay: "600ms" }}>
-            <div className="flex items-start gap-3">
-              <Shield className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-              <div className="text-sm md:text-[15px] text-foreground/90 leading-relaxed">
-                <p className="font-semibold text-foreground">Leia antes de pagar — importante</p>
-                <p className="mt-2">
-                  <strong>A sua análise só é gerada depois que você preencher o formulário.</strong> O pagamento sozinho não libera a análise — ele apenas dá acesso ao formulário.
-                </p>
-                <p className="mt-2">
-                  Após o pagamento, a <strong>Kiwify</strong> envia um e-mail ou mensagem no WhatsApp apenas confirmando o recebimento. Essa mensagem <strong>não é a análise</strong>.
-                </p>
-                <p className="mt-2">
-                  <strong>Se você fechar ou sair desta página antes de preencher</strong>, fique tranquilo: basta voltar para{" "}
-                  <a href="https://analisedividabancaria.larissavbrandao.com.br/formulario" className="underline font-semibold text-primary">
-                    analisedividabancaria.larissavbrandao.com.br/formulario
-                  </a>{" "}
-                  (ou clicar em <strong>"Já paguei · preencher formulário"</strong> no topo do site) e concluir. Você não perde o acesso e não precisa pagar de novo.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
