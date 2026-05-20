@@ -4,18 +4,32 @@ import { CAKTO_LINK } from "@/lib/lvb-constants";
 
 export const SiteHeader = () => (
   <header className="sticky top-0 z-50 glass-header border-b border-border/60">
-    <div className="container max-w-6xl flex items-center justify-between py-3">
+    <div className="container max-w-6xl flex items-center justify-between py-3 gap-3">
       <Link to="/" aria-label="LVB Início">
         <LvbLogo size="md" />
       </Link>
-      <a
-        href={CAKTO_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn-cta pill bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary-hover"
-      >
-        Fazer análise
-      </a>
+      <div className="flex items-center gap-2 md:gap-3">
+        <Link
+          to="/formulario"
+          className="pill border border-primary/30 bg-card hover:bg-secondary text-foreground px-3 py-2 text-xs md:text-sm font-semibold transition-colors hidden sm:inline-flex"
+        >
+          Já paguei · preencher formulário
+        </Link>
+        <Link
+          to="/formulario"
+          className="pill border border-primary/30 bg-card hover:bg-secondary text-foreground px-3 py-2 text-xs font-semibold transition-colors sm:hidden"
+        >
+          Já paguei
+        </Link>
+        <a
+          href={CAKTO_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-cta pill bg-primary text-primary-foreground px-4 md:px-5 py-2.5 text-xs md:text-sm font-semibold hover:bg-primary-hover"
+        >
+          Fazer análise
+        </a>
+      </div>
     </div>
   </header>
 );
