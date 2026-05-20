@@ -9,7 +9,15 @@ const steps = [
   "Receba sua análise no e-mail cadastrado",
 ];
 
-const Obrigado = () => (
+const Obrigado = () => {
+  // Marca acesso liberado para o formulário (quem cai aqui passou pelo pagamento)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lvb_pago", "true");
+    }
+  }, []);
+
+  return (
   <div className="min-h-screen bg-background flex items-center justify-center p-5 py-12">
     <div className="lvb-card max-w-xl w-full p-8 md:p-10 text-center animate-fade-up">
       <div className="flex justify-center"><LvbLogo size="lg" /></div>
