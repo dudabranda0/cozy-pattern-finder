@@ -59,6 +59,7 @@ const Obrigado = () => {
       </Link>
     </div>
   </div>
-);
+  );
+};
 
 export default Obrigado;
