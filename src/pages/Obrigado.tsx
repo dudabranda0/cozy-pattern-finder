@@ -16,11 +16,22 @@ const Obrigado = () => (
         <Check className="w-8 h-8 text-emerald-600" strokeWidth={3} />
       </div>
       <h1 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight">
-        Compra confirmada! Agora é só preencher.
+        Pagamento confirmado! Falta só preencher o formulário.
       </h1>
       <p className="mt-3 text-muted-foreground">
-        Sua análise está a um passo. Preencha o formulário e receba sua análise em menos de 5 minutos.
+        <strong className="text-foreground">Atenção:</strong> sua análise <strong className="text-foreground">só é gerada depois</strong> que você preencher o formulário abaixo. Leva menos de 5 minutos.
       </p>
+      <div className="mt-5 rounded-2xl border border-gold/40 bg-gold/5 p-4 text-left text-sm text-foreground/90">
+        <p>
+          <strong>Se precisar sair agora</strong>, salve este link e volte quando puder — você não perde o acesso:
+        </p>
+        <a
+          href="https://analisedividabancaria.larissavbrandao.com.br/formulario"
+          className="block mt-2 text-primary font-semibold break-all underline"
+        >
+          analisedividabancaria.larissavbrandao.com.br/formulario
+        </a>
+      </div>
       <ol className="mt-8 space-y-3 text-left">
         {steps.map((s, i) => (
           <li key={s} className="bg-beige-deep rounded-2xl p-4 flex gap-4 items-start">

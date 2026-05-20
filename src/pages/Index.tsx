@@ -103,12 +103,19 @@ const Sales = () => {
             <div className="flex items-start gap-3">
               <Shield className="w-5 h-5 text-gold shrink-0 mt-0.5" />
               <div className="text-sm md:text-[15px] text-foreground/90 leading-relaxed">
-                <p className="font-semibold text-foreground">Aviso importante sobre o pagamento</p>
+                <p className="font-semibold text-foreground">Leia antes de pagar — importante</p>
                 <p className="mt-2">
-                  Após o pagamento, a <strong>Kiwify</strong> envia um <strong>e-mail ou mensagem no WhatsApp</strong> apenas <strong>confirmando o recebimento</strong>. Essa mensagem <strong>não libera a análise</strong>.
+                  <strong>A sua análise só é gerada depois que você preencher o formulário.</strong> O pagamento sozinho não libera a análise — ele apenas dá acesso ao formulário.
                 </p>
                 <p className="mt-2">
-                  Para acessar sua análise, <strong>volte para este site</strong> (a mesma página onde você fez o pagamento) e siga para preencher o formulário. É por aqui que sua análise será liberada.
+                  Após o pagamento, a <strong>Kiwify</strong> envia um e-mail ou mensagem no WhatsApp apenas confirmando o recebimento. Essa mensagem <strong>não é a análise</strong>.
+                </p>
+                <p className="mt-2">
+                  <strong>Se você fechar ou sair desta página antes de preencher</strong>, fique tranquilo: basta voltar para{" "}
+                  <a href="https://analisedividabancaria.larissavbrandao.com.br/formulario" className="underline font-semibold text-primary">
+                    analisedividabancaria.larissavbrandao.com.br/formulario
+                  </a>{" "}
+                  (ou clicar em <strong>"Já paguei · preencher formulário"</strong> no topo do site) e concluir. Você não perde o acesso e não precisa pagar de novo.
                 </p>
               </div>
             </div>
