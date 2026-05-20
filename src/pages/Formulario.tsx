@@ -120,17 +120,41 @@ const Formulario = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Analisando sua situação...");
 
-  // Bloqueio: cliente já utilizou sua análise — redireciona para checkout
+  // Trava de acesso: só entra quem passou pela página /obrigado (após pagamento)
+  // ou quem chegou com ?acesso=ok (redirect da Kiwify, ex.: /formulario?acesso=ok)
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("lvb_usado") === "true") {
+    if (typeof window === "undefined") return;
+
+    // 1) Já usou a análise -> volta pro checkout
+    if (localStorage.getItem("lvb_usado") === "true") {
       toast({
         title: "Você já utilizou sua análise",
         description: "Para uma nova análise, adquira novamente por R$ 29,90.",
         variant: "destructive",
       });
       window.location.href = CAKTO_LINK;
+      return;
     }
-  }, []);
+
+    // 2) Permite liberação via query param (útil se a Kiwify redirecionar direto pra cá)
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("acesso") === "ok") {
+      localStorage.setItem("lvb_pago", "true");
+      url.searchParams.delete("acesso");
+      window.history.replaceState({}, "", url.pathname + url.search);
+    }
+
+    // 3) Sem comprovação de pagamento -> manda pra home
+    if (localStorage.getItem("lvb_pago") !== "true") {
+      toast({
+        title: "Acesso restrito",
+        description:
+          "O formulário é liberado após o pagamento. Finalize sua compra para acessar a análise.",
+        variant: "destructive",
+      });
+      nav("/", { replace: true });
+    }
+  }, [nav]);
 
   // Mensagens progressivas enquanto aguardamos a resposta do n8n (Claude pode demorar 15-30s)
   useEffect(() => {
