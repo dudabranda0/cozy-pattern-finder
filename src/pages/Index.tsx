@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Lock, Shield, ShieldCheck, Sparkles, MessageCircle } from "lucide-react";
+import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, MessageCircle } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
 import larissaFoto from "@/assets/larissa-brandao.jpg";
