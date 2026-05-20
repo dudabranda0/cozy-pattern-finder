@@ -42,7 +42,7 @@ const Sales = () => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (localStorage.getItem("lvb_pago") === "true") {
+    if (localStorage.getItem("lvb_pago") === "true" && localStorage.getItem("lvb_usado") !== "true") {
       navigate("/formulario", { replace: true });
     }
   }, [navigate]);
