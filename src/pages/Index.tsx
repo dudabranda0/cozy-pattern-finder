@@ -78,6 +78,8 @@ const Sales = () => {
           <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center animate-fade-up" style={{ animationDelay: "350ms" }}>
             <a
               href={CAKTO_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 text-base font-semibold inline-flex items-center justify-center gap-2"
             >
               Quero entender minha situação <ArrowRight className="w-5 h-5" />
@@ -297,6 +299,8 @@ const Sales = () => {
                 </p>
                 <a
                   href={CAKTO_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-6 py-3 font-semibold inline-flex items-center gap-2"
                 >
                   Quero entender minha situação <ArrowRight className="w-4 h-4" />
@@ -337,6 +341,8 @@ const Sales = () => {
               </ul>
               <a
                 href={CAKTO_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-cta mt-7 pill bg-primary hover:bg-primary-hover text-primary-foreground w-full px-6 py-4 font-semibold inline-flex items-center justify-center gap-2"
               >
                 Fazer análise agora <ArrowRight className="w-5 h-5" />
@@ -370,6 +376,8 @@ const Sales = () => {
           </h2>
           <a
             href={CAKTO_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-8 py-4 text-lg font-semibold inline-flex items-center gap-2"
           >
             Fazer análise agora <ArrowRight className="w-5 h-5" />
