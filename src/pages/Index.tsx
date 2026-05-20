@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, MessageCircle } from "lucide-react";
+import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, MessageCircle, Shield } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
 import larissaFoto from "@/assets/larissa-brandao.jpg";
@@ -100,6 +100,22 @@ const Sales = () => {
             ))}
           </div>
 
+        </div>
+      </section>
+
+      {/* AVISO IMPORTANTE PÓS-PAGAMENTO */}
+      <section className="py-6 bg-amber-50 border-y border-amber-200">
+        <div className="container max-w-4xl flex items-start gap-4">
+          <Shield className="w-6 h-6 text-amber-700 shrink-1 mt-0.5" />
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-amber-900">Acesso liberado após pagamento</h3>
+            <p className="text-amber-800 text-sm leading-relaxed">
+              Se você fechar ou sair desta página antes de preencher, fique tranquilo: basta voltar pelo mesmo link de pagamento e clicar em <strong>"Já paguei · preencher formulário"</strong> no topo do site. Você não perde o acesso e não precisa pagar de novo.
+            </p>
+            <p className="text-amber-800/80 text-sm">
+              A análise só será feita quando você preencher o formulário. Se você pagou e ainda não preencheu, clique no botão acima.
+            </p>
+          </div>
         </div>
       </section>
 
