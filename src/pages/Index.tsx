@@ -118,9 +118,12 @@ const Sales = () => {
         <div className="container max-w-4xl flex items-start gap-4">
           <Shield className="w-6 h-6 text-amber-700 shrink-1 mt-0.5" />
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-amber-900">Acesso liberado após pagamento</h3>
+            <h3 className="text-lg font-semibold text-amber-900">Aviso importante sobre o pagamento</h3>
             <p className="text-amber-800 text-sm leading-relaxed">
-              Se você fechar ou sair desta página antes de preencher, fique tranquilo: ao voltar, você será levado automaticamente para o formulário. Você não perde o acesso e não precisa pagar de novo.
+              Após o pagamento, a Kiwify envia um e-mail ou mensagem no WhatsApp apenas confirmando o recebimento. Essa mensagem não libera a análise.
+            </p>
+            <p className="text-amber-800 text-sm leading-relaxed">
+              Para acessar sua análise, volte para este site (a mesma página onde você fez o pagamento) e siga para preencher o formulário. É por aqui que sua análise será liberada.
             </p>
           </div>
         </div>
