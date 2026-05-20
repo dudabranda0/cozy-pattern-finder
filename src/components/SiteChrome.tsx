@@ -1,19 +1,8 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { LvbLogo } from "./LvbLogo";
 import { CAKTO_LINK } from "@/lib/lvb-constants";
 
 export const SiteHeader = () => {
-  const [paid, setPaid] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const check = () => setPaid(localStorage.getItem("lvb_pago") === "true");
-    check();
-    window.addEventListener("storage", check);
-    return () => window.removeEventListener("storage", check);
-  }, []);
-
   return (
     <header className="sticky top-0 z-50 glass-header border-b border-border/60">
       <div className="container max-w-6xl flex items-center justify-between py-3 gap-3">
@@ -21,15 +10,6 @@ export const SiteHeader = () => {
           <LvbLogo size="md" />
         </Link>
         <div className="flex items-center gap-2 md:gap-3">
-          {paid && (
-            <Link
-              to="/formulario"
-              className="pill border border-primary/30 bg-card hover:bg-secondary text-foreground px-3 py-2 text-xs md:text-sm font-semibold transition-colors"
-            >
-              <span className="hidden sm:inline">Já paguei · preencher formulário</span>
-              <span className="sm:hidden">Preencher formulário</span>
-            </Link>
-          )}
           <a
             href={CAKTO_LINK}
             target="_blank"

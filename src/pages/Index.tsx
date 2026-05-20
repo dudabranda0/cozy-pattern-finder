@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, MessageCircle, Shield } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
@@ -37,6 +38,15 @@ const benefits = [
 ];
 
 const Sales = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (localStorage.getItem("lvb_pago") === "true") {
+      navigate("/formulario", { replace: true });
+    }
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -110,10 +120,7 @@ const Sales = () => {
           <div className="space-y-2">
             <h3 className="text-lg font-semibold text-amber-900">Acesso liberado após pagamento</h3>
             <p className="text-amber-800 text-sm leading-relaxed">
-              Se você fechar ou sair desta página antes de preencher, fique tranquilo: basta voltar pelo mesmo link de pagamento e clicar em <strong>"Já paguei · preencher formulário"</strong> no topo do site. Você não perde o acesso e não precisa pagar de novo.
-            </p>
-            <p className="text-amber-800/80 text-sm">
-              A análise só será feita quando você preencher o formulário. Se você pagou e ainda não preencheu, clique no botão acima.
+              Se você fechar ou sair desta página antes de preencher, fique tranquilo: ao voltar, você será levado automaticamente para o formulário. Você não perde o acesso e não precisa pagar de novo.
             </p>
           </div>
         </div>
