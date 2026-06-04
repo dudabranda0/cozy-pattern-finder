@@ -254,6 +254,17 @@ const Formulario = () => {
 
         localStorage.setItem("lvb_analise", analise || "");
         localStorage.setItem("lvb_analise_status", analise ? "ready" : "email_only");
+
+        // Invalida o token após gerar a análise
+        const usedToken = localStorage.getItem("lvb_token");
+        if (usedToken) {
+          fetch(N8N_USAR_TOKEN, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: usedToken }),
+          }).catch((e) => console.error("[n8n] usar-token falhou:", e));
+        }
+
         // Notifica a tela /analise (mesma aba — storage event não dispara na própria aba)
         window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
       } catch (err: any) {
