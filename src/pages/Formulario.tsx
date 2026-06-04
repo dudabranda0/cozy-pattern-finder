@@ -125,34 +125,9 @@ const Formulario = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // 1) Já usou a análise -> volta pro checkout
-    if (localStorage.getItem("lvb_usado") === "true") {
-      toast({
-        title: "Você já utilizou sua análise",
-        description: "Para uma nova análise, adquira novamente por R$ 29,90.",
-        variant: "destructive",
-      });
-      window.location.href = CAKTO_LINK;
-      return;
-    }
-
-    // 2) Permite liberação via query param (útil se a Kiwify redirecionar direto pra cá)
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("acesso") === "ok") {
-      localStorage.setItem("lvb_pago", "true");
-      url.searchParams.delete("acesso");
-      window.history.replaceState({}, "", url.pathname + url.search);
-    }
-
-    // 3) Sem comprovação de pagamento -> manda pra home
-    if (localStorage.getItem("lvb_pago") !== "true") {
-      toast({
-        title: "Acesso restrito",
-        description:
-          "O formulário é liberado após o pagamento. Finalize sua compra para acessar a análise.",
-        variant: "destructive",
-      });
-      nav("/", { replace: true });
+    // Trava de acesso por token: sem token válido -> manda pra página /acesso
+    if (!localStorage.getItem("lvb_token")) {
+      nav("/acesso", { replace: true });
     }
   }, [nav]);
 
