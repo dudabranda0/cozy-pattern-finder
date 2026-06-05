@@ -5,7 +5,7 @@ import {
   AlertCircle, Shield, Loader2,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, USAR_TOKEN_WEBHOOK } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, COURSE_LINK, USAR_TOKEN_WEBHOOK } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 
 type FormState = {
