@@ -5,7 +5,7 @@ import {
   AlertCircle, Shield, Loader2,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, COURSE_LINK, USAR_TOKEN_WEBHOOK } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 
 type FormState = {
@@ -120,11 +120,39 @@ const Formulario = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Analisando sua situação...");
 
-  // Trava de acesso: só entra quem validou um código de acesso (token) na página /acesso
+  // Trava de acesso: só entra quem passou pela página /obrigado (após pagamento)
+  // ou quem chegou com ?acesso=ok (redirect da Kiwify, ex.: /formulario?acesso=ok)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!sessionStorage.getItem("token_acesso")) {
-      nav("/acesso", { replace: true });
+
+    // 1) Já usou a análise -> volta pro checkout
+    if (localStorage.getItem("lvb_usado") === "true") {
+      toast({
+        title: "Você já utilizou sua análise",
+        description: "Para uma nova análise, adquira novamente por R$ 29,90.",
+        variant: "destructive",
+      });
+      window.location.href = CAKTO_LINK;
+      return;
+    }
+
+    // 2) Permite liberação via query param (útil se a Kiwify redirecionar direto pra cá)
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("acesso") === "ok") {
+      localStorage.setItem("lvb_pago", "true");
+      url.searchParams.delete("acesso");
+      window.history.replaceState({}, "", url.pathname + url.search);
+    }
+
+    // 3) Sem comprovação de pagamento -> manda pra home
+    if (localStorage.getItem("lvb_pago") !== "true") {
+      toast({
+        title: "Acesso restrito",
+        description:
+          "O formulário é liberado após o pagamento. Finalize sua compra para acessar a análise.",
+        variant: "destructive",
+      });
+      nav("/", { replace: true });
     }
   }, [nav]);
 
@@ -181,8 +209,6 @@ const Formulario = () => {
     const err = validateStep();
     if (err) { toast({ title: "Atenção", description: err, variant: "destructive" }); return; }
 
-    const tokenAcesso = sessionStorage.getItem("token_acesso") || "";
-
     // Persiste dados do cliente imediatamente
     localStorage.setItem("lvb_nome", data.nome);
     localStorage.setItem("lvb_email", data.email);
@@ -208,7 +234,6 @@ const Formulario = () => {
       enviado_em: new Date().toISOString(),
       elegivel_curso: elegivelCurso,
       course_link: elegivelCurso ? COURSE_LINK : "",
-      token_acesso: tokenAcesso,
     });
 
     // Dispara o fetch em background — não bloqueia a navegação
@@ -250,21 +275,6 @@ const Formulario = () => {
           } catch {
             if (valid(text)) analise = text;
           }
-        }
-
-        // Envio concluído com sucesso -> marca o token como usado e limpa o acesso.
-        // Se o envio falhar (res.ok === false), NÃO consome o token (cliente pode tentar de novo).
-        if (res.ok && tokenAcesso) {
-          try {
-            await fetch(USAR_TOKEN_WEBHOOK, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token: tokenAcesso }),
-            });
-          } catch (e) {
-            console.error("[usar-token] falhou:", e);
-          }
-          sessionStorage.removeItem("token_acesso");
         }
 
         localStorage.setItem("lvb_analise", analise || "");
