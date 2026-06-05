@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Obrigado from "./pages/Obrigado.tsx";
 import Formulario from "./pages/Formulario.tsx";
+import Acesso from "./pages/Acesso.tsx";
 import Analise from "./pages/Analise.tsx";
 import Termos from "./pages/Termos.tsx";
 import Privacidade from "./pages/Privacidade.tsx";
