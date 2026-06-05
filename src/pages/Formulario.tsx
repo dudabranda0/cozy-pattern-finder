@@ -5,7 +5,7 @@ import {
   AlertCircle, Shield, Loader2,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, COURSE_LINK, USAR_TOKEN_WEBHOOK } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 
 type FormState = {
@@ -120,11 +120,39 @@ const Formulario = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Analisando sua situação...");
 
-  // Trava de acesso: só entra quem validou o código na página /acesso
+  // Trava de acesso: só entra quem passou pela página /obrigado (após pagamento)
+  // ou quem chegou com ?acesso=ok (redirect da Kiwify, ex.: /formulario?acesso=ok)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!sessionStorage.getItem("token_acesso")) {
-      nav("/acesso", { replace: true });
+
+    // 1) Já usou a análise -> volta pro checkout
+    if (localStorage.getItem("lvb_usado") === "true") {
+      toast({
+        title: "Você já utilizou sua análise",
+        description: "Para uma nova análise, adquira novamente por R$ 29,90.",
+        variant: "destructive",
+      });
+      window.location.href = CAKTO_LINK;
+      return;
+    }
+
+    // 2) Permite liberação via query param (útil se a Kiwify redirecionar direto pra cá)
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("acesso") === "ok") {
+      localStorage.setItem("lvb_pago", "true");
+      url.searchParams.delete("acesso");
+      window.history.replaceState({}, "", url.pathname + url.search);
+    }
+
+    // 3) Sem comprovação de pagamento -> manda pra home
+    if (localStorage.getItem("lvb_pago") !== "true") {
+      toast({
+        title: "Acesso restrito",
+        description:
+          "O formulário é liberado após o pagamento. Finalize sua compra para acessar a análise.",
+        variant: "destructive",
+      });
+      nav("/", { replace: true });
     }
   }, [nav]);
 
@@ -198,8 +226,6 @@ const Formulario = () => {
     const faixasElegiveis = ["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 50.000"];
     const elegivelCurso = faixasElegiveis.includes(data.total_dividas);
 
-    const tokenAcesso = sessionStorage.getItem("token_acesso") || "";
-
     const payload = sanitizePayload({
       ...data,
       descricao_livre: data.descricao_livre.slice(0, DESC_MAX),
@@ -208,7 +234,6 @@ const Formulario = () => {
       enviado_em: new Date().toISOString(),
       elegivel_curso: elegivelCurso,
       course_link: elegivelCurso ? COURSE_LINK : "",
-      token_acesso: tokenAcesso,
     });
 
     // Dispara o fetch em background — não bloqueia a navegação
@@ -224,46 +249,32 @@ const Formulario = () => {
           body: JSON.stringify(payload),
         }).finally(() => clearTimeout(timeoutId));
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        // Envio concluído com sucesso -> marca o token como usado e o remove
-        if (tokenAcesso) {
-          try {
-            await fetch(USAR_TOKEN_WEBHOOK, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token: tokenAcesso }),
-            });
-          } catch (e) {
-            console.error("[usar-token] falhou:", e);
-          }
-          sessionStorage.removeItem("token_acesso");
-        }
-
         let analise = "";
-        const text = await res.text();
-        console.log("[n8n] raw response:", text.slice(0, 500));
+        if (res.ok) {
+          const text = await res.text();
+          console.log("[n8n] raw response:", text.slice(0, 500));
 
-        const isExpr = (s: any) => typeof s === "string" && s.includes("{{");
-        const valid = (s: any) =>
-          typeof s === "string" && s.trim().length > 0 && !isExpr(s);
+          const isExpr = (s: any) => typeof s === "string" && s.includes("{{");
+          const valid = (s: any) =>
+            typeof s === "string" && s.trim().length > 0 && !isExpr(s);
 
-        try {
-          const j: any = JSON.parse(text);
-          const collectText = (value: any): string[] => {
-            if (valid(value) && value.trim().length > 20) return [value.trim()];
-            if (Array.isArray(value)) return value.flatMap(collectText);
-            if (!value || typeof value !== "object") return [];
+          try {
+            const j: any = JSON.parse(text);
+            const collectText = (value: any): string[] => {
+              if (valid(value) && value.trim().length > 20) return [value.trim()];
+              if (Array.isArray(value)) return value.flatMap(collectText);
+              if (!value || typeof value !== "object") return [];
 
-            const preferred = ["analise", "analysis", "resposta", "output", "text", "message", "content", "data"];
-            const keys = [...preferred, ...Object.keys(value).filter((key) => !preferred.includes(key))];
-            return keys.flatMap((key) => collectText(value[key]));
-          };
+              const preferred = ["analise", "analysis", "resposta", "output", "text", "message", "content", "data"];
+              const keys = [...preferred, ...Object.keys(value).filter((key) => !preferred.includes(key))];
+              return keys.flatMap((key) => collectText(value[key]));
+            };
 
-          const candidates = Array.from(new Set(collectText(j)));
-          analise = candidates.join("\n\n");
-        } catch {
-          if (valid(text)) analise = text;
+            const candidates = Array.from(new Set(collectText(j)));
+            analise = candidates.join("\n\n");
+          } catch {
+            if (valid(text)) analise = text;
+          }
         }
 
         localStorage.setItem("lvb_analise", analise || "");
@@ -272,7 +283,6 @@ const Formulario = () => {
         window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
       } catch (err: any) {
         console.error("[n8n] fetch falhou:", err?.name, err?.message, err);
-        // Falha no envio: NÃO chama usar-token e NÃO remove o token (cliente pode tentar de novo)
         localStorage.setItem("lvb_analise_status", "email_only");
         window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
       }
