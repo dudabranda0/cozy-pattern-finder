@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, MessageCircle, Shield } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
