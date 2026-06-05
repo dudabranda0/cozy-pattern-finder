@@ -117,14 +117,24 @@ const Sales = () => {
       <section className="py-6 bg-amber-50 border-y border-amber-200">
         <div className="container max-w-4xl flex items-start gap-4">
           <Shield className="w-6 h-6 text-amber-700 shrink-1 mt-0.5" />
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h3 className="text-lg font-semibold text-amber-900">Aviso importante sobre o pagamento</h3>
             <p className="text-amber-800 text-sm leading-relaxed">
               Após o pagamento, a Kiwify envia um e-mail ou mensagem no WhatsApp apenas confirmando o recebimento. Essa mensagem não libera a análise.
             </p>
             <p className="text-amber-800 text-sm leading-relaxed">
-              Para acessar sua análise, volte para este site (a mesma página onde você fez o pagamento) e siga para preencher o formulário. É por aqui que sua análise será liberada.
+              Para acessar sua análise, volte para este site (a mesma página onde você fez o pagamento) e clique no botão abaixo para preencher o formulário. É por aqui que sua análise será liberada.
             </p>
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem("lvb_pago", "true");
+                navigate("/formulario");
+              }}
+              className="btn-cta pill bg-amber-600 hover:bg-amber-700 text-white px-5 py-3 text-sm font-semibold inline-flex items-center gap-2"
+            >
+              Já paguei, preencher formulário <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </section>
