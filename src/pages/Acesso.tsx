@@ -90,6 +90,9 @@ const Acesso = () => {
                 className="w-full rounded-2xl border border-border bg-card px-4 py-3 text-center tracking-wider font-mono text-lg uppercase outline-none focus:border-primary transition-colors"
               />
               {erro && <p className="mt-3 text-sm font-medium text-destructive">{erro}</p>}
+              <p className="mt-3 text-xs text-muted-foreground">
+                Após a compra, você recebe o código por e-mail em poucos minutos. Verifique também a caixa de spam.
+              </p>
             </div>
 
             <button
