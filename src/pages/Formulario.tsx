@@ -224,32 +224,46 @@ const Formulario = () => {
           body: JSON.stringify(payload),
         }).finally(() => clearTimeout(timeoutId));
 
-        let analise = "";
-        if (res.ok) {
-          const text = await res.text();
-          console.log("[n8n] raw response:", text.slice(0, 500));
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-          const isExpr = (s: any) => typeof s === "string" && s.includes("{{");
-          const valid = (s: any) =>
-            typeof s === "string" && s.trim().length > 0 && !isExpr(s);
-
+        // Envio concluído com sucesso -> marca o token como usado e o remove
+        if (tokenAcesso) {
           try {
-            const j: any = JSON.parse(text);
-            const collectText = (value: any): string[] => {
-              if (valid(value) && value.trim().length > 20) return [value.trim()];
-              if (Array.isArray(value)) return value.flatMap(collectText);
-              if (!value || typeof value !== "object") return [];
-
-              const preferred = ["analise", "analysis", "resposta", "output", "text", "message", "content", "data"];
-              const keys = [...preferred, ...Object.keys(value).filter((key) => !preferred.includes(key))];
-              return keys.flatMap((key) => collectText(value[key]));
-            };
-
-            const candidates = Array.from(new Set(collectText(j)));
-            analise = candidates.join("\n\n");
-          } catch {
-            if (valid(text)) analise = text;
+            await fetch(USAR_TOKEN_WEBHOOK, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token: tokenAcesso }),
+            });
+          } catch (e) {
+            console.error("[usar-token] falhou:", e);
           }
+          sessionStorage.removeItem("token_acesso");
+        }
+
+        let analise = "";
+        const text = await res.text();
+        console.log("[n8n] raw response:", text.slice(0, 500));
+
+        const isExpr = (s: any) => typeof s === "string" && s.includes("{{");
+        const valid = (s: any) =>
+          typeof s === "string" && s.trim().length > 0 && !isExpr(s);
+
+        try {
+          const j: any = JSON.parse(text);
+          const collectText = (value: any): string[] => {
+            if (valid(value) && value.trim().length > 20) return [value.trim()];
+            if (Array.isArray(value)) return value.flatMap(collectText);
+            if (!value || typeof value !== "object") return [];
+
+            const preferred = ["analise", "analysis", "resposta", "output", "text", "message", "content", "data"];
+            const keys = [...preferred, ...Object.keys(value).filter((key) => !preferred.includes(key))];
+            return keys.flatMap((key) => collectText(value[key]));
+          };
+
+          const candidates = Array.from(new Set(collectText(j)));
+          analise = candidates.join("\n\n");
+        } catch {
+          if (valid(text)) analise = text;
         }
 
         localStorage.setItem("lvb_analise", analise || "");
@@ -258,6 +272,7 @@ const Formulario = () => {
         window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
       } catch (err: any) {
         console.error("[n8n] fetch falhou:", err?.name, err?.message, err);
+        // Falha no envio: NÃO chama usar-token e NÃO remove o token (cliente pode tentar de novo)
         localStorage.setItem("lvb_analise_status", "email_only");
         window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
       }
