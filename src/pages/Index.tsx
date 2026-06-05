@@ -38,15 +38,6 @@ const benefits = [
 ];
 
 const Sales = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (localStorage.getItem("lvb_pago") === "true" && localStorage.getItem("lvb_usado") !== "true") {
-      navigate("/formulario", { replace: true });
-    }
-  }, [navigate]);
-
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
