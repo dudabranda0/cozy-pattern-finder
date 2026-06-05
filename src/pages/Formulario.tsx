@@ -252,6 +252,21 @@ const Formulario = () => {
           }
         }
 
+        // Envio concluído com sucesso -> marca o token como usado e limpa o acesso.
+        // Se o envio falhar (res.ok === false), NÃO consome o token (cliente pode tentar de novo).
+        if (res.ok && tokenAcesso) {
+          try {
+            await fetch(USAR_TOKEN_WEBHOOK, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token: tokenAcesso }),
+            });
+          } catch (e) {
+            console.error("[usar-token] falhou:", e);
+          }
+          sessionStorage.removeItem("token_acesso");
+        }
+
         localStorage.setItem("lvb_analise", analise || "");
         localStorage.setItem("lvb_analise_status", analise ? "ready" : "email_only");
         // Notifica a tela /analise (mesma aba — storage event não dispara na própria aba)
