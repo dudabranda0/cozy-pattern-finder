@@ -181,6 +181,8 @@ const Formulario = () => {
     const err = validateStep();
     if (err) { toast({ title: "Atenção", description: err, variant: "destructive" }); return; }
 
+    const tokenAcesso = sessionStorage.getItem("token_acesso") || "";
+
     // Persiste dados do cliente imediatamente
     localStorage.setItem("lvb_nome", data.nome);
     localStorage.setItem("lvb_email", data.email);
@@ -206,6 +208,7 @@ const Formulario = () => {
       enviado_em: new Date().toISOString(),
       elegivel_curso: elegivelCurso,
       course_link: elegivelCurso ? COURSE_LINK : "",
+      token_acesso: tokenAcesso,
     });
 
     // Dispara o fetch em background — não bloqueia a navegação
