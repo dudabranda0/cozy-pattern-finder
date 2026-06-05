@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, MessageCircle, Shield } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
@@ -38,15 +36,6 @@ const benefits = [
 ];
 
 const Sales = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (localStorage.getItem("lvb_pago") === "true" && localStorage.getItem("lvb_usado") !== "true") {
-      navigate("/formulario", { replace: true });
-    }
-  }, [navigate]);
-
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
