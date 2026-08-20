@@ -2,11 +2,12 @@ import { useState, useEffect, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, User, Users, CreditCard,
-  AlertCircle, Shield, Loader2,
+  AlertCircle, Shield, Loader2, KeyRound,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 type FormState = {
   nome: string; email: string; celular: string;
