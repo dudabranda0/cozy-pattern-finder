@@ -254,7 +254,7 @@ const Sales = () => {
             Veja como sua análise <span className="text-primary italic">chega para você</span>
           </h2>
           <div className="mt-12 relative">
-            <div className="absolute -inset-3 border border-gold/40 translate-x-3 translate-y-3 pointer-events-none" />
+            <div className="absolute -inset-3 border border-gold/40 rounded-3xl translate-x-3 translate-y-3 pointer-events-none" />
             <div className="relative lvb-card overflow-hidden">
               <div className="bg-ink text-ink-foreground px-5 py-4 flex items-center gap-3 border-b border-gold/25">
                 <span className="w-2.5 h-2.5 rounded-full bg-gold-light animate-pulse-dot" />
@@ -278,8 +278,8 @@ const Sales = () => {
                         className="mt-2 space-y-1.5 select-none"
                         style={{ filter: idx === 0 ? "blur(3px)" : "blur(5px)" }}
                       >
-                        <div className="h-2 bg-secondary rounded-none w-full" />
-                        <div className="h-2 bg-secondary rounded-none w-10/12" />
+                        <div className="h-2 bg-secondary rounded-full w-full" />
+                        <div className="h-2 bg-secondary rounded-full w-10/12" />
                       </div>
                     </div>
                   </div>
@@ -310,8 +310,8 @@ const Sales = () => {
             Por menos do que <span className="text-primary italic">você imagina</span>
           </h2>
           <div className="mt-10 relative">
-            <div className="absolute -inset-3 border border-gold/40 -translate-x-3 translate-y-3 pointer-events-none" />
-            <div className="relative bg-card border border-gold/25 shadow-[0_20px_50px_rgba(36,13,19,0.06)] p-8 md:p-10">
+            <div className="absolute -inset-3 border border-gold/40 rounded-3xl -translate-x-3 translate-y-3 pointer-events-none" />
+            <div className="relative bg-card border border-gold/25 rounded-3xl shadow-[0_20px_50px_rgba(36,13,19,0.06)] p-8 md:p-10">
               <div className="text-center">
                 <span className="text-[10px] uppercase tracking-[0.3em] text-gold font-bold">Pagamento único</span>
                 <div className="font-serif-lvb font-bold leading-none mt-3">
@@ -324,7 +324,7 @@ const Sales = () => {
               <ul className="mt-8 space-y-3">
                 {benefits.map((b) => (
                   <li key={b} className="flex items-start gap-3">
-                    <span className="mt-0.5 w-5 h-5 border border-primary text-primary flex items-center justify-center shrink-0">
+                    <span className="mt-0.5 w-5 h-5 rounded-full border border-primary text-primary flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3" strokeWidth={3} />
                     </span>
                     <span className="text-sm">{b}</span>
