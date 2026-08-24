@@ -121,41 +121,56 @@ const Formulario = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Analisando sua situação...");
 
-  // Trava de acesso: só entra quem passou pela página /obrigado (após pagamento)
-  // ou quem chegou com ?acesso=ok (redirect da Kiwify, ex.: /formulario?acesso=ok)
+  // Sistema de créditos: o formulário só libera com um código válido (recebido por e-mail após o pagamento)
+  const [credito, setCredito] = useState<string | null>(null);
+  const [codigoInput, setCodigoInput] = useState("");
+  const [verificandoCodigo, setVerificandoCodigo] = useState(false);
+  const [checandoCredito, setChecandoCredito] = useState(true);
+
+  // Ao abrir: se já existe um código validado salvo neste navegador, revalida no servidor
   useEffect(() => {
     if (typeof window === "undefined") return;
+    const salvo = localStorage.getItem("lvb_credito");
+    if (!salvo) { setChecandoCredito(false); return; }
+    (async () => {
+      try {
+        const { data: resp } = await supabase.functions.invoke("validar-credito", { body: { codigo: salvo } });
+        if (resp?.valido) setCredito(salvo);
+        else localStorage.removeItem("lvb_credito");
+      } catch {
+        // Sem conexão: deixa o usuário digitar o código novamente
+      } finally {
+        setChecandoCredito(false);
+      }
+    })();
+  }, []);
 
-    // 1) Já usou a análise -> volta pro checkout
-    if (localStorage.getItem("lvb_usado") === "true") {
-      toast({
-        title: "Você já utilizou sua análise",
-        description: "Para uma nova análise, adquira novamente por R$ 29,90.",
-        variant: "destructive",
-      });
-      window.location.href = CAKTO_LINK;
+  const verificarCodigo = async (e: FormEvent) => {
+    e.preventDefault();
+    const codigo = codigoInput.trim().toUpperCase();
+    if (codigo.length < 4) {
+      toast({ title: "Atenção", description: "Digite o código que você recebeu por e-mail.", variant: "destructive" });
       return;
     }
-
-    // 2) Permite liberação via query param (útil se a Kiwify redirecionar direto pra cá)
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("acesso") === "ok") {
-      localStorage.setItem("lvb_pago", "true");
-      url.searchParams.delete("acesso");
-      window.history.replaceState({}, "", url.pathname + url.search);
+    setVerificandoCodigo(true);
+    try {
+      const { data: resp, error } = await supabase.functions.invoke("validar-credito", { body: { codigo } });
+      if (error) throw error;
+      if (resp?.valido) {
+        localStorage.setItem("lvb_credito", codigo);
+        setCredito(codigo);
+      } else {
+        const msg = resp?.motivo === "usado"
+          ? "Este código já foi utilizado. Cada crédito vale uma análise."
+          : "Código não encontrado. Confira o e-mail que você recebeu após o pagamento.";
+        toast({ title: "Código inválido", description: msg, variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Erro", description: "Não foi possível verificar o código. Tente novamente.", variant: "destructive" });
+    } finally {
+      setVerificandoCodigo(false);
     }
-
-    // 3) Sem comprovação de pagamento -> manda pra home
-    if (localStorage.getItem("lvb_pago") !== "true") {
-      toast({
-        title: "Acesso restrito",
-        description:
-          "O formulário é liberado após o pagamento. Finalize sua compra para acessar a análise.",
-        variant: "destructive",
-      });
-      nav("/", { replace: true });
-    }
-  }, [nav]);
+  };
 
   // Mensagens progressivas enquanto aguardamos a resposta do n8n (Claude pode demorar 15-30s)
   useEffect(() => {
@@ -278,6 +293,12 @@ const Formulario = () => {
           }
         }
 
+        // Consome o crédito somente após o envio bem-sucedido ao n8n
+        if (res.ok && credito) {
+          const { data: consumo } = await supabase.functions.invoke("consumir-credito", { body: { codigo: credito } });
+          if (consumo?.ok) localStorage.removeItem("lvb_credito");
+        }
+
         localStorage.setItem("lvb_analise", analise || "");
         localStorage.setItem("lvb_analise_status", analise ? "ready" : "email_only");
         // Notifica a tela /analise (mesma aba — storage event não dispara na própria aba)
@@ -310,6 +331,70 @@ const Formulario = () => {
             <span className="w-2.5 h-2.5 rounded-full bg-primary dot-2" />
             <span className="w-2.5 h-2.5 rounded-full bg-primary dot-3" />
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Tela de verificação inicial (revalidando código salvo)
+  if (checandoCredito) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  // Tela de código de acesso: o formulário só aparece com um crédito válido
+  if (!credito) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-5 py-12">
+        <div className="lvb-card max-w-md w-full p-8 md:p-10 text-center animate-fade-up">
+          <div className="flex justify-center"><LvbLogo size="lg" /></div>
+          <div className="mt-6 mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+            <KeyRound className="w-7 h-7 text-primary" />
+          </div>
+          <h1 className="font-serif-lvb mt-5 text-2xl md:text-3xl font-bold leading-tight">
+            Digite seu código de acesso
+          </h1>
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+            Após o pagamento, você recebe um código por e-mail (ex: LVB-XXXXX).
+            Ele é o seu crédito para uma análise: <strong className="text-foreground">não expira</strong> e
+            só é utilizado quando você enviar o formulário.
+          </p>
+          <form onSubmit={verificarCodigo} className="mt-6 space-y-3">
+            <input
+              type="text"
+              value={codigoInput}
+              onChange={(e) => setCodigoInput(e.target.value.toUpperCase())}
+              placeholder="LVB-XXXXX"
+              autoComplete="off"
+              maxLength={12}
+              className="w-full rounded-2xl border border-border bg-card px-4 py-3.5 text-center text-lg font-semibold tracking-[0.2em] uppercase outline-none focus:border-primary transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={verificandoCodigo}
+              className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground w-full px-6 py-4 font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {verificandoCodigo ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>Liberar meu formulário <ArrowRight className="w-5 h-5" /></>
+              )}
+            </button>
+          </form>
+          <p className="mt-5 text-xs text-muted-foreground">
+            Ainda não tem um código?{" "}
+            <a
+              href={CAKTO_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary font-semibold underline underline-offset-2"
+            >
+              Adquira sua análise
+            </a>
+          </p>
         </div>
       </div>
     );

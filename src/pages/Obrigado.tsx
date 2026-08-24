@@ -1,22 +1,15 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Mail } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 
 const steps = [
-  "Preencha o formulário com seus dados e situação",
-  "Aguarde enquanto geramos sua análise",
-  "Receba sua análise no e-mail cadastrado",
+  "Abra o e-mail que enviamos com seu código de acesso (confira também a caixa de spam)",
+  "Digite o código na página do formulário para liberar o acesso",
+  "Preencha o formulário — leva menos de 5 minutos",
+  "Receba sua análise na tela e também no seu e-mail",
 ];
 
 const Obrigado = () => {
-  // Marca acesso liberado para o formulário (quem cai aqui passou pelo pagamento)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("lvb_pago", "true");
-    }
-  }, []);
-
   return (
   <div className="min-h-screen bg-background flex items-center justify-center p-5 py-12">
     <div className="lvb-card max-w-xl w-full p-8 md:p-10 text-center animate-fade-up">
@@ -25,12 +18,20 @@ const Obrigado = () => {
         <Check className="w-8 h-8 text-emerald-600" strokeWidth={3} />
       </div>
       <h1 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight">
-        Pagamento confirmado! Falta só preencher o formulário.
+        Pagamento confirmado!
       </h1>
       <p className="mt-3 text-muted-foreground">
-        <strong className="text-foreground">Atenção:</strong> sua análise <strong className="text-foreground">só é gerada depois</strong> que você preencher o formulário abaixo. Leva menos de 5 minutos.
+        Enviamos um <strong className="text-foreground">código de acesso</strong> para o e-mail da sua compra.
+        Sua análise <strong className="text-foreground">só é gerada depois</strong> que você preencher o formulário.
       </p>
-      <ol className="mt-8 space-y-3 text-left">
+      <div className="mt-5 bg-beige-deep rounded-2xl p-4 flex gap-3 items-start text-left">
+        <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+        <p className="text-sm text-foreground/85 leading-relaxed">
+          Seu código é o seu crédito: <strong className="text-foreground">ele não expira</strong>.
+          Se esta página fechar, volte quando quiser e use o mesmo código para preencher o formulário.
+        </p>
+      </div>
+      <ol className="mt-6 space-y-3 text-left">
         {steps.map((s, i) => (
           <li key={s} className="bg-beige-deep rounded-2xl p-4 flex gap-4 items-start">
             <span className="w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center shrink-0">
@@ -44,7 +45,7 @@ const Obrigado = () => {
         to="/formulario"
         className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 font-semibold inline-flex items-center justify-center gap-2 w-full"
       >
-        Preencher meu formulário agora <ArrowRight className="w-5 h-5" />
+        Já tenho meu código — preencher formulário <ArrowRight className="w-5 h-5" />
       </Link>
     </div>
   </div>

@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, MessageCircle, Shield } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
@@ -38,15 +37,6 @@ const benefits = [
 ];
 
 const Sales = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (localStorage.getItem("lvb_pago") === "true" && localStorage.getItem("lvb_usado") !== "true") {
-      navigate("/formulario", { replace: true });
-    }
-  }, [navigate]);
-
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -123,8 +113,14 @@ const Sales = () => {
               Após o pagamento, a Kiwify envia um e-mail ou mensagem no WhatsApp apenas confirmando o recebimento. Essa mensagem não libera a análise.
             </p>
             <p className="text-amber-800 text-sm leading-relaxed">
-              Para acessar sua análise, volte para este site (a mesma página onde você fez o pagamento) e siga para preencher o formulário. É por aqui que sua análise será liberada.
+              Em seguida, você recebe por e-mail um <strong>código de acesso</strong> (seu crédito). Volte a este site e use o código para preencher o formulário — é só assim que sua análise é liberada. O código não expira: se a página fechar, é só voltar e digitá-lo de novo.
             </p>
+            <Link
+              to="/formulario"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-amber-900 underline underline-offset-4 hover:text-amber-950 transition-colors"
+            >
+              Já tenho meu código — preencher formulário
+            </Link>
           </div>
         </div>
       </section>
