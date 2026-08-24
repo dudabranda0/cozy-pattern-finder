@@ -30,7 +30,7 @@ export const LvbLogo = forwardRef<HTMLSpanElement, LogoProps>(
         <span
           className={`font-serif-lvb font-bold leading-none tracking-tight ${
             size === "sm" ? "text-lg" : size === "md" ? "text-xl" : "text-2xl"
-          } ${variant === "light" ? "text-[#F3E9D7]" : "text-foreground"}`}
+          } ${variant === "light" ? "text-ink-foreground" : "text-foreground"}`}
         >
           Larissa Brandão
         </span>
