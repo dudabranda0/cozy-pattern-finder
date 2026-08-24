@@ -616,7 +616,8 @@ const Formulario = () => {
     } catch { return null; }
   }, []);
 
-  const [screen, setScreen] = useState<"abertura" | "form">(draft?.step >= 1 ? "form" : "abertura");
+  const [screen, setScreen] = useState<"abertura" | "form" | "sucesso" | "erro">(draft?.step >= 1 ? "form" : "abertura");
+  const [enviando, setEnviando] = useState(false);
   const [step, setStep] = useState<number>(draft?.step >= 1 ? draft.step : 1);
   const [dividaIndex, setDividaIndex] = useState<number>(typeof draft?.dividaIndex === "number" ? draft.dividaIndex : -1);
   const [data, setData] = useState<FormData>(draft?.data ? { ...emptyData, ...draft.data } : emptyData);
@@ -827,107 +828,84 @@ const Formulario = () => {
 
   /* --------- envio --------- */
 
+  // O webhook responde na hora só confirmando o recebimento; a análise
+  // é gerada em segundo plano e chega por e-mail. Timeout de 15s: acima
+  // disso é falha de rede, pois a resposta leva menos de 1s.
+  const enviar = async () => {
+    setEnviando(true);
+    try {
+      // Elegibilidade ao curso: dívidas até ~R$ 50.000 (faixa mais próxima: 30k_60k)
+      const elegivelCurso = ["ate_10k", "10k_30k", "30k_60k"].includes(data.renda.valor_total_dividas);
+
+      const payload = sanitizePayload({
+        identificacao: { ...data.identificacao },
+        renda: { ...data.renda },
+        despesas: { ...data.despesas },
+        dividas: data.dividas.map((d) => ({ ...d })),
+        patrimonio: { ...data.patrimonio },
+        cobranca: { ...data.cobranca },
+        objetivo: { ...data.objetivo, relato_livre: data.objetivo.relato_livre.slice(0, RELATO_MAX) },
+        meta: {
+          data_envio: new Date().toISOString(),
+          origem: "site",
+          tempo_preenchimento_segundos: Math.round((Date.now() - startedAt) / 1000),
+        },
+        codigo: credito || "",
+        elegivel_curso: elegivelCurso,
+        course_link: elegivelCurso ? COURSE_LINK : "",
+      });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const res = await fetch(N8N_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify(payload),
+      }).finally(() => clearTimeout(timeoutId));
+
+      // Sucesso somente com status "ok" — a resposta não traz a análise
+      let ok = false;
+      if (res.ok) {
+        try {
+          const j: any = await res.json();
+          ok = j?.status === "ok";
+        } catch { ok = false; }
+      }
+      if (!ok) throw new Error(`Resposta inesperada (HTTP ${res.status})`);
+
+      // Consome o crédito somente após confirmação do webhook
+      if (credito) {
+        try {
+          const { data: consumo } = await supabase.functions.invoke("consumir-credito", { body: { codigo: credito } });
+          if (consumo?.ok) localStorage.removeItem("lvb_credito");
+        } catch { /* crédito segue salvo; suporte resolve se necessário */ }
+      }
+
+      localStorage.setItem("lvb_usado", "true");
+      localStorage.removeItem(DRAFT_KEY);
+      setScreen("sucesso");
+      scrollTop();
+    } catch (err: any) {
+      console.error("[n8n] envio falhou:", err?.name, err?.message, err);
+      setScreen("erro");
+      scrollTop();
+    } finally {
+      setEnviando(false);
+    }
+  };
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (enviando) return;
     if (missingFields().length > 0) {
       setAttempted(true);
       toast({ title: "Quase lá", description: "Responda as perguntas destacadas para continuar." });
       scrollTop();
       return;
     }
-
-    const i = data.identificacao;
-
-    // Compatibilidade com a tela /analise (personalização, matriz de risco, curso)
-    localStorage.setItem("lvb_nome", i.nome_completo);
-    localStorage.setItem("lvb_email", i.email);
-    localStorage.setItem("lvb_total_dividas", VALOR_TOTAL_DIVIDAS.find((x) => x.v === data.renda.valor_total_dividas)?.l ?? "");
-    localStorage.setItem("lvb_tempo_divida", piorAtraso(data.dividas));
-    const judicial =
-      (data.cobranca.citado_processo && data.cobranca.citado_processo !== "nao") ||
-      data.cobranca.comunicacoes_recebidas.some((c) => ["intimacao_cartorio", "carta_consolidacao", "oficial_justica", "carta_forum"].includes(c));
-    localStorage.setItem("lvb_cobranca_judicial", judicial ? "sim" : "nao");
-    localStorage.setItem("lvb_tipo_divida", data.tipos_divida.map(modalidadeLabel).join("|"));
-    localStorage.setItem("lvb_analise", "");
-    localStorage.setItem("lvb_analise_status", "pending");
-    localStorage.setItem("lvb_usado", "true");
-    localStorage.removeItem(DRAFT_KEY);
-
-    // Elegibilidade ao curso: dívidas até ~R$ 50.000 (faixa mais próxima: 30k_60k)
-    const elegivelCurso = ["ate_10k", "10k_30k", "30k_60k"].includes(data.renda.valor_total_dividas);
-
-    const payload = sanitizePayload({
-      identificacao: { ...data.identificacao },
-      renda: { ...data.renda },
-      despesas: { ...data.despesas },
-      dividas: data.dividas.map((d) => ({ ...d })),
-      patrimonio: { ...data.patrimonio },
-      cobranca: { ...data.cobranca },
-      objetivo: { ...data.objetivo, relato_livre: data.objetivo.relato_livre.slice(0, RELATO_MAX) },
-      meta: {
-        data_envio: new Date().toISOString(),
-        origem: "site",
-        tempo_preenchimento_segundos: Math.round((Date.now() - startedAt) / 1000),
-      },
-      codigo: credito || "",
-      elegivel_curso: elegivelCurso,
-      course_link: elegivelCurso ? COURSE_LINK : "",
-    });
-
-    // Dispara o fetch em background — não bloqueia a navegação
-    (async () => {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 120000);
-
-        const res = await fetch(N8N_WEBHOOK, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify(payload),
-        }).finally(() => clearTimeout(timeoutId));
-
-        let analise = "";
-        if (res.ok) {
-          const text = await res.text();
-          console.log("[n8n] raw response:", text.slice(0, 500));
-
-          const isExpr = (s: any) => typeof s === "string" && s.includes("{{");
-          const valid = (s: any) => typeof s === "string" && s.trim().length > 0 && !isExpr(s);
-
-          try {
-            const j: any = JSON.parse(text);
-            const collectText = (value: any): string[] => {
-              if (valid(value) && value.trim().length > 20) return [value.trim()];
-              if (Array.isArray(value)) return value.flatMap(collectText);
-              if (!value || typeof value !== "object") return [];
-              const preferred = ["analise", "analysis", "resposta", "output", "text", "message", "content", "data"];
-              const keys = [...preferred, ...Object.keys(value).filter((key) => !preferred.includes(key))];
-              return keys.flatMap((key) => collectText(value[key]));
-            };
-            analise = Array.from(new Set(collectText(j))).join("\n\n");
-          } catch {
-            if (valid(text)) analise = text;
-          }
-        }
-
-        // Consome o crédito somente após o envio bem-sucedido ao n8n
-        if (res.ok && credito) {
-          const { data: consumo } = await supabase.functions.invoke("consumir-credito", { body: { codigo: credito } });
-          if (consumo?.ok) localStorage.removeItem("lvb_credito");
-        }
-
-        localStorage.setItem("lvb_analise", analise || "");
-        localStorage.setItem("lvb_analise_status", analise ? "ready" : "email_only");
-        window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
-      } catch (err: any) {
-        console.error("[n8n] fetch falhou:", err?.name, err?.message, err);
-        localStorage.setItem("lvb_analise_status", "email_only");
-        window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
-      }
-    })();
-
-    nav("/analise");
+    await enviar();
   };
 
   /* --------- telas de portão (crédito) --------- */
