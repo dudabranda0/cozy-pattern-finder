@@ -370,7 +370,7 @@ const DRAFT_KEY = "lvb_form_draft_v2";
 const sanitizeText = (value: unknown): string => {
   if (value === null || value === undefined) return "";
   return String(value)
-    .replace(/[ -]/g, "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
     .replace(/[\r\n\t]+/g, " ")
     .replace(/ {2,}/g, " ")
     .trim();
