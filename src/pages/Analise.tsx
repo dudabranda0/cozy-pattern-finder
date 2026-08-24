@@ -352,13 +352,23 @@ const Analise = () => {
   // Matriz de Risco Patrimonial — uma linha por tipo de dívida marcado pelo cliente
   const riscoPatrimonial = useMemo(() => {
     const mapa: Record<string, { level: "alta" | "media" | "baixa"; desc: string }> = {
-      "Financiamento imobiliário": { level: "alta", desc: "Execução extrajudicial e leilão do imóvel" },
+      "Financiamento de imóvel": { level: "alta", desc: "Execução extrajudicial e leilão do imóvel" },
       "Financiamento de veículo": { level: "alta", desc: "Risco de busca e apreensão do bem" },
-      "Crédito consignado": { level: "alta", desc: "Desconto direto em folha — comprometimento da renda" },
-      "Cartão de crédito": { level: "media", desc: "Alta probabilidade de juros abusivos" },
+      "Empréstimo consignado (desconto em folha ou benefício)": { level: "alta", desc: "Desconto direto em folha — comprometimento da renda" },
+      "Cartão consignado ou cartão benefício": { level: "alta", desc: "Desconto direto no benefício — revisão de margem" },
+      "Cheque especial PJ ou conta garantida": { level: "alta", desc: "Juros entre os mais altos do mercado — revisão urgente" },
+      "Cartão de crédito com fatura atrasada": { level: "media", desc: "Alta probabilidade de juros abusivos" },
       "Empréstimo pessoal": { level: "media", desc: "Recálculo de margem e revisão contratual" },
-      "Cheque especial": { level: "media", desc: "Juros entre os mais altos do mercado — revisão indicada" },
-      "Outro tipo de dívida": { level: "media", desc: "Análise individual recomendada" },
+      "Cheque especial ou limite da conta": { level: "media", desc: "Juros entre os mais altos do mercado — revisão indicada" },
+      "Acordo ou renegociação que eu assinei com o banco": { level: "media", desc: "Verificar se o acordo repactuou encargos abusivos" },
+      "Consórcio": { level: "media", desc: "Regras próprias de inadimplência e devolução de valores" },
+      "Capital de giro ou empréstimo da empresa": { level: "media", desc: "Risco de alcance dos bens pessoais via aval" },
+      "Antecipação de recebíveis ou desconto de duplicatas": { level: "media", desc: "Verificar custo efetivo e retenção de recebíveis" },
+      "Cartão de loja ou crediário": { level: "media", desc: "Juros elevados — revisão de encargos indicada" },
+      "Empréstimo em aplicativo ou fintech": { level: "media", desc: "Contratação digital — verificar CET e tarifas" },
+      "Dívida ligada a apostas ou jogos online": { level: "media", desc: "Análise individual com enfoque em superendividamento" },
+      "Cobrança de empresa de cobrança ou dívida vendida": { level: "media", desc: "Verificar cadeia de cessão e valor cobrado" },
+      "Dívida em que eu sou só avalista ou fiador": { level: "media", desc: "Responsabilidade pelo débito de terceiro — defesas específicas" },
     };
     return tiposDivida.map((tipo) => ({
       title: tipo,
@@ -367,8 +377,9 @@ const Analise = () => {
   }, [tiposDivida]);
 
   const elegivelCurso = useMemo(() => {
-    const faixasAte35k = ["Até R$ 5.000", "R$ 5.000 a R$ 15.000", "R$ 15.000 a R$ 50.000"];
-    return faixasAte35k.includes(totalDividas);
+    // Dívidas até ~R$ 50.000 (novas faixas do formulário)
+    const faixasElegiveis = ["Até R$ 10.000", "De R$ 10.001 a R$ 30.000", "De R$ 30.001 a R$ 60.000"];
+    return faixasElegiveis.includes(totalDividas);
   }, [totalDividas]);
 
 
