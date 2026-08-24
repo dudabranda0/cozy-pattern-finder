@@ -404,19 +404,6 @@ const toggleMulti = (list: string[], value: string, exclusive?: string): string[
   return sem.includes(value) ? sem.filter((x) => x !== value) : [...sem, value];
 };
 
-const ATRASO_ORDEM = ["em_dia", "ate_30d", "31_90d", "91_180d", "6m_1a", "1a_3a", "3a_5a", "mais_5a"];
-const ATRASO_LABEL: Record<string, string> = Object.fromEntries(ATRASO.map((x) => [x.v, x.l]));
-
-const piorAtraso = (dividas: Divida[]): string => {
-  let max = -1;
-  for (const d of dividas) {
-    const i = ATRASO_ORDEM.indexOf(d.atraso);
-    if (i > max) max = i;
-  }
-  if (max <= 0) return ""; // em_dia ou vazio: sem atraso relevante
-  return ATRASO_LABEL[ATRASO_ORDEM[max]] ?? "";
-};
-
 /* ================= UI PRIMITIVES ================= */
 
 const Radio = ({ name, value, checked, onChange, label }: any) => (
