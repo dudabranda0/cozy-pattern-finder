@@ -336,6 +336,70 @@ const Formulario = () => {
     );
   }
 
+  // Tela de verificação inicial (revalidando código salvo)
+  if (checandoCredito) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  // Tela de código de acesso: o formulário só aparece com um crédito válido
+  if (!credito) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-5 py-12">
+        <div className="lvb-card max-w-md w-full p-8 md:p-10 text-center animate-fade-up">
+          <div className="flex justify-center"><LvbLogo size="lg" /></div>
+          <div className="mt-6 mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+            <KeyRound className="w-7 h-7 text-primary" />
+          </div>
+          <h1 className="font-serif-lvb mt-5 text-2xl md:text-3xl font-bold leading-tight">
+            Digite seu código de acesso
+          </h1>
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+            Após o pagamento, você recebe um código por e-mail (ex: LVB-XXXXX).
+            Ele é o seu crédito para uma análise: <strong className="text-foreground">não expira</strong> e
+            só é utilizado quando você enviar o formulário.
+          </p>
+          <form onSubmit={verificarCodigo} className="mt-6 space-y-3">
+            <input
+              type="text"
+              value={codigoInput}
+              onChange={(e) => setCodigoInput(e.target.value.toUpperCase())}
+              placeholder="LVB-XXXXX"
+              autoComplete="off"
+              maxLength={12}
+              className="w-full rounded-2xl border border-border bg-card px-4 py-3.5 text-center text-lg font-semibold tracking-[0.2em] uppercase outline-none focus:border-primary transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={verificandoCodigo}
+              className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground w-full px-6 py-4 font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {verificandoCodigo ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>Liberar meu formulário <ArrowRight className="w-5 h-5" /></>
+              )}
+            </button>
+          </form>
+          <p className="mt-5 text-xs text-muted-foreground">
+            Ainda não tem um código?{" "}
+            <a
+              href={CAKTO_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary font-semibold underline underline-offset-2"
+            >
+              Adquira sua análise
+            </a>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-16">
       <header className="sticky top-0 z-50 glass-header border-b border-border">
