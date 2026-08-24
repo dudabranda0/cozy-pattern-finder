@@ -5,7 +5,7 @@ import {
   AlertCircle, Shield, Loader2, KeyRound,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -394,6 +394,17 @@ const Formulario = () => {
               className="text-primary font-semibold underline underline-offset-2"
             >
               Adquira sua análise
+            </a>
+          </p>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Pagou e não recebeu o código?{" "}
+            <a
+              href={WHATSAPP_SUPORTE}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary font-semibold underline underline-offset-2"
+            >
+              Fale com a equipe
             </a>
           </p>
         </div>

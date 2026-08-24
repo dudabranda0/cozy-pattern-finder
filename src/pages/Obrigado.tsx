@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Check, ArrowRight, Mail } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
+import { WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
 
 const steps = [
   "Abra o e-mail que enviamos com seu código de acesso (confira também a caixa de spam)",
@@ -47,6 +48,17 @@ const Obrigado = () => {
       >
         Já tenho meu código — preencher formulário <ArrowRight className="w-5 h-5" />
       </Link>
+      <p className="mt-4 text-xs text-muted-foreground">
+        Pagou e não recebeu o código?{" "}
+        <a
+          href={WHATSAPP_SUPORTE}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary font-semibold underline underline-offset-2"
+        >
+          Fale com a equipe
+        </a>
+      </p>
     </div>
   </div>
   );
