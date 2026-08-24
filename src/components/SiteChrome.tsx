@@ -6,10 +6,10 @@ export const SiteHeader = () => {
   return (
     <header className="sticky top-0 z-50 glass-header border-b border-border/60">
       <div className="container max-w-6xl flex items-center justify-between py-3 gap-3">
-        <Link to="/" aria-label="LVB Início">
-          <LvbLogo size="md" />
+        <Link to="/" aria-label="LVB — Larissa Brandão · Início" className="min-w-0">
+          <LvbLogo size="sm" withName className="[&>span:last-child]:hidden min-[420px]:[&>span:last-child]:inline" />
         </Link>
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
           <a
             href={CAKTO_LINK}
             target="_blank"
@@ -25,20 +25,20 @@ export const SiteHeader = () => {
 };
 
 export const SiteFooter = () => (
-  <footer className="bg-[#1A1005] text-primary-foreground/80">
+  <footer className="bg-ink text-ink-foreground/80">
     <div className="container max-w-6xl py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-      <LvbLogo size="md" className="brightness-110" />
+      <LvbLogo size="md" variant="light" withName />
       <div className="flex flex-col items-center md:items-end gap-3">
         <nav className="flex gap-6 text-xs md:text-sm">
-          <Link to="/termos" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+          <Link to="/termos" className="text-ink-foreground/80 hover:text-ink-foreground transition-colors">
             Termos de Uso
           </Link>
-          <Link to="/privacidade" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+          <Link to="/privacidade" className="text-ink-foreground/80 hover:text-ink-foreground transition-colors">
             Política de Privacidade
           </Link>
         </nav>
-        <p className="text-xs md:text-sm text-primary-foreground/60 text-center md:text-right max-w-md">
-          © {new Date().getFullYear()} LVB — Larissa De Vargas Brandão.
+        <p className="text-xs md:text-sm text-ink-foreground/60 text-center md:text-right max-w-md">
+          © {new Date().getFullYear()} LVB — Larissa Brandão.
           Suas informações são tratadas com total confidencialidade.
         </p>
       </div>

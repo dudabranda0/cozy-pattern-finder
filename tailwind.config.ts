@@ -7,7 +7,10 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "1.25rem",
+        md: "2rem",
+      },
       screens: {
         "2xl": "1400px",
       },
@@ -33,6 +36,10 @@ export default {
           foreground: "hsl(var(--gold-foreground))",
         },
         weak: "hsl(var(--weak))",
+        ink: {
+          DEFAULT: "hsl(var(--ink))",
+          foreground: "hsl(var(--ink-foreground))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           hover: "hsl(var(--primary-hover))",
