@@ -422,7 +422,7 @@ const Analise = () => {
 
         <div className="container max-w-4xl relative pt-12 pb-32 md:pt-16 md:pb-40">
           <div className="flex justify-center mb-7">
-            <LvbLogo size="md" className="brightness-110" />
+            <LvbLogo size="md" variant="light" />
           </div>
 
           <div className="flex justify-center mb-5">
