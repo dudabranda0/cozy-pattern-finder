@@ -1,11 +1,11 @@
 import { useState, useEffect, FormEvent, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, User, Banknote, Home, CreditCard,
   Shield, BellRing, Target, Loader2, KeyRound, ChevronDown, Search,
+  Check, AlertTriangle, Instagram,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, WHATSAPP_SUPORTE, INSTAGRAM_LINK } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
