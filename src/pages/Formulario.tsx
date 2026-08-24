@@ -1,11 +1,11 @@
 import { useState, useEffect, FormEvent, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, User, Banknote, Home, CreditCard,
   Shield, BellRing, Target, Loader2, KeyRound, ChevronDown, Search,
+  CheckCircle2, AlertTriangle, Instagram,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, WHATSAPP_SUPORTE, INSTAGRAM_LINK } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -404,19 +404,6 @@ const toggleMulti = (list: string[], value: string, exclusive?: string): string[
   return sem.includes(value) ? sem.filter((x) => x !== value) : [...sem, value];
 };
 
-const ATRASO_ORDEM = ["em_dia", "ate_30d", "31_90d", "91_180d", "6m_1a", "1a_3a", "3a_5a", "mais_5a"];
-const ATRASO_LABEL: Record<string, string> = Object.fromEntries(ATRASO.map((x) => [x.v, x.l]));
-
-const piorAtraso = (dividas: Divida[]): string => {
-  let max = -1;
-  for (const d of dividas) {
-    const i = ATRASO_ORDEM.indexOf(d.atraso);
-    if (i > max) max = i;
-  }
-  if (max <= 0) return ""; // em_dia ou vazio: sem atraso relevante
-  return ATRASO_LABEL[ATRASO_ORDEM[max]] ?? "";
-};
-
 /* ================= UI PRIMITIVES ================= */
 
 const Radio = ({ name, value, checked, onChange, label }: any) => (
@@ -608,8 +595,6 @@ const TOTAL_ETAPAS = 7;
 /* ================= COMPONENTE ================= */
 
 const Formulario = () => {
-  const nav = useNavigate();
-
   // Restaura rascunho salvo (autosave)
   const draft = useMemo(() => {
     try {
@@ -618,7 +603,8 @@ const Formulario = () => {
     } catch { return null; }
   }, []);
 
-  const [screen, setScreen] = useState<"abertura" | "form">(draft?.step >= 1 ? "form" : "abertura");
+  const [screen, setScreen] = useState<"abertura" | "form" | "sucesso" | "erro">(draft?.step >= 1 ? "form" : "abertura");
+  const [enviando, setEnviando] = useState(false);
   const [step, setStep] = useState<number>(draft?.step >= 1 ? draft.step : 1);
   const [dividaIndex, setDividaIndex] = useState<number>(typeof draft?.dividaIndex === "number" ? draft.dividaIndex : -1);
   const [data, setData] = useState<FormData>(draft?.data ? { ...emptyData, ...draft.data } : emptyData);
@@ -829,107 +815,84 @@ const Formulario = () => {
 
   /* --------- envio --------- */
 
+  // O webhook responde na hora só confirmando o recebimento; a análise
+  // é gerada em segundo plano e chega por e-mail. Timeout de 15s: acima
+  // disso é falha de rede, pois a resposta leva menos de 1s.
+  const enviar = async () => {
+    setEnviando(true);
+    try {
+      // Elegibilidade ao curso: dívidas até ~R$ 50.000 (faixa mais próxima: 30k_60k)
+      const elegivelCurso = ["ate_10k", "10k_30k", "30k_60k"].includes(data.renda.valor_total_dividas);
+
+      const payload = sanitizePayload({
+        identificacao: { ...data.identificacao },
+        renda: { ...data.renda },
+        despesas: { ...data.despesas },
+        dividas: data.dividas.map((d) => ({ ...d })),
+        patrimonio: { ...data.patrimonio },
+        cobranca: { ...data.cobranca },
+        objetivo: { ...data.objetivo, relato_livre: data.objetivo.relato_livre.slice(0, RELATO_MAX) },
+        meta: {
+          data_envio: new Date().toISOString(),
+          origem: "site",
+          tempo_preenchimento_segundos: Math.round((Date.now() - startedAt) / 1000),
+        },
+        codigo: credito || "",
+        elegivel_curso: elegivelCurso,
+        course_link: elegivelCurso ? COURSE_LINK : "",
+      });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const res = await fetch(N8N_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify(payload),
+      }).finally(() => clearTimeout(timeoutId));
+
+      // Sucesso somente com status "ok" — a resposta não traz a análise
+      let ok = false;
+      if (res.ok) {
+        try {
+          const j: any = await res.json();
+          ok = j?.status === "ok";
+        } catch { ok = false; }
+      }
+      if (!ok) throw new Error(`Resposta inesperada (HTTP ${res.status})`);
+
+      // Consome o crédito somente após confirmação do webhook
+      if (credito) {
+        try {
+          const { data: consumo } = await supabase.functions.invoke("consumir-credito", { body: { codigo: credito } });
+          if (consumo?.ok) localStorage.removeItem("lvb_credito");
+        } catch { /* crédito segue salvo; suporte resolve se necessário */ }
+      }
+
+      localStorage.setItem("lvb_usado", "true");
+      localStorage.removeItem(DRAFT_KEY);
+      setScreen("sucesso");
+      scrollTop();
+    } catch (err: any) {
+      console.error("[n8n] envio falhou:", err?.name, err?.message, err);
+      setScreen("erro");
+      scrollTop();
+    } finally {
+      setEnviando(false);
+    }
+  };
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (enviando) return;
     if (missingFields().length > 0) {
       setAttempted(true);
       toast({ title: "Quase lá", description: "Responda as perguntas destacadas para continuar." });
       scrollTop();
       return;
     }
-
-    const i = data.identificacao;
-
-    // Compatibilidade com a tela /analise (personalização, matriz de risco, curso)
-    localStorage.setItem("lvb_nome", i.nome_completo);
-    localStorage.setItem("lvb_email", i.email);
-    localStorage.setItem("lvb_total_dividas", VALOR_TOTAL_DIVIDAS.find((x) => x.v === data.renda.valor_total_dividas)?.l ?? "");
-    localStorage.setItem("lvb_tempo_divida", piorAtraso(data.dividas));
-    const judicial =
-      (data.cobranca.citado_processo && data.cobranca.citado_processo !== "nao") ||
-      data.cobranca.comunicacoes_recebidas.some((c) => ["intimacao_cartorio", "carta_consolidacao", "oficial_justica", "carta_forum"].includes(c));
-    localStorage.setItem("lvb_cobranca_judicial", judicial ? "sim" : "nao");
-    localStorage.setItem("lvb_tipo_divida", data.tipos_divida.map(modalidadeLabel).join("|"));
-    localStorage.setItem("lvb_analise", "");
-    localStorage.setItem("lvb_analise_status", "pending");
-    localStorage.setItem("lvb_usado", "true");
-    localStorage.removeItem(DRAFT_KEY);
-
-    // Elegibilidade ao curso: dívidas até ~R$ 50.000 (faixa mais próxima: 30k_60k)
-    const elegivelCurso = ["ate_10k", "10k_30k", "30k_60k"].includes(data.renda.valor_total_dividas);
-
-    const payload = sanitizePayload({
-      identificacao: { ...data.identificacao },
-      renda: { ...data.renda },
-      despesas: { ...data.despesas },
-      dividas: data.dividas.map((d) => ({ ...d })),
-      patrimonio: { ...data.patrimonio },
-      cobranca: { ...data.cobranca },
-      objetivo: { ...data.objetivo, relato_livre: data.objetivo.relato_livre.slice(0, RELATO_MAX) },
-      meta: {
-        data_envio: new Date().toISOString(),
-        origem: "site",
-        tempo_preenchimento_segundos: Math.round((Date.now() - startedAt) / 1000),
-      },
-      codigo: credito || "",
-      elegivel_curso: elegivelCurso,
-      course_link: elegivelCurso ? COURSE_LINK : "",
-    });
-
-    // Dispara o fetch em background — não bloqueia a navegação
-    (async () => {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 120000);
-
-        const res = await fetch(N8N_WEBHOOK, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify(payload),
-        }).finally(() => clearTimeout(timeoutId));
-
-        let analise = "";
-        if (res.ok) {
-          const text = await res.text();
-          console.log("[n8n] raw response:", text.slice(0, 500));
-
-          const isExpr = (s: any) => typeof s === "string" && s.includes("{{");
-          const valid = (s: any) => typeof s === "string" && s.trim().length > 0 && !isExpr(s);
-
-          try {
-            const j: any = JSON.parse(text);
-            const collectText = (value: any): string[] => {
-              if (valid(value) && value.trim().length > 20) return [value.trim()];
-              if (Array.isArray(value)) return value.flatMap(collectText);
-              if (!value || typeof value !== "object") return [];
-              const preferred = ["analise", "analysis", "resposta", "output", "text", "message", "content", "data"];
-              const keys = [...preferred, ...Object.keys(value).filter((key) => !preferred.includes(key))];
-              return keys.flatMap((key) => collectText(value[key]));
-            };
-            analise = Array.from(new Set(collectText(j))).join("\n\n");
-          } catch {
-            if (valid(text)) analise = text;
-          }
-        }
-
-        // Consome o crédito somente após o envio bem-sucedido ao n8n
-        if (res.ok && credito) {
-          const { data: consumo } = await supabase.functions.invoke("consumir-credito", { body: { codigo: credito } });
-          if (consumo?.ok) localStorage.removeItem("lvb_credito");
-        }
-
-        localStorage.setItem("lvb_analise", analise || "");
-        localStorage.setItem("lvb_analise_status", analise ? "ready" : "email_only");
-        window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
-      } catch (err: any) {
-        console.error("[n8n] fetch falhou:", err?.name, err?.message, err);
-        localStorage.setItem("lvb_analise_status", "email_only");
-        window.dispatchEvent(new CustomEvent("lvb:analise-updated"));
-      }
-    })();
-
-    nav("/analise");
+    await enviar();
   };
 
   /* --------- telas de portão (crédito) --------- */
@@ -999,6 +962,100 @@ const Formulario = () => {
     );
   }
 
+  /* --------- tela de sucesso --------- */
+
+  if (screen === "sucesso") {
+    const primeiroNome = data.identificacao.nome_completo.trim().split(/\s+/)[0] || "";
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-5 py-12">
+        <div className="lvb-card max-w-xl w-full p-8 md:p-10 text-center animate-fade-up">
+          <div className="flex justify-center"><LvbLogo size="lg" /></div>
+          <div className="mt-6 mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
+            <CheckCircle2 className="w-8 h-8 text-emerald-600" strokeWidth={2.5} />
+          </div>
+          <h1 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight">
+            Recebido{primeiroNome ? `, ${primeiroNome}` : ""}!
+          </h1>
+          <p className="mt-4 text-base text-foreground/85 leading-relaxed">
+            Suas respostas chegaram e a sua análise já está sendo montada.
+          </p>
+          <p className="mt-3 text-base text-muted-foreground leading-relaxed">
+            Ela vai chegar no e-mail que você informou dentro de alguns minutos.
+            Confira também a caixa de spam e a aba Promoções.
+          </p>
+          <div className="mt-5 bg-beige-deep rounded-2xl p-4 text-left">
+            <p className="text-sm text-foreground/85 leading-relaxed">
+              Enquanto isso, uma dica que já vale muito: se algum banco te oferecer acordo nos
+              próximos dias, <strong className="text-foreground">não assine nada antes de ler a sua análise</strong>.
+              Explico o motivo lá dentro.
+            </p>
+          </div>
+          <a
+            href={INSTAGRAM_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 font-semibold inline-flex items-center justify-center gap-2 w-full"
+          >
+            <Instagram className="w-5 h-5" /> Voltar ao Instagram
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  /* --------- tela de erro de envio --------- */
+
+  if (screen === "erro") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-5 py-12">
+        <div className="lvb-card max-w-xl w-full p-8 md:p-10 text-center animate-fade-up">
+          <div className="flex justify-center"><LvbLogo size="lg" /></div>
+          <div className="mt-6 mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+            <AlertTriangle className="w-8 h-8 text-primary" strokeWidth={2.5} />
+          </div>
+          <h1 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight">
+            Não conseguimos enviar suas respostas agora
+          </h1>
+          <p className="mt-4 text-base text-muted-foreground leading-relaxed">
+            Tente novamente em instantes. Se o problema continuar, chame no WhatsApp{" "}
+            <a
+              href="https://wa.me/55519991529687"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary font-semibold underline underline-offset-2"
+            >
+              (51) 99152-9687
+            </a>
+            .
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Suas respostas estão salvas — você não perdeu nada do que preencheu.
+          </p>
+          <button
+            type="button"
+            onClick={enviar}
+            disabled={enviando}
+            className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 font-semibold inline-flex items-center justify-center gap-2 w-full disabled:opacity-60"
+          >
+            {enviando ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> Enviando suas respostas...</>
+            ) : (
+              <>Tentar novamente <ArrowRight className="w-5 h-5" /></>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setScreen("form")}
+            disabled={enviando}
+            className="mt-4 text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
+          >
+            Voltar e revisar minhas respostas
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   /* --------- tela de abertura --------- */
 
   if (screen === "abertura") {
@@ -1046,6 +1103,14 @@ const Formulario = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16">
+      {enviando && (
+        <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="lvb-card p-8 flex flex-col items-center gap-4 text-center">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+            <p className="font-semibold text-foreground">Enviando suas respostas...</p>
+          </div>
+        </div>
+      )}
       <header className="sticky top-0 z-50 glass-header border-b border-border">
         <div className="container max-w-3xl flex items-center justify-between py-3">
           <LvbLogo size="md" />
@@ -1434,9 +1499,13 @@ const Formulario = () => {
               Continuar <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
-            <button type="submit"
-              className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-3.5 font-semibold inline-flex items-center justify-center gap-2">
-              Receber minha análise <ArrowRight className="w-4 h-4" />
+            <button type="submit" disabled={enviando}
+              className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-3.5 font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-60">
+              {enviando ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Enviando suas respostas...</>
+              ) : (
+                <>Receber minha análise <ArrowRight className="w-4 h-4" /></>
+              )}
             </button>
           )}
         </div>
