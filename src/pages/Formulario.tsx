@@ -962,6 +962,100 @@ const Formulario = () => {
     );
   }
 
+  /* --------- tela de sucesso --------- */
+
+  if (screen === "sucesso") {
+    const primeiroNome = data.identificacao.nome_completo.trim().split(/\s+/)[0] || "";
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-5 py-12">
+        <div className="lvb-card max-w-xl w-full p-8 md:p-10 text-center animate-fade-up">
+          <div className="flex justify-center"><LvbLogo size="lg" /></div>
+          <div className="mt-6 mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
+            <CheckCircle2 className="w-8 h-8 text-emerald-600" strokeWidth={2.5} />
+          </div>
+          <h1 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight">
+            Recebido{primeiroNome ? `, ${primeiroNome}` : ""}!
+          </h1>
+          <p className="mt-4 text-base text-foreground/85 leading-relaxed">
+            Suas respostas chegaram e a sua análise já está sendo montada.
+          </p>
+          <p className="mt-3 text-base text-muted-foreground leading-relaxed">
+            Ela vai chegar no e-mail que você informou dentro de alguns minutos.
+            Confira também a caixa de spam e a aba Promoções.
+          </p>
+          <div className="mt-5 bg-beige-deep rounded-2xl p-4 text-left">
+            <p className="text-sm text-foreground/85 leading-relaxed">
+              Enquanto isso, uma dica que já vale muito: se algum banco te oferecer acordo nos
+              próximos dias, <strong className="text-foreground">não assine nada antes de ler a sua análise</strong>.
+              Explico o motivo lá dentro.
+            </p>
+          </div>
+          <a
+            href={INSTAGRAM_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 font-semibold inline-flex items-center justify-center gap-2 w-full"
+          >
+            <Instagram className="w-5 h-5" /> Voltar ao Instagram
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  /* --------- tela de erro de envio --------- */
+
+  if (screen === "erro") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-5 py-12">
+        <div className="lvb-card max-w-xl w-full p-8 md:p-10 text-center animate-fade-up">
+          <div className="flex justify-center"><LvbLogo size="lg" /></div>
+          <div className="mt-6 mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+            <AlertTriangle className="w-8 h-8 text-primary" strokeWidth={2.5} />
+          </div>
+          <h1 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight">
+            Não conseguimos enviar suas respostas agora
+          </h1>
+          <p className="mt-4 text-base text-muted-foreground leading-relaxed">
+            Tente novamente em instantes. Se o problema continuar, chame no WhatsApp{" "}
+            <a
+              href="https://wa.me/55519991529687"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary font-semibold underline underline-offset-2"
+            >
+              (51) 99152-9687
+            </a>
+            .
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Suas respostas estão salvas — você não perdeu nada do que preencheu.
+          </p>
+          <button
+            type="button"
+            onClick={enviar}
+            disabled={enviando}
+            className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 font-semibold inline-flex items-center justify-center gap-2 w-full disabled:opacity-60"
+          >
+            {enviando ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> Enviando suas respostas...</>
+            ) : (
+              <>Tentar novamente <ArrowRight className="w-5 h-5" /></>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setScreen("form")}
+            disabled={enviando}
+            className="mt-4 text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
+          >
+            Voltar e revisar minhas respostas
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   /* --------- tela de abertura --------- */
 
   if (screen === "abertura") {
