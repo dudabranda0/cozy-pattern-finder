@@ -48,6 +48,17 @@ const Obrigado = () => {
       >
         Já tenho meu código — preencher formulário <ArrowRight className="w-5 h-5" />
       </Link>
+      <p className="mt-4 text-xs text-muted-foreground">
+        Pagou e não recebeu o código?{" "}
+        <a
+          href={WHATSAPP_SUPORTE}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary font-semibold underline underline-offset-2"
+        >
+          Fale com a equipe
+        </a>
+      </p>
     </div>
   </div>
   );
