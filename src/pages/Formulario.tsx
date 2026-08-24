@@ -1103,6 +1103,14 @@ const Formulario = () => {
 
   return (
     <div className="min-h-screen bg-background pb-16">
+      {enviando && (
+        <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="lvb-card p-8 flex flex-col items-center gap-4 text-center">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+            <p className="font-semibold text-foreground">Enviando suas respostas...</p>
+          </div>
+        </div>
+      )}
       <header className="sticky top-0 z-50 glass-header border-b border-border">
         <div className="container max-w-3xl flex items-center justify-between py-3">
           <LvbLogo size="md" />
@@ -1491,9 +1499,13 @@ const Formulario = () => {
               Continuar <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
-            <button type="submit"
-              className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-3.5 font-semibold inline-flex items-center justify-center gap-2">
-              Receber minha análise <ArrowRight className="w-4 h-4" />
+            <button type="submit" disabled={enviando}
+              className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-3.5 font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-60">
+              {enviando ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Enviando suas respostas...</>
+              ) : (
+                <>Receber minha análise <ArrowRight className="w-4 h-4" /></>
+              )}
             </button>
           )}
         </div>
