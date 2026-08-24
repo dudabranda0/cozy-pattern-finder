@@ -121,41 +121,56 @@ const Formulario = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Analisando sua situação...");
 
-  // Trava de acesso: só entra quem passou pela página /obrigado (após pagamento)
-  // ou quem chegou com ?acesso=ok (redirect da Kiwify, ex.: /formulario?acesso=ok)
+  // Sistema de créditos: o formulário só libera com um código válido (recebido por e-mail após o pagamento)
+  const [credito, setCredito] = useState<string | null>(null);
+  const [codigoInput, setCodigoInput] = useState("");
+  const [verificandoCodigo, setVerificandoCodigo] = useState(false);
+  const [checandoCredito, setChecandoCredito] = useState(true);
+
+  // Ao abrir: se já existe um código validado salvo neste navegador, revalida no servidor
   useEffect(() => {
     if (typeof window === "undefined") return;
+    const salvo = localStorage.getItem("lvb_credito");
+    if (!salvo) { setChecandoCredito(false); return; }
+    (async () => {
+      try {
+        const { data: resp } = await supabase.functions.invoke("validar-credito", { body: { codigo: salvo } });
+        if (resp?.valido) setCredito(salvo);
+        else localStorage.removeItem("lvb_credito");
+      } catch {
+        // Sem conexão: deixa o usuário digitar o código novamente
+      } finally {
+        setChecandoCredito(false);
+      }
+    })();
+  }, []);
 
-    // 1) Já usou a análise -> volta pro checkout
-    if (localStorage.getItem("lvb_usado") === "true") {
-      toast({
-        title: "Você já utilizou sua análise",
-        description: "Para uma nova análise, adquira novamente por R$ 29,90.",
-        variant: "destructive",
-      });
-      window.location.href = CAKTO_LINK;
+  const verificarCodigo = async (e: FormEvent) => {
+    e.preventDefault();
+    const codigo = codigoInput.trim().toUpperCase();
+    if (codigo.length < 4) {
+      toast({ title: "Atenção", description: "Digite o código que você recebeu por e-mail.", variant: "destructive" });
       return;
     }
-
-    // 2) Permite liberação via query param (útil se a Kiwify redirecionar direto pra cá)
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("acesso") === "ok") {
-      localStorage.setItem("lvb_pago", "true");
-      url.searchParams.delete("acesso");
-      window.history.replaceState({}, "", url.pathname + url.search);
+    setVerificandoCodigo(true);
+    try {
+      const { data: resp, error } = await supabase.functions.invoke("validar-credito", { body: { codigo } });
+      if (error) throw error;
+      if (resp?.valido) {
+        localStorage.setItem("lvb_credito", codigo);
+        setCredito(codigo);
+      } else {
+        const msg = resp?.motivo === "usado"
+          ? "Este código já foi utilizado. Cada crédito vale uma análise."
+          : "Código não encontrado. Confira o e-mail que você recebeu após o pagamento.";
+        toast({ title: "Código inválido", description: msg, variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Erro", description: "Não foi possível verificar o código. Tente novamente.", variant: "destructive" });
+    } finally {
+      setVerificandoCodigo(false);
     }
-
-    // 3) Sem comprovação de pagamento -> manda pra home
-    if (localStorage.getItem("lvb_pago") !== "true") {
-      toast({
-        title: "Acesso restrito",
-        description:
-          "O formulário é liberado após o pagamento. Finalize sua compra para acessar a análise.",
-        variant: "destructive",
-      });
-      nav("/", { replace: true });
-    }
-  }, [nav]);
+  };
 
   // Mensagens progressivas enquanto aguardamos a resposta do n8n (Claude pode demorar 15-30s)
   useEffect(() => {
