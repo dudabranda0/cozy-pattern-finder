@@ -293,6 +293,12 @@ const Formulario = () => {
           }
         }
 
+        // Consome o crédito somente após o envio bem-sucedido ao n8n
+        if (res.ok && credito) {
+          const { data: consumo } = await supabase.functions.invoke("consumir-credito", { body: { codigo: credito } });
+          if (consumo?.ok) localStorage.removeItem("lvb_credito");
+        }
+
         localStorage.setItem("lvb_analise", analise || "");
         localStorage.setItem("lvb_analise_status", analise ? "ready" : "email_only");
         // Notifica a tela /analise (mesma aba — storage event não dispara na própria aba)
