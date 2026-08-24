@@ -71,9 +71,9 @@ const Sales = () => {
                 Análise inicial · acesso imediato
               </p>
               <p className="text-sm text-muted-foreground line-through mt-3">De R$ 200,00</p>
-              <div className="flex items-baseline justify-center gap-2 mt-1 mb-6">
-                <span className="font-serif-lvb text-2xl font-light text-primary">por apenas</span>
-                <span className="font-serif-lvb text-5xl md:text-6xl font-bold text-primary tracking-tight">
+              <div className="flex flex-col items-center mt-1 mb-6">
+                <span className="font-serif-lvb text-lg font-light text-primary">por apenas</span>
+                <span className="font-serif-lvb text-5xl md:text-6xl font-bold text-primary tracking-tight whitespace-nowrap">
                   R$ 29<span className="text-gold">,90</span>
                 </span>
               </div>
@@ -201,12 +201,14 @@ const Sales = () => {
         <div className="container max-w-5xl">
           <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
             <div className="w-64 md:w-72 shrink-0">
-              <img
-                src={larissaFoto}
-                alt="Larissa Brandão, advogada especialista em Direito Bancário"
-                className="w-full aspect-[4/5] object-cover object-[55%_80%] scale-[1.15] origin-[55%_80%] border-b-8 border-gold"
-                loading="lazy"
-              />
+              <div className="aspect-[4/5] overflow-hidden border-b-8 border-gold bg-secondary">
+                <img
+                  src={larissaFoto}
+                  alt="Larissa Brandão, advogada especialista em Direito Bancário"
+                  className="w-full h-full object-cover object-[55%_80%] scale-[1.15] origin-[55%_80%]"
+                  loading="lazy"
+                />
+              </div>
             </div>
             <div className="text-center md:text-left">
               <p className="text-gold-light font-semibold tracking-[0.25em] text-[10px] md:text-xs uppercase">
