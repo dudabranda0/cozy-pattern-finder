@@ -250,6 +250,7 @@ const Formulario = () => {
       enviado_em: new Date().toISOString(),
       elegivel_curso: elegivelCurso,
       course_link: elegivelCurso ? COURSE_LINK : "",
+      codigo: credito || "",
     });
 
     // Dispara o fetch em background — não bloqueia a navegação
