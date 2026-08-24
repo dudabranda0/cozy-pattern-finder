@@ -406,7 +406,7 @@ const Analise = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* ============ HERO ============ */}
-      <header className="relative overflow-hidden bg-[#1A1005] text-primary-foreground">
+      <header className="relative overflow-hidden bg-ink text-ink-foreground">
         {/* gradient + decorative shapes */}
         <div className="absolute inset-0 opacity-40" style={{ background: "var(--gradient-burgundy)" }} />
         <div className="absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-gold/20 blur-3xl" />
@@ -634,7 +634,7 @@ const Analise = () => {
             className="lvb-card overflow-hidden border-2 border-gold/40 bg-gradient-to-br from-card via-card to-secondary/30 animate-fade-up"
             style={{ animationDelay: "560ms" }}
           >
-            <div className="bg-gradient-to-r from-gold via-gold-light to-gold text-[#1A1005] px-6 py-2.5 text-center">
+            <div className="bg-gradient-to-r from-gold via-gold-light to-gold text-ink px-6 py-2.5 text-center">
               <span className="text-[10px] md:text-xs font-bold tracking-[0.25em] uppercase">
                 Recomendação especial para o seu perfil
               </span>
