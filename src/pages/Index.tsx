@@ -265,7 +265,7 @@ const Sales = () => {
             Veja como sua análise chega para você
           </h2>
           <div className="mt-10 lvb-card overflow-hidden">
-            <div className="bg-[#1A1005] text-primary-foreground p-5 flex items-center gap-3">
+            <div className="bg-ink text-ink-foreground p-5 flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-gold-light animate-pulse-dot" />
               <span className="font-semibold text-sm">Análise sendo gerada...</span>
             </div>
@@ -318,7 +318,7 @@ const Sales = () => {
             Por menos do que você imagina
           </h2>
           <div className="mt-10 lvb-card overflow-hidden">
-            <div className="bg-[#1A1005] text-primary-foreground p-5 text-center">
+            <div className="bg-ink text-ink-foreground p-5 text-center">
               <span className="text-xs uppercase tracking-widest text-gold-light font-semibold">Pagamento único</span>
             </div>
             <div className="p-8 text-center">
