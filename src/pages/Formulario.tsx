@@ -2,7 +2,7 @@ import { useState, useEffect, FormEvent, useMemo, useRef } from "react";
 import {
   ArrowLeft, ArrowRight, User, Banknote, Home, CreditCard,
   Shield, BellRing, Target, Loader2, KeyRound, ChevronDown, Search,
-  Check, AlertTriangle, Instagram,
+  CheckCircle2, AlertTriangle, Instagram,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, WHATSAPP_SUPORTE, INSTAGRAM_LINK } from "@/lib/lvb-constants";
@@ -608,8 +608,6 @@ const TOTAL_ETAPAS = 7;
 /* ================= COMPONENTE ================= */
 
 const Formulario = () => {
-  const nav = useNavigate();
-
   // Restaura rascunho salvo (autosave)
   const draft = useMemo(() => {
     try {
