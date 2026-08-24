@@ -396,6 +396,17 @@ const Formulario = () => {
               Adquira sua análise
             </a>
           </p>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Pagou e não recebeu o código?{" "}
+            <a
+              href={WHATSAPP_SUPORTE}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary font-semibold underline underline-offset-2"
+            >
+              Fale com a equipe
+            </a>
+          </p>
         </div>
       </div>
     );

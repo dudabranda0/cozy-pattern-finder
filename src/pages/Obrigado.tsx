@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Check, ArrowRight, Mail } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
+import { WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
 
 const steps = [
   "Abra o e-mail que enviamos com seu código de acesso (confira também a caixa de spam)",
