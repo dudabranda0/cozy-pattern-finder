@@ -14,7 +14,7 @@ export const SiteHeader = () => {
             href={CAKTO_LINK}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-cta bg-primary text-primary-foreground px-4 md:px-6 py-2.5 text-[11px] md:text-xs font-bold tracking-[0.12em] uppercase hover:bg-ink"
+            className="btn-cta bg-primary text-primary-foreground px-5 md:px-7 py-2.5 text-[11px] md:text-xs font-bold tracking-[0.12em] uppercase hover:bg-ink"
           >
             Fazer análise
           </a>

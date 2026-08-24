@@ -63,8 +63,9 @@ const Sales = () => {
 
           {/* CARD DE PREÇO — estilo editorial com faixa superior vinho */}
           <div className="mt-12 max-w-md mx-auto animate-scale-in" style={{ animationDelay: "200ms" }}>
-            <div className="relative bg-card border-t-4 border-primary border-x border-b border-gold/25 shadow-[0_20px_50px_rgba(36,13,19,0.06)] p-8">
-              <span className="absolute -top-3.5 right-4 bg-gold text-primary-foreground text-[10px] font-bold px-3 py-1 uppercase tracking-widest">
+            <div className="relative bg-card border border-gold/25 rounded-3xl shadow-[0_20px_50px_rgba(36,13,19,0.06)] p-8 pt-10 overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-gold to-primary" />
+              <span className="absolute top-4 right-4 bg-gold text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
                 Oferta limitada
               </span>
               <p className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-muted-foreground font-semibold">
@@ -93,7 +94,7 @@ const Sales = () => {
 
           <div className="mt-8 flex flex-wrap gap-2 justify-center text-xs animate-fade-up" style={{ animationDelay: "400ms" }}>
             {["Análise personalizada", "Sigiloso", "Resultado na hora + e-mail"].map((p) => (
-              <span key={p} className="px-3 py-1.5 border border-gold/30 bg-card/60 text-muted-foreground tracking-wide">
+              <span key={p} className="px-4 py-1.5 rounded-full border border-gold/30 bg-card/60 text-muted-foreground tracking-wide">
                 {p}
               </span>
             ))}
@@ -157,7 +158,7 @@ const Sales = () => {
           <p className="mt-4 text-center text-muted-foreground font-light max-w-xl mx-auto">
             Quatro passos para você ter clareza sobre suas opções.
           </p>
-          <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-px bg-gold/25 border border-gold/25">
+          <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-px bg-gold/25 border border-gold/25 rounded-3xl overflow-hidden">
             {steps.map((s, i) => (
               <div
                 key={s.n}
@@ -186,7 +187,7 @@ const Sales = () => {
                 className="flex items-start gap-3 py-4 border-b border-gold/25 animate-fade-up"
                 style={{ animationDelay: `${idx * 60}ms` }}
               >
-                <span className="mt-1.5 w-3 h-3 border border-gold text-gold flex items-center justify-center shrink-0">
+                <span className="mt-1.5 w-4 h-4 rounded-full border border-gold text-gold flex items-center justify-center shrink-0">
                   <Check className="w-2.5 h-2.5" strokeWidth={3.5} />
                 </span>
                 <span className="font-medium text-[15px]">{i}</span>
@@ -201,7 +202,7 @@ const Sales = () => {
         <div className="container max-w-5xl">
           <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
             <div className="w-64 md:w-72 shrink-0">
-              <div className="aspect-[4/5] overflow-hidden border-b-8 border-gold bg-secondary">
+              <div className="aspect-[4/5] overflow-hidden rounded-[2rem] border-4 border-gold/50 bg-secondary shadow-[0_24px_60px_-20px_rgba(0,0,0,0.45)]">
                 <img
                   src={larissaFoto}
                   alt="Larissa Brandão, advogada especialista em Direito Bancário"
@@ -236,7 +237,7 @@ const Sales = () => {
                   href={WHATSAPP_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="border border-gold/50 text-gold-light hover:bg-gold hover:text-ink px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase inline-flex items-center gap-2 transition-colors"
+                  className="rounded-full border border-gold/50 text-gold-light hover:bg-gold hover:text-ink px-7 py-3 text-xs font-bold tracking-[0.15em] uppercase inline-flex items-center gap-2 transition-colors"
                 >
                   <MessageCircle className="w-4 h-4" /> Falar com o escritório
                 </a>
@@ -253,7 +254,7 @@ const Sales = () => {
             Veja como sua análise <span className="text-primary italic">chega para você</span>
           </h2>
           <div className="mt-12 relative">
-            <div className="absolute -inset-3 border border-gold/40 translate-x-3 translate-y-3 pointer-events-none" />
+            <div className="absolute -inset-3 border border-gold/40 rounded-3xl translate-x-3 translate-y-3 pointer-events-none" />
             <div className="relative lvb-card overflow-hidden">
               <div className="bg-ink text-ink-foreground px-5 py-4 flex items-center gap-3 border-b border-gold/25">
                 <span className="w-2.5 h-2.5 rounded-full bg-gold-light animate-pulse-dot" />
@@ -277,8 +278,8 @@ const Sales = () => {
                         className="mt-2 space-y-1.5 select-none"
                         style={{ filter: idx === 0 ? "blur(3px)" : "blur(5px)" }}
                       >
-                        <div className="h-2 bg-secondary rounded-none w-full" />
-                        <div className="h-2 bg-secondary rounded-none w-10/12" />
+                        <div className="h-2 bg-secondary rounded-full w-full" />
+                        <div className="h-2 bg-secondary rounded-full w-10/12" />
                       </div>
                     </div>
                   </div>
@@ -309,8 +310,8 @@ const Sales = () => {
             Por menos do que <span className="text-primary italic">você imagina</span>
           </h2>
           <div className="mt-10 relative">
-            <div className="absolute -inset-3 border border-gold/40 -translate-x-3 translate-y-3 pointer-events-none" />
-            <div className="relative bg-card border border-gold/25 shadow-[0_20px_50px_rgba(36,13,19,0.06)] p-8 md:p-10">
+            <div className="absolute -inset-3 border border-gold/40 rounded-3xl -translate-x-3 translate-y-3 pointer-events-none" />
+            <div className="relative bg-card border border-gold/25 rounded-3xl shadow-[0_20px_50px_rgba(36,13,19,0.06)] p-8 md:p-10">
               <div className="text-center">
                 <span className="text-[10px] uppercase tracking-[0.3em] text-gold font-bold">Pagamento único</span>
                 <div className="font-serif-lvb font-bold leading-none mt-3">
@@ -323,7 +324,7 @@ const Sales = () => {
               <ul className="mt-8 space-y-3">
                 {benefits.map((b) => (
                   <li key={b} className="flex items-start gap-3">
-                    <span className="mt-0.5 w-5 h-5 border border-primary text-primary flex items-center justify-center shrink-0">
+                    <span className="mt-0.5 w-5 h-5 rounded-full border border-primary text-primary flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3" strokeWidth={3} />
                     </span>
                     <span className="text-sm">{b}</span>
