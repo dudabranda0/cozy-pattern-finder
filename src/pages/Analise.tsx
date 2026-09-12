@@ -78,11 +78,11 @@ const MODALIDADES: Record<string, { label: string; desc: string; level: "alta" |
 };
 
 const MENSAGENS = [
-  "Lendo suas respostas...",
-  "Classificando o risco de cada dívida...",
-  "Verificando o que a lei diz sobre o seu caso...",
-  "Montando seu relatório...",
-  "Quase lá...",
+  "Lendo o que você nos contou",
+  "Identificando o que cada dívida permite ao credor",
+  "Verificando o que a lei protege no seu caso",
+  "Organizando as prioridades",
+  "Finalizando",
 ];
 
 const POLL_MS = 5000;
@@ -284,13 +284,13 @@ const Analise = () => {
             <span className="pill bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-2">
               {estado === "pronto"
                 ? <><CheckCircle2 className="w-4 h-4 text-gold-light" /> Análise pronta</>
-                : <><Loader2 className="w-4 h-4 text-gold-light animate-spin" /> Análise em preparo</>}
+                : <><Loader2 className="w-4 h-4 text-gold-light animate-spin" /> Em elaboração</>}
             </span>
           </div>
           <p className="text-center text-gold-light font-semibold text-xs uppercase mb-3">Análise Personalizada</p>
           <h1 className="font-serif-lvb text-center text-4xl md:text-6xl font-bold leading-[1.08]">
-            {firstName ? `${firstName}, sua análise ` : "Sua análise "}
-            <span className="text-gradient-gold">{estado === "pronto" ? "está pronta" : "está sendo montada"}</span>
+            {firstName ? `${firstName}, ` : ""}
+            <span className="text-gradient-gold">{estado === "pronto" ? "sua análise está pronta" : "estamos com o seu caso em mãos"}</span>
           </h1>
           <p className="mt-5 text-center text-primary-foreground/70 max-w-2xl mx-auto text-base md:text-lg">
             Elaborada com base nas informações que você forneceu, seguindo a metodologia LVB.
@@ -313,8 +313,8 @@ const Analise = () => {
                 <Loader2 className="w-5 h-5 animate-spin" />
               </div>
               <div className="min-w-0">
-                <h2 className="font-serif-lvb text-xl md:text-2xl font-bold">Estamos montando sua análise</h2>
-                <p className="mt-2 text-foreground/75 leading-relaxed">Isso leva cerca de um minuto. Não feche esta página.</p>
+                <h2 className="font-serif-lvb text-xl md:text-2xl font-bold">Seu caso está sendo analisado</h2>
+                <p className="mt-2 text-foreground/75 leading-relaxed">Leva cerca de um minuto. Mantenha esta página aberta.</p>
               </div>
             </div>
             <div className="mt-6 h-2.5 w-full rounded-full bg-secondary overflow-hidden">
