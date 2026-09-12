@@ -78,6 +78,7 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
   }
   body {
     @apply bg-background text-foreground antialiased;
@@ -85,6 +86,16 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  /* Tabelas da análise renderizada — rolam dentro do próprio card */
+  .lvb-tabela-wrap { width: 100%; }
+  .lvb-tabela-wrap > table { max-width: 100%; }
+  .lvb-tabela-dica {
+    font-size: 12px;
+    color: hsl(var(--muted-foreground));
+    margin: 0 0 8px;
+    display: none;
   }
   .font-serif-lvb {
     font-family: 'Libre Baskerville', Georgia, serif;
