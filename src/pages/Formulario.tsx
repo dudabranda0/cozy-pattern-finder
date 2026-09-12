@@ -1,11 +1,12 @@
 import { useState, useEffect, FormEvent, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, User, Banknote, Home, CreditCard,
   Shield, BellRing, Target, Loader2, KeyRound, ChevronDown, Search,
-  CheckCircle2, AlertTriangle, Instagram,
+  AlertTriangle,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, WHATSAPP_SUPORTE, INSTAGRAM_LINK } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -595,6 +596,7 @@ const TOTAL_ETAPAS = 7;
 /* ================= COMPONENTE ================= */
 
 const Formulario = () => {
+  const navigate = useNavigate();
   // Restaura rascunho salvo (autosave)
   const draft = useMemo(() => {
     try {
@@ -871,9 +873,9 @@ const Formulario = () => {
       }
 
       localStorage.setItem("lvb_usado", "true");
+      localStorage.setItem("lvb_resultado", JSON.stringify(payload));
       localStorage.removeItem(DRAFT_KEY);
-      setScreen("sucesso");
-      scrollTop();
+      navigate("/analise");
     } catch (err: any) {
       console.error("[n8n] envio falhou:", err?.name, err?.message, err);
       setScreen("erro");
@@ -957,47 +959,6 @@ const Formulario = () => {
               Fale com a equipe
             </a>
           </p>
-        </div>
-      </div>
-    );
-  }
-
-  /* --------- tela de sucesso --------- */
-
-  if (screen === "sucesso") {
-    const primeiroNome = data.identificacao.nome_completo.trim().split(/\s+/)[0] || "";
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-5 py-12">
-        <div className="lvb-card max-w-xl w-full p-8 md:p-10 text-center animate-fade-up">
-          <div className="flex justify-center"><LvbLogo size="lg" /></div>
-          <div className="mt-6 mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
-            <CheckCircle2 className="w-8 h-8 text-emerald-600" strokeWidth={2.5} />
-          </div>
-          <h1 className="font-serif-lvb mt-5 text-3xl md:text-4xl font-bold leading-tight">
-            Recebido{primeiroNome ? `, ${primeiroNome}` : ""}!
-          </h1>
-          <p className="mt-4 text-base text-foreground/85 leading-relaxed">
-            Suas respostas chegaram e a sua análise já está sendo montada.
-          </p>
-          <p className="mt-3 text-base text-muted-foreground leading-relaxed">
-            Ela vai chegar no e-mail que você informou dentro de alguns minutos.
-            Confira também a caixa de spam e a aba Promoções.
-          </p>
-          <div className="mt-5 bg-beige-deep rounded-2xl p-4 text-left">
-            <p className="text-sm text-foreground/85 leading-relaxed">
-              Enquanto isso, uma dica que já vale muito: se algum banco te oferecer acordo nos
-              próximos dias, <strong className="text-foreground">não assine nada antes de ler a sua análise</strong>.
-              Explico o motivo lá dentro.
-            </p>
-          </div>
-          <a
-            href={INSTAGRAM_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-cta mt-8 pill bg-primary hover:bg-primary-hover text-primary-foreground px-7 py-4 font-semibold inline-flex items-center justify-center gap-2 w-full"
-          >
-            <Instagram className="w-5 h-5" /> Voltar ao Instagram
-          </a>
         </div>
       </div>
     );
