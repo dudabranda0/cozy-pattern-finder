@@ -96,6 +96,35 @@ const formatarModalidade = (valor: string) =>
     level: "media" as const,
   };
 
+// Envolve cada <table> da análise renderizada em um wrapper com rolagem
+// horizontal própria, com dica visível quando a tabela for mais larga que o card.
+const envolverTabelas = (html: string): string => {
+  if (!html || typeof window === "undefined" || typeof DOMParser === "undefined") return html;
+  try {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll("table").forEach((tabela) => {
+      const pai = tabela.parentElement;
+      if (pai?.classList.contains("lvb-tabela-wrap")) return;
+      const wrap = doc.createElement("div");
+      wrap.className = "lvb-tabela-wrap";
+      wrap.style.overflowX = "auto";
+      wrap.style.setProperty("-webkit-overflow-scrolling", "touch");
+      wrap.style.width = "100%";
+      wrap.style.margin = "18px 0";
+      const dica = doc.createElement("p");
+      dica.className = "lvb-tabela-dica";
+      dica.textContent = "Arraste para o lado para ver a tabela completa.";
+      pai?.insertBefore(wrap, tabela);
+      wrap.appendChild(dica);
+      wrap.appendChild(tabela);
+      tabela.style.maxWidth = "100%";
+    });
+    return doc.body.innerHTML;
+  } catch {
+    return html;
+  }
+};
+
 const lerResultado = (): Resultado | null => {
   try {
     const salvo = localStorage.getItem("lvb_resultado");
@@ -132,8 +161,8 @@ const Analise = () => {
         const j: any = await res.json();
         if (!ativo) return;
         if (j?.pronto) {
-          setHtml(typeof j.html === "string" ? j.html : "");
-          setBlocoCurso(typeof j.bloco_curso === "string" ? j.bloco_curso : "");
+          setHtml(envolverTabelas(typeof j.html === "string" ? j.html : ""));
+          setBlocoCurso(envolverTabelas(typeof j.bloco_curso === "string" ? j.bloco_curso : ""));
           setNomeApi(typeof j.primeiro_nome === "string" ? j.primeiro_nome : "");
           setEstado("pronto");
           clearInterval(intervalo);
@@ -166,6 +195,22 @@ const Analise = () => {
     }, 15000);
     return () => { clearInterval(barra); clearInterval(msgs); };
   }, [estado]);
+
+  // Mostra/esconde a dica de arrastar conforme a largura de cada tabela
+  useEffect(() => {
+    if (estado !== "pronto") return;
+    const ajustar = () => {
+      document.querySelectorAll<HTMLElement>(".lvb-tabela-wrap").forEach((wrap) => {
+        const tabela = wrap.querySelector("table");
+        const dica = wrap.querySelector<HTMLElement>(".lvb-tabela-dica");
+        if (!tabela || !dica) return;
+        dica.style.display = tabela.scrollWidth > wrap.clientWidth + 1 ? "block" : "none";
+      });
+    };
+    ajustar();
+    window.addEventListener("resize", ajustar);
+    return () => window.removeEventListener("resize", ajustar);
+  }, [estado, html, blocoCurso]);
 
   const baixarPdf = async () => {
     if (!analiseRef.current) return;
@@ -230,7 +275,7 @@ const Analise = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <header className="relative overflow-hidden bg-ink text-ink-foreground">
         <div className="absolute inset-0 opacity-40" style={{ background: "var(--gradient-burgundy)" }} />
         <div className="container max-w-4xl relative pt-12 pb-28 md:pt-16 md:pb-36">
@@ -308,8 +353,8 @@ const Analise = () => {
             <h2 id="analise-title" className="sr-only">Sua análise completa</h2>
             <div
               ref={analiseRef}
-              className="bg-card rounded-2xl mx-auto"
-              style={{ padding: 32, maxWidth: 800, boxShadow: "var(--shadow-card)" }}
+              className="bg-card rounded-2xl mx-auto w-full max-w-[800px] p-4 md:p-8"
+              style={{ maxWidth: "100%", overflowX: "hidden", wordWrap: "break-word", boxShadow: "var(--shadow-card)" }}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </section>
@@ -358,7 +403,7 @@ const Analise = () => {
         {estado === "pronto" && blocoCurso.trim() !== "" && (
           <section className="lvb-card overflow-hidden border-2 border-gold/40 animate-fade-up">
             <div className="bg-gold text-gold-foreground px-6 py-2.5 text-center text-xs font-bold uppercase">Recomendação especial para o seu perfil</div>
-            <div className="p-6 md:p-10" dangerouslySetInnerHTML={{ __html: blocoCurso }} />
+            <div className="p-6 md:p-10 overflow-x-hidden" dangerouslySetInnerHTML={{ __html: blocoCurso }} />
           </section>
         )}
 
