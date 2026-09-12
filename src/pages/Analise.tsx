@@ -168,7 +168,7 @@ const Analise = () => {
           <div>
             <h2 id="email-title" className="font-serif-lvb text-xl md:text-2xl font-bold">Sua análise completa foi enviada por e-mail</h2>
             <p className="mt-2 text-foreground/75 leading-relaxed">Enviamos para <strong className="text-foreground break-all">{email}</strong>. Confira a caixa de entrada e também a aba Promoções e a pasta de spam. Deve chegar em alguns minutos.</p>
-            <p className="mt-3 text-sm text-muted-foreground">Se não chegar em 15 minutos, chame no WhatsApp <a href="https://wa.me/555193782814" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline underline-offset-2">(51) 9378-2814</a>.</p>
+            <p className="mt-3 text-sm text-muted-foreground">Se não chegar em 15 minutos, confira também a aba Promoções e a pasta de spam.</p>
           </div>
         </section>
 
