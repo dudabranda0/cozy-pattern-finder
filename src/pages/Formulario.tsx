@@ -854,15 +854,19 @@ const Formulario = () => {
         body: JSON.stringify(payload),
       }).finally(() => clearTimeout(timeoutId));
 
-      // Sucesso somente com status "ok" — a resposta não traz a análise
+      // Sucesso somente com status "ok" — a análise é gerada em segundo plano
       let ok = false;
+      let analiseId = "";
       if (res.ok) {
         try {
           const j: any = await res.json();
           ok = j?.status === "ok";
+          analiseId = typeof j?.analise_id === "string" ? j.analise_id : "";
         } catch { ok = false; }
       }
       if (!ok) throw new Error(`Resposta inesperada (HTTP ${res.status})`);
+      if (analiseId) localStorage.setItem("lvb_analise_id", analiseId);
+      else localStorage.removeItem("lvb_analise_id");
 
       // Consome o crédito somente após confirmação do webhook
       if (credito) {
