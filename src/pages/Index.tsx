@@ -22,7 +22,7 @@ const steps = [
 const includes = [
   "Verificação da Lei do Superendividamento",
   "Análise de viabilidade de revisão contratual",
-  "Identificação de juros abusivos",
+  "Identificação de encargos a verificar",
   "Risco de bloqueio de bens e contas",
   "Orientação sobre ações de cobrança",
   "Recomendações personalizadas para o seu perfil",
