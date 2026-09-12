@@ -980,12 +980,12 @@ const Formulario = () => {
           <p className="mt-4 text-base text-muted-foreground leading-relaxed">
             Tente novamente em instantes. Se o problema continuar, chame no WhatsApp{" "}
             <a
-              href="https://wa.me/55519991529687"
+              href="https://wa.me/555193782814"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary font-semibold underline underline-offset-2"
             >
-              (51) 99152-9687
+              (51) 9378-2814
             </a>
             .
           </p>
