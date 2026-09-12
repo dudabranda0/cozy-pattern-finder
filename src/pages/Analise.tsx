@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -6,7 +6,9 @@ import {
   CheckCircle2,
   Clock3,
   CreditCard,
+  Download,
   ListChecks,
+  Loader2,
   Mail,
   Quote,
   Scale,
@@ -16,7 +18,7 @@ import {
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
 import { SiteFooter } from "@/components/SiteChrome";
-import { COURSE_LINK } from "@/lib/lvb-constants";
+import { COURSE_LINK, N8N_CONSULTA } from "@/lib/lvb-constants";
 
 type DividaResultado = {
   modalidade?: string;
@@ -75,6 +77,18 @@ const MODALIDADES: Record<string, { label: string; desc: string; level: "alta" |
   financiamento_imovel: { label: "Financiamento de imóvel", desc: "Garantia vinculada ao bem", level: "alta" },
 };
 
+const MENSAGENS = [
+  "Lendo suas respostas...",
+  "Classificando o risco de cada dívida...",
+  "Verificando o que a lei diz sobre o seu caso...",
+  "Montando seu relatório...",
+  "Quase lá...",
+];
+
+const POLL_MS = 5000;
+const TIMEOUT_MS = 4 * 60 * 1000;
+const BARRA_MS = 90000;
+
 const formatarModalidade = (valor: string) =>
   MODALIDADES[valor] ?? {
     label: valor.replace(/_/g, " ").replace(/^./, (letra) => letra.toUpperCase()),
@@ -93,6 +107,87 @@ const lerResultado = (): Resultado | null => {
 
 const Analise = () => {
   const resultado = useMemo(lerResultado, []);
+  const analiseId = useMemo(() => {
+    try { return localStorage.getItem("lvb_analise_id") || ""; } catch { return ""; }
+  }, []);
+
+  const [estado, setEstado] = useState<"gerando" | "pronto" | "fallback">(analiseId ? "gerando" : "fallback");
+  const [html, setHtml] = useState("");
+  const [blocoCurso, setBlocoCurso] = useState("");
+  const [nomeApi, setNomeApi] = useState("");
+  const [progresso, setProgresso] = useState(4);
+  const [msgIndex, setMsgIndex] = useState(0);
+  const [baixando, setBaixando] = useState(false);
+  const analiseRef = useRef<HTMLDivElement>(null);
+
+  // Polling da análise
+  useEffect(() => {
+    if (!analiseId) return;
+    let ativo = true;
+    const inicio = Date.now();
+
+    const consultar = async () => {
+      try {
+        const res = await fetch(`${N8N_CONSULTA}?id=${encodeURIComponent(analiseId)}`, { cache: "no-store" });
+        const j: any = await res.json();
+        if (!ativo) return;
+        if (j?.pronto) {
+          setHtml(typeof j.html === "string" ? j.html : "");
+          setBlocoCurso(typeof j.bloco_curso === "string" ? j.bloco_curso : "");
+          setNomeApi(typeof j.primeiro_nome === "string" ? j.primeiro_nome : "");
+          setEstado("pronto");
+          clearInterval(intervalo);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      } catch {
+        /* tenta de novo no próximo ciclo */
+      }
+      if (ativo && Date.now() - inicio > TIMEOUT_MS) {
+        clearInterval(intervalo);
+        setEstado((atual) => (atual === "pronto" ? atual : "fallback"));
+      }
+    };
+
+    const intervalo = window.setInterval(consultar, POLL_MS);
+    consultar();
+    return () => { ativo = false; clearInterval(intervalo); };
+  }, [analiseId]);
+
+  // Barra de progresso + mensagens rotativas
+  useEffect(() => {
+    if (estado !== "gerando") return;
+    const inicio = Date.now();
+    const barra = window.setInterval(() => {
+      const pct = Math.min(97, 4 + ((Date.now() - inicio) / BARRA_MS) * 93);
+      setProgresso(pct);
+    }, 250);
+    const msgs = window.setInterval(() => {
+      setMsgIndex((i) => Math.min(MENSAGENS.length - 1, i + 1));
+    }, 15000);
+    return () => { clearInterval(barra); clearInterval(msgs); };
+  }, [estado]);
+
+  const baixarPdf = async () => {
+    if (!analiseRef.current) return;
+    setBaixando(true);
+    try {
+      const mod = await import("html2pdf.js");
+      const html2pdf: any = (mod as any).default ?? mod;
+      await html2pdf()
+        .set({
+          margin: 10,
+          filename: "analise-lvb.pdf",
+          image: { type: "jpeg", quality: 0.96 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+          pagebreak: { mode: ["css", "legacy"] },
+        })
+        .from(analiseRef.current)
+        .save();
+    } finally {
+      setBaixando(false);
+    }
+  };
 
   if (!resultado) {
     return (
@@ -110,7 +205,7 @@ const Analise = () => {
   }
 
   const nome = resultado.identificacao?.nome_completo?.trim() ?? "";
-  const firstName = nome.split(/\s+/)[0] ?? "";
+  const firstName = nomeApi || (nome.split(/\s+/)[0] ?? "");
   const email = resultado.identificacao?.email ?? "seu e-mail";
   const dividas = resultado.dividas ?? [];
   const instituicoes = [...new Set(dividas.map((item) => item.instituicao?.trim()).filter(Boolean))] as string[];
@@ -142,12 +237,15 @@ const Analise = () => {
           <div className="flex justify-center mb-7"><LvbLogo size="md" variant="light" /></div>
           <div className="flex justify-center mb-5">
             <span className="pill bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground px-4 py-1.5 text-xs font-semibold inline-flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-gold-light" /> Análise enviada
+              {estado === "pronto"
+                ? <><CheckCircle2 className="w-4 h-4 text-gold-light" /> Análise pronta</>
+                : <><Loader2 className="w-4 h-4 text-gold-light animate-spin" /> Análise em preparo</>}
             </span>
           </div>
           <p className="text-center text-gold-light font-semibold text-xs uppercase mb-3">Análise Personalizada</p>
           <h1 className="font-serif-lvb text-center text-4xl md:text-6xl font-bold leading-[1.08]">
-            {firstName ? `${firstName}, sua análise ` : "Sua análise "}<span className="text-gradient-gold">está pronta</span>
+            {firstName ? `${firstName}, sua análise ` : "Sua análise "}
+            <span className="text-gradient-gold">{estado === "pronto" ? "está pronta" : "está sendo montada"}</span>
           </h1>
           <p className="mt-5 text-center text-primary-foreground/70 max-w-2xl mx-auto text-base md:text-lg">
             Elaborada com base nas informações que você forneceu, seguindo a metodologia LVB.
@@ -163,14 +261,59 @@ const Analise = () => {
       </header>
 
       <main className="container max-w-4xl -mt-16 relative z-10 pb-20 space-y-6">
-        <section className="lvb-card border-2 border-gold/40 p-6 md:p-8 flex gap-4 items-start animate-fade-up" aria-labelledby="email-title">
-          <div className="w-12 h-12 rounded-2xl bg-gold/15 text-primary flex items-center justify-center shrink-0"><Mail className="w-5 h-5" /></div>
-          <div>
-            <h2 id="email-title" className="font-serif-lvb text-xl md:text-2xl font-bold">Sua análise completa foi enviada por e-mail</h2>
-            <p className="mt-2 text-foreground/75 leading-relaxed">Enviamos para <strong className="text-foreground break-all">{email}</strong>. Confira a caixa de entrada e também a aba Promoções e a pasta de spam. Deve chegar em alguns minutos.</p>
-            <p className="mt-3 text-sm text-muted-foreground">Se não chegar em 15 minutos, confira também a aba Promoções e a pasta de spam.</p>
-          </div>
-        </section>
+        {estado === "gerando" && (
+          <section className="lvb-card border-2 border-gold/40 p-6 md:p-8 animate-fade-up" aria-live="polite">
+            <div className="flex gap-4 items-start">
+              <div className="w-12 h-12 rounded-2xl bg-gold/15 text-primary flex items-center justify-center shrink-0">
+                <Loader2 className="w-5 h-5 animate-spin" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="font-serif-lvb text-xl md:text-2xl font-bold">Estamos montando sua análise</h2>
+                <p className="mt-2 text-foreground/75 leading-relaxed">Isso leva cerca de um minuto. Não feche esta página.</p>
+              </div>
+            </div>
+            <div className="mt-6 h-2.5 w-full rounded-full bg-secondary overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-300" style={{ width: `${progresso}%`, background: "var(--gradient-progress)" }} />
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground">{MENSAGENS[msgIndex]}</p>
+          </section>
+        )}
+
+        {estado === "fallback" && (
+          <section className="lvb-card border-2 border-gold/40 p-6 md:p-8 flex gap-4 items-start animate-fade-up">
+            <div className="w-12 h-12 rounded-2xl bg-gold/15 text-primary flex items-center justify-center shrink-0"><Mail className="w-5 h-5" /></div>
+            <div>
+              <h2 className="font-serif-lvb text-xl md:text-2xl font-bold">Sua análise está sendo finalizada</h2>
+              <p className="mt-2 text-foreground/75 leading-relaxed">
+                Ela vai chegar no seu e-mail em instantes. Confira a caixa de entrada, a aba Promoções e a pasta de spam.
+              </p>
+              <p className="mt-3 text-sm text-muted-foreground">E-mail informado: <strong className="text-foreground break-all">{email}</strong></p>
+            </div>
+          </section>
+        )}
+
+        {estado === "pronto" && (
+          <section className="animate-fade-up" aria-labelledby="analise-title">
+            <div className="flex justify-end mb-4">
+              <button
+                type="button"
+                onClick={baixarPdf}
+                disabled={baixando}
+                className="btn-cta pill bg-primary hover:bg-primary-hover text-primary-foreground px-6 py-3 font-semibold inline-flex items-center gap-2 disabled:opacity-70"
+              >
+                {baixando ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                {baixando ? "Gerando PDF..." : "Baixar em PDF"}
+              </button>
+            </div>
+            <h2 id="analise-title" className="sr-only">Sua análise completa</h2>
+            <div
+              ref={analiseRef}
+              className="bg-card rounded-2xl mx-auto"
+              style={{ padding: 32, maxWidth: 800, boxShadow: "var(--shadow-card)" }}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </section>
+        )}
 
         <section className="lvb-card p-6 md:p-8 bg-secondary/40 animate-fade-up">
           <Quote className="w-8 h-8 text-gold/60" />
@@ -190,7 +333,6 @@ const Analise = () => {
                 <div><p className="text-sm text-muted-foreground">{label}</p><p className="mt-0.5 font-semibold text-foreground">{value}</p></div>
               </div>
             ))}
-            <p className="pt-5 border-t border-border text-sm md:text-base text-foreground/75 leading-relaxed">A análise completa, com o risco de cada dívida e o que pode acontecer nos próximos meses, está no e-mail.</p>
           </div>
         </section>
 
@@ -213,7 +355,14 @@ const Analise = () => {
           </section>
         )}
 
-        {elegivelCurso && (
+        {estado === "pronto" && blocoCurso.trim() !== "" && (
+          <section className="lvb-card overflow-hidden border-2 border-gold/40 animate-fade-up">
+            <div className="bg-gold text-gold-foreground px-6 py-2.5 text-center text-xs font-bold uppercase">Recomendação especial para o seu perfil</div>
+            <div className="p-6 md:p-10" dangerouslySetInnerHTML={{ __html: blocoCurso }} />
+          </section>
+        )}
+
+        {estado !== "pronto" && elegivelCurso && (
           <section className="lvb-card overflow-hidden border-2 border-gold/40 animate-fade-up">
             <div className="bg-gold text-gold-foreground px-6 py-2.5 text-center text-xs font-bold uppercase">Recomendação especial para o seu perfil</div>
             <div className="p-6 md:p-10 text-center">
