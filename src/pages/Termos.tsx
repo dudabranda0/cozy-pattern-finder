@@ -30,7 +30,7 @@ const Termos = () => (
         </section>
         <section>
           <h2 className="font-serif-lvb text-2xl text-primary mb-2">6. Contato</h2>
-          <p>Dúvidas: <a href="mailto:larissabrandaolah23@gmail.com" className="text-primary underline underline-offset-4">larissabrandaolah23@gmail.com</a></p>
+          <p>Dúvidas: <a href="mailto:analiselvb@gmail.com" className="text-primary underline underline-offset-4">analiselvb@gmail.com</a></p>
         </section>
       </article>
     </main>

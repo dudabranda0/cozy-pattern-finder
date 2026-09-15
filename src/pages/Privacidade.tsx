@@ -42,7 +42,7 @@ const Privacidade = () => (
             <li>Solicitar a exclusão dos dados</li>
             <li>Revogar o consentimento a qualquer momento</li>
           </ul>
-          <p className="mt-2">Para exercer seus direitos: <a href="mailto:larissabrandaolah23@gmail.com" className="text-primary underline underline-offset-4">larissabrandaolah23@gmail.com</a></p>
+          <p className="mt-2">Para exercer seus direitos: <a href="mailto:analiselvb@gmail.com" className="text-primary underline underline-offset-4">analiselvb@gmail.com</a></p>
         </section>
         <section>
           <h2 className="font-serif-lvb text-2xl text-primary mb-2">7. Cookies</h2>
@@ -50,7 +50,7 @@ const Privacidade = () => (
         </section>
         <section>
           <h2 className="font-serif-lvb text-2xl text-primary mb-2">8. Contato do encarregado (DPO)</h2>
-          <p>Larissa De Vargas Brandão<br /><a href="mailto:larissabrandaolah23@gmail.com" className="text-primary underline underline-offset-4">larissabrandaolah23@gmail.com</a></p>
+          <p>Larissa De Vargas Brandão<br /><a href="mailto:analiselvb@gmail.com" className="text-primary underline underline-offset-4">analiselvb@gmail.com</a></p>
         </section>
       </article>
     </main>
