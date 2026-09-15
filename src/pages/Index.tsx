@@ -112,7 +112,7 @@ const Sales = () => {
               Após o pagamento, a Kiwify envia um e-mail ou mensagem no WhatsApp apenas confirmando o recebimento. Essa mensagem não libera a análise.
             </p>
             <p className="text-foreground/75 text-sm leading-relaxed">
-              Em seguida, você recebe por e-mail um <strong className="text-primary">código de acesso</strong> (seu crédito). Volte a este site e use o código para preencher o formulário — é só assim que sua análise é liberada. O código não expira: se a página fechar, é só voltar e digitá-lo de novo.
+              Em seguida, você recebe por e-mail um <strong className="text-primary">código de acesso</strong> (seu crédito) junto com o <strong className="text-primary">link para preencher o formulário</strong>. Basta clicar no link do e-mail, digitar o código e enviar suas respostas — é só assim que sua análise é liberada. O código não expira: se a página fechar, é só abrir o link de novo e digitá-lo.
             </p>
             <Link
               to="/formulario"
