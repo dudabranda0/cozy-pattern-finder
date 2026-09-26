@@ -315,7 +315,7 @@ const Sales = () => {
               <div className="text-center">
                 <span className="text-[10px] uppercase tracking-[0.3em] text-gold font-bold">Pagamento único</span>
                 <div className="font-serif-lvb font-bold leading-none mt-3">
-                  <span className="text-5xl md:text-6xl text-primary">R$ 29<span className="text-gold">,90</span></span>
+                  <span className="text-5xl md:text-6xl text-primary">R$ 34<span className="text-gold">,90</span></span>
                 </div>
                 <p className="text-sm text-muted-foreground font-light mt-3">
                   cartão, boleto ou Pix · acesso imediato
