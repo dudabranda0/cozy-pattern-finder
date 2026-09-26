@@ -71,11 +71,11 @@ const Sales = () => {
               <p className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-muted-foreground font-semibold">
                 Análise inicial · acesso imediato
               </p>
-              <p className="text-sm text-muted-foreground line-through mt-3">De R$ 200,00</p>
+              <p className="text-sm text-muted-foreground line-through mt-3">De R$ 300,00</p>
               <div className="flex flex-col items-center mt-1 mb-6">
                 <span className="font-serif-lvb text-lg font-light text-primary">por apenas</span>
                 <span className="font-serif-lvb text-5xl md:text-6xl font-bold text-primary tracking-tight whitespace-nowrap">
-                  R$ 29<span className="text-gold">,90</span>
+                  R$ 34<span className="text-gold">,90</span>
                 </span>
               </div>
               <a
@@ -375,7 +375,7 @@ const Sales = () => {
             rel="noopener noreferrer"
             className="btn-cta mt-10 bg-primary hover:bg-ink text-primary-foreground px-10 py-5 text-sm font-bold tracking-[0.15em] uppercase inline-flex items-center gap-2"
           >
-            Fazer análise por R$ 29,90 <ArrowRight className="w-5 h-5" />
+            Fazer análise por R$ 34,90 <ArrowRight className="w-5 h-5" />
           </a>
         </div>
       </section>
