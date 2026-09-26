@@ -22,7 +22,7 @@ const Termos = () => (
         </section>
         <section>
           <h2 className="font-serif-lvb text-2xl text-primary mb-2">4. Pagamento</h2>
-          <p>O valor de R$ 29,90 é cobrado por análise, em pagamento único. Não há cobrança recorrente. O acesso à análise é liberado imediatamente após a confirmação do pagamento.</p>
+          <p>O valor de R$ 34,90 é cobrado por análise, em pagamento único. Não há cobrança recorrente. O acesso à análise é liberado imediatamente após a confirmação do pagamento.</p>
         </section>
         <section>
           <h2 className="font-serif-lvb text-2xl text-primary mb-2">5. Propriedade intelectual</h2>
