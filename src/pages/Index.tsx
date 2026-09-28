@@ -75,7 +75,7 @@ const Sales = () => {
               <div className="flex flex-col items-center mt-1 mb-6">
                 <span className="font-serif-lvb text-lg font-light text-primary">por apenas</span>
                 <span className="font-serif-lvb text-5xl md:text-6xl font-bold text-primary tracking-tight whitespace-nowrap">
-                  R$ 34<span className="text-gold">,90</span>
+                  R$ 47<span className="text-gold">,90</span>
                 </span>
               </div>
               <a
@@ -315,7 +315,7 @@ const Sales = () => {
               <div className="text-center">
                 <span className="text-[10px] uppercase tracking-[0.3em] text-gold font-bold">Pagamento único</span>
                 <div className="font-serif-lvb font-bold leading-none mt-3">
-                  <span className="text-5xl md:text-6xl text-primary">R$ 34<span className="text-gold">,90</span></span>
+                  <span className="text-5xl md:text-6xl text-primary">R$ 47<span className="text-gold">,90</span></span>
                 </div>
                 <p className="text-sm text-muted-foreground font-light mt-3">
                   cartão, boleto ou Pix · acesso imediato
@@ -375,7 +375,7 @@ const Sales = () => {
             rel="noopener noreferrer"
             className="btn-cta mt-10 bg-primary hover:bg-ink text-primary-foreground px-10 py-5 text-sm font-bold tracking-[0.15em] uppercase inline-flex items-center gap-2"
           >
-            Fazer análise por R$ 34,90 <ArrowRight className="w-5 h-5" />
+            Fazer análise por R$ 47,90 <ArrowRight className="w-5 h-5" />
           </a>
         </div>
       </section>
