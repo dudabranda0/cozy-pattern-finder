@@ -33,7 +33,7 @@ export const SiteFooter = () => (
           <Link to="/termos" className="text-ink-foreground/80 hover:text-ink-foreground transition-colors">
             Termos de Uso
           </Link>
-          <Link to="/privacidade" className="text-ink-foreground/80 hover:text-ink-foreground transition-colors">
+          <Link to="/politica-de-privacidade" className="text-ink-foreground/80 hover:text-ink-foreground transition-colors">
             Política de Privacidade
           </Link>
         </nav>

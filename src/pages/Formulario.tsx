@@ -53,7 +53,7 @@ type FormData = {
   };
   objetivo: {
     urgencia: string[]; prazo: string; capacidade_mensal: string;
-    valor_a_vista: string; relato_livre: string; aceite_lgpd: boolean;
+    valor_a_vista: string; relato_livre: string; aceite_lgpd: boolean; aceite_comunicacao: boolean;
   };
 };
 
@@ -70,7 +70,7 @@ const emptyData: FormData = {
   dividas: [],
   patrimonio: { bens: [], socio_empresa: "", avalista_terceiro: "", salario_banco_credor: "", desconto_automatico: "", qtd_consignados: "", transferencia_bens: "" },
   cobranca: { comunicacoes_recebidas: [], citado_processo: "", medidas_sofridas: [], tentativa_negociacao: "", forma_cobranca: [], limpa_nome: "", acao_anterior: "" },
-  objetivo: { urgencia: [], prazo: "", capacidade_mensal: "", valor_a_vista: "", relato_livre: "", aceite_lgpd: false },
+  objetivo: { urgencia: [], prazo: "", capacidade_mensal: "", valor_a_vista: "", relato_livre: "", aceite_lgpd: false, aceite_comunicacao: false },
 };
 
 /* ================= OPÇÕES (valores exatos do motor) ================= */
@@ -833,7 +833,7 @@ const Formulario = () => {
         dividas: data.dividas.map((d) => ({ ...d })),
         patrimonio: { ...data.patrimonio },
         cobranca: { ...data.cobranca },
-        objetivo: { ...data.objetivo, relato_livre: data.objetivo.relato_livre.slice(0, RELATO_MAX) },
+        objetivo: { ...data.objetivo, aceite_lgpd: !!data.objetivo.aceite_lgpd, aceite_comunicacao: !!data.objetivo.aceite_comunicacao, relato_livre: data.objetivo.relato_livre.slice(0, RELATO_MAX) },
         meta: {
           data_envio: new Date().toISOString(),
           origem: "site",
@@ -1433,9 +1433,8 @@ const Formulario = () => {
                     onChange={() => setSec("objetivo", { aceite_lgpd: !data.objetivo.aceite_lgpd })}
                     label={
                       <span>
-                        Autorizo o contato do escritório e o tratamento dos meus dados para elaboração
-                        da minha análise, conforme a Lei Geral de Proteção de Dados.{" "}
-                        <a href="/privacidade" target="_blank" rel="noopener noreferrer"
+                        Autorizo o tratamento dos meus dados para elaboração da minha análise e o contato do escritório sobre ela.{" "}
+                        <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer"
                           className="text-primary underline underline-offset-2 text-sm">
                           Política de Privacidade
                         </a>
@@ -1445,6 +1444,13 @@ const Formulario = () => {
                   {hasErr("aceite_lgpd") && (
                     <p className="mt-2 text-xs font-medium text-primary">É necessário autorizar para gerar a análise</p>
                   )}
+                  <div className="mt-3 text-sm text-muted-foreground opacity-90">
+                    <Check
+                      checked={!!data.objetivo.aceite_comunicacao}
+                      onChange={() => setSec("objetivo", { aceite_comunicacao: !data.objetivo.aceite_comunicacao })}
+                      label={<span className="text-sm text-muted-foreground">Quero receber conteúdos e informações sobre direitos do consumidor bancário. (opcional)</span>}
+                    />
+                  </div>
                 </div>
               </>
             )}
@@ -1475,6 +1481,7 @@ const Formulario = () => {
           )}
         </div>
       </form>
+      <p className="text-center text-xs text-muted-foreground py-6"><a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-primary">Política de Privacidade</a></p>
     </div>
   );
 };
