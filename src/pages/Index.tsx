@@ -196,7 +196,7 @@ const Sales = () => {
               </li>
             ))}
           </ul>
-          <p className="mt-8 text-center italic text-muted-foreground text-sm md:text-base">
+          <p className="mt-8 text-center italic text-muted-foreground text-sm md:text-base text-balance">
             Quanto antes você souber, mais escolhas você ainda tem.
           </p>
         </div>
