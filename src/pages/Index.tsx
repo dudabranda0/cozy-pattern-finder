@@ -20,12 +20,12 @@ const steps = [
 ];
 
 const includes = [
-  "Verificação da Lei do Superendividamento",
-  "Análise de viabilidade de revisão contratual",
-  "Identificação de encargos a verificar",
-  "Risco de bloqueio de bens e contas",
-  "Orientação sobre ações de cobrança",
-  "Recomendações personalizadas para o seu perfil",
+  "Qual das suas dívidas o banco pode cobrar direto no seu dinheiro",
+  "Em quanto tempo cada risco costuma se concretizar",
+  "Risco de bloqueio de conta e de penhora de bens",
+  "Se a Lei do Superendividamento serve ou não para o seu caso",
+  "Por que o valor cobrado pode não ser o valor correto",
+  "Qual é o primeiro passo da sua situação específica",
 ];
 
 const benefits = [
@@ -176,7 +176,7 @@ const Sales = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-3xl">
           <h2 className="font-serif-lvb text-3xl md:text-4xl font-bold text-center leading-snug">
-            Sua análise <span className="text-primary italic">cobre tudo isso</span>
+            O que você vai saber <span className="text-primary italic">depois de ler</span>
           </h2>
           <ul className="mt-12 grid sm:grid-cols-2 gap-x-10">
             {includes.map((i, idx) => (
