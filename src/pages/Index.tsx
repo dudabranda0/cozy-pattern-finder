@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Lock, Shield, MessageCircle } from "lucide-react";
+import { ArrowRight, Check, Shield, MessageCircle } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
 import larissaFoto from "@/assets/larissa-brandao.jpg";
@@ -258,15 +258,17 @@ const Sales = () => {
             <div className="relative lvb-card overflow-hidden">
               <div className="bg-ink text-ink-foreground px-5 py-4 flex items-center gap-3 border-b border-gold/25">
                 <span className="w-2.5 h-2.5 rounded-full bg-gold-light animate-pulse-dot" />
-                <span className="font-semibold text-sm tracking-wide">Análise sendo gerada...</span>
+                <span className="font-semibold text-sm tracking-wide">Prévia do conteúdo</span>
               </div>
               <div className="p-6 md:p-8 space-y-4">
                 {[
-                  { n: "01", t: "Resumo da Situação" },
-                  { n: "02", t: "Seus Direitos" },
-                  { n: "03", t: "Estratégia Recomendada" },
-                  { n: "04", t: "Pontos de Atenção" },
-                  { n: "05", t: "Próximo Passo" },
+                  { n: "01", t: "Retrato da sua situação" },
+                  { n: "02", t: "O risco de cada dívida" },
+                  { n: "03", t: "Os agravantes do seu caso" },
+                  { n: "04", t: "Linha do tempo" },
+                  { n: "05", t: "Superendividamento: cabe ou não cabe" },
+                  { n: "06", t: "O que pode ser verificado nos seus contratos" },
+                  { n: "07", t: "O primeiro passo do seu caso" },
                 ].map((item, idx) => (
                   <div key={item.n} className="flex items-start gap-3">
                     <span className="font-serif-lvb italic text-sm text-gold shrink-0 mt-0.5">
@@ -284,10 +286,7 @@ const Sales = () => {
                     </div>
                   </div>
                 ))}
-                <div className="pt-4 flex flex-col items-center gap-3 border-t border-gold/25 mt-2">
-                  <p className="text-sm text-muted-foreground inline-flex items-center gap-2 mt-3">
-                    <Lock className="w-4 h-4" /> Liberar análise completa
-                  </p>
+                <div className="pt-5 flex flex-col items-center gap-3 border-t border-gold/25 mt-2">
                   <a
                     href={CAKTO_LINK}
                     target="_blank"
@@ -296,6 +295,9 @@ const Sales = () => {
                   >
                     Quero entender minha situação <ArrowRight className="w-4 h-4" />
                   </a>
+                  <p className="text-xs text-muted-foreground">
+                    Você recebe na tela e também por e-mail.
+                  </p>
                 </div>
               </div>
             </div>
