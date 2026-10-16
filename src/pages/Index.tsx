@@ -295,6 +295,9 @@ const Sales = () => {
                   >
                     Quero entender minha situação <ArrowRight className="w-4 h-4" />
                   </a>
+                  <p className="text-xs text-muted-foreground">
+                    Você recebe na tela e também por e-mail.
+                  </p>
                 </div>
               </div>
             </div>
