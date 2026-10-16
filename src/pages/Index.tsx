@@ -48,7 +48,7 @@ const Sales = () => {
         <div className="max-w-3xl mx-auto text-center animate-fade-up">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gold/40 bg-card/60 backdrop-blur-sm text-[10px] md:text-xs font-semibold tracking-[0.18em] uppercase text-primary">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-dot" />
-            Quanto mais o tempo passa, mais sua dívida pode crescer
+            Cada dívida tem um risco diferente. Você sabe qual é o seu?
           </span>
 
           <h1 className="font-serif-lvb mt-8 text-4xl md:text-6xl font-bold leading-[1.15] text-foreground">
@@ -66,9 +66,6 @@ const Sales = () => {
           <div className="mt-12 max-w-md mx-auto animate-scale-in" style={{ animationDelay: "200ms" }}>
             <div className="relative bg-card border border-gold/25 rounded-3xl shadow-[0_20px_50px_rgba(36,13,19,0.06)] p-8 pt-10 overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-gold to-primary" />
-              <span className="absolute top-4 right-4 bg-gold text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-                Oferta limitada
-              </span>
               <p className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-muted-foreground font-semibold">
                 Análise inicial · acesso imediato
               </p>
