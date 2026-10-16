@@ -32,7 +32,7 @@ const benefits = [
   "Mapa de risco de cada uma das suas dívidas",
   "O que o banco pode fazer, e em quanto tempo",
   "Verificação da Lei do Superendividamento no seu caso",
-  "Os pontos dos seus contratos que merecem ser verificados",
+  "Se o valor que estão te cobrando merece ser conferido",
   "O primeiro passo que a sua situação específica exige",
   "Resultado na tela e no seu e-mail, em poucos minutos",
 ];
