@@ -29,11 +29,12 @@ const includes = [
 ];
 
 const benefits = [
-  "Análise completa e personalizada",
-  "Análise de redução de juros e dívidas",
-  "Verificação da Lei do Superendividamento",
-  "Estratégia de ação para o seu perfil",
-  "Resultado em menos de 5 minutos por e-mail",
+  "Mapa de risco de cada uma das suas dívidas",
+  "O que o banco pode fazer, e em quanto tempo",
+  "Verificação da Lei do Superendividamento no seu caso",
+  "Os pontos dos seus contratos que merecem ser verificados",
+  "O primeiro passo que a sua situação específica exige",
+  "Resultado na tela e no seu e-mail, em poucos minutos",
 ];
 
 const Sales = () => {
@@ -353,7 +354,7 @@ const Sales = () => {
             <path d="M14.017 21L14.017 18C14.017 16.9 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.55 20.017 15V9C20.017 8.45 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.45 14.017 9V11C14.017 11.55 13.5693 12 13.017 12H12.017V4H22.017V15C22.017 18.31 19.3307 21 16.017 21H14.017ZM2.017 21L2.017 18C2.017 16.9 2.91243 16 4.017 16H7.017C7.56928 16 8.017 15.55 8.017 15V9C8.017 8.45 7.56928 8 7.017 8H3.017C2.46472 8 2.017 8.45 2.017 9V11C2.017 11.55 1.56928 12 1.017 12H0.017V4H10.017V15C10.017 18.31 7.33072 21 4.017 21H2.017Z" />
           </svg>
           <p className="font-serif-lvb italic text-2xl md:text-3xl text-primary leading-relaxed">
-            "Em menos de 5 minutos você tem na mão uma análise completa da sua situação,
+            "Em poucos minutos você tem na mão a leitura da sua situação,
             com um caminho claro e personalizado para seguir."
           </p>
           <p className="mt-6 text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-gold">

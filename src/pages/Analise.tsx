@@ -350,7 +350,7 @@ const Analise = () => {
                 {baixando ? "Gerando PDF..." : "Baixar em PDF"}
               </button>
             </div>
-            <h2 id="analise-title" className="sr-only">Sua análise completa</h2>
+            <h2 id="analise-title" className="sr-only">Sua análise</h2>
             <div
               ref={analiseRef}
               className="bg-card rounded-2xl mx-auto w-full max-w-[800px] p-4 md:p-8"
