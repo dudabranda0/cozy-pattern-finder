@@ -1,14 +1,14 @@
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 
 const secoes: { t: string; c: React.ReactNode }[] = [
-  { t: "Quem trata seus dados", c: "Larissa Vargas Brandão Sociedade Individual de Advocacia, CNPJ 63.806.543/0001-10, com endereço na Rodovia RSC-287, nº 366, Bairro Centro, Tabaí/RS, CEP 95863-000." },
+  { t: "Quem trata seus dados", c: "LVB Apoio Administrativo Especializado Ltda, CNPJ 68.628.723/0001-73, com endereço na Rodovia RSC-287, nº 366, Bairro Centro, Tabaí/RS, CEP 95863-000." },
   { t: "Que dados coletamos", c: "Nome completo, e-mail, telefone com WhatsApp, cidade e estado, faixa de idade, situação profissional, informações sobre renda e despesas, e informações sobre as dívidas que você nos informa no formulário." },
   { t: "Para que usamos", c: "Para elaborar a análise que você solicitou e entrar em contato a respeito dela. Se você autorizou o segundo item do formulário, também para enviar conteúdos e informações sobre direitos do consumidor bancário." },
   { t: "Com quem compartilhamos", c: "Seus dados não são vendidos nem compartilhados com terceiros para fins comerciais. Utilizamos ferramentas de tecnologia para processar e entregar a análise, que tratam os dados exclusivamente para essa finalidade e sob nossa orientação." },
   { t: "Por quanto tempo guardamos", c: "Mantemos seus dados pelo tempo necessário para o atendimento e para cumprimento de obrigações legais aplicáveis à advocacia." },
   { t: "Sigilo profissional", c: "As informações que você compartilha conosco são protegidas pelo sigilo profissional do advogado, previsto no Estatuto da Advocacia." },
   { t: "Seus direitos", c: "Você pode solicitar, a qualquer momento, acesso aos seus dados, correção de informações incorretas, exclusão dos dados, informação sobre com quem compartilhamos, e revogação do consentimento para recebimento de comunicações." },
-  { t: "Como exercer seus direitos", c: <>Envie sua solicitação para <a href="mailto:larissabrandaoescritorio@gmail.com" className="text-primary underline underline-offset-4 break-all">larissabrandaoescritorio@gmail.com</a>. Responderemos dentro do prazo legal.</> },
+  { t: "Como exercer seus direitos", c: <>Envie sua solicitação para <a href="mailto:analiselvb@gmail.com" className="text-primary underline underline-offset-4 break-all">analiselvb@gmail.com</a>. Responderemos dentro do prazo legal.</> },
   { t: "Cookies", c: "Este site utiliza cookies necessários ao seu funcionamento. Não utilizamos cookies de rastreamento publicitário." },
   { t: "Alterações", c: "Esta política pode ser atualizada. A data da última atualização aparece ao final." },
 ];
