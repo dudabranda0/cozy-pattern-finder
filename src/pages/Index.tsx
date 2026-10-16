@@ -20,12 +20,11 @@ const steps = [
 ];
 
 const includes = [
-  "Qual das suas dívidas o banco pode cobrar direto no seu dinheiro",
-  "Em quanto tempo cada risco costuma se concretizar",
-  "Risco de bloqueio de conta e de penhora de bens",
-  "Se a Lei do Superendividamento serve ou não para o seu caso",
-  "Por que o valor cobrado pode não ser o valor correto",
-  "Qual é o primeiro passo da sua situação específica",
+  "Quanto tempo costuma levar até cada coisa acontecer",
+  "O que eles podem tomar, e o que a lei não deixa encostar",
+  "Se aquela ação que todo mundo indica serve mesmo para o seu caso",
+  "O que se examina num contrato bancário, e por que isso muda a negociação",
+  "Qual é o primeiro passo no seu caso",
 ];
 
 const benefits = [
