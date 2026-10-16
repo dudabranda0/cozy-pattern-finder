@@ -176,7 +176,7 @@ const Sales = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-3xl">
           <h2 className="font-serif-lvb text-3xl md:text-4xl font-bold text-center leading-snug">
-            O que você vai saber <span className="text-primary italic">depois de ler</span>
+            O que você vai <span className="text-primary italic">saber</span>
           </h2>
           <ul className="mt-12 grid sm:grid-cols-2 gap-x-10">
             {includes.map((i, idx) => (
