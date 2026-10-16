@@ -184,7 +184,9 @@ const Sales = () => {
             {includes.map((i, idx) => (
               <li
                 key={i}
-                className="flex items-start gap-3 py-4 border-b border-gold/25 animate-fade-up"
+                className={`flex items-start gap-3 py-4 border-b border-gold/25 animate-fade-up ${
+                  idx === includes.length - 1 ? "sm:col-span-2" : ""
+                }`}
                 style={{ animationDelay: `${idx * 60}ms` }}
               >
                 <span className="mt-1.5 w-4 h-4 rounded-full border border-gold text-gold flex items-center justify-center shrink-0">
