@@ -177,7 +177,7 @@ const Sales = () => {
           <h2 className="font-serif-lvb text-3xl md:text-4xl font-bold text-center leading-snug text-balance">
             O que você <span className="text-primary italic">ainda não sabe</span>
           </h2>
-          <p className="mt-4 text-center text-muted-foreground font-light max-w-xl mx-auto text-balance">
+          <p className="mt-4 text-center text-muted-foreground font-light max-w-xl mx-auto text-pretty">
             Cinco respostas que mudam o jeito de você olhar para a sua própria situação.
           </p>
           <ul className="mt-10 grid sm:grid-cols-2 gap-x-10">
@@ -192,11 +192,11 @@ const Sales = () => {
                 <span className="mt-1.5 w-4 h-4 rounded-full border border-gold text-gold flex items-center justify-center shrink-0">
                   <Check className="w-2.5 h-2.5" strokeWidth={3.5} />
                 </span>
-                <span className="font-medium text-[15px]">{i}</span>
+                <span className="font-medium text-[15px] text-pretty">{i}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-8 text-center italic text-muted-foreground text-sm md:text-base text-balance">
+          <p className="mt-8 text-center italic text-muted-foreground text-sm md:text-base text-pretty">
             Quanto antes você souber, mais escolhas você ainda tem.
           </p>
         </div>
