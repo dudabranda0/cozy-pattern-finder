@@ -13,10 +13,10 @@ const recognize = [
 ];
 
 const steps = [
-  { n: "01", t: "Preencha", s: "Formulário em menos de 5 min" },
-  { n: "02", t: "Analisamos", s: "Com base na sua situação real" },
-  { n: "03", t: "Descubra", s: "Seu potencial de negociação" },
-  { n: "04", t: "Receba", s: "Orientação personalizada" },
+  { n: "01", t: "Preencha", s: "Um formulário sobre as suas dívidas" },
+  { n: "02", t: "Analisamos", s: "Cada dívida, uma por uma" },
+  { n: "03", t: "Descubra", s: "O risco real de cada uma delas" },
+  { n: "04", t: "Receba", s: "Na tela e no seu e-mail" },
 ];
 
 const includes = [
@@ -153,7 +153,7 @@ const Sales = () => {
           </p>
           <h2 className="font-serif-lvb mt-3 text-3xl md:text-4xl font-bold text-center">Simples assim</h2>
           <p className="mt-4 text-center text-muted-foreground font-light max-w-xl mx-auto">
-            Quatro passos para você ter clareza sobre suas opções.
+            Quatro passos até você entender a sua situação.
           </p>
           <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-px bg-gold/25 border border-gold/25 rounded-3xl overflow-hidden">
             {steps.map((s, i) => (
