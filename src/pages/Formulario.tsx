@@ -1481,6 +1481,7 @@ const Formulario = () => {
           )}
         </div>
       </form>
+      <p className="text-center text-xs text-muted-foreground py-6"><a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-primary">Política de Privacidade</a></p>
     </div>
   );
 };
