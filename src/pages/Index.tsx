@@ -174,10 +174,10 @@ const Sales = () => {
       {/* O QUE INCLUI */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-3xl">
-          <h2 className="font-serif-lvb text-3xl md:text-4xl font-bold text-center leading-snug">
+          <h2 className="font-serif-lvb text-3xl md:text-4xl font-bold text-center leading-snug text-balance">
             O que você <span className="text-primary italic">ainda não sabe</span>
           </h2>
-          <p className="mt-4 text-center text-muted-foreground font-light max-w-xl mx-auto">
+          <p className="mt-4 text-center text-muted-foreground font-light max-w-xl mx-auto text-balance">
             Cinco respostas que mudam o jeito de você olhar para a sua própria situação.
           </p>
           <ul className="mt-10 grid sm:grid-cols-2 gap-x-10">
