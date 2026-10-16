@@ -9,6 +9,7 @@ import Formulario from "./pages/Formulario.tsx";
 import Analise from "./pages/Analise.tsx";
 import Termos from "./pages/Termos.tsx";
 import Privacidade from "./pages/Privacidade.tsx";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -25,7 +26,8 @@ const App = () => (
           <Route path="/formulario" element={<Formulario />} />
           <Route path="/analise" element={<Analise />} />
           <Route path="/termos" element={<Termos />} />
-          <Route path="/privacidade" element={<Privacidade />} />
+          <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+          <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
