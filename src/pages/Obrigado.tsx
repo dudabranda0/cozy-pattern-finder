@@ -6,7 +6,7 @@ import { WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
 const steps = [
   "Abra o e-mail que enviamos com seu código de acesso (confira também a caixa de spam)",
   "Clique no link do e-mail para abrir o formulário",
-  "Digite o código e preencha o formulário — leva menos de 5 minutos",
+  "Digite o código e preencha o formulário",
   "Receba sua análise na tela e no seu e-mail em poucos minutos",
 ];
 
