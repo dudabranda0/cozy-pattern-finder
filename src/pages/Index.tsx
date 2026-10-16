@@ -185,7 +185,7 @@ const Sales = () => {
               <li
                 key={i}
                 className={`flex items-start gap-3 py-4 border-b border-gold/25 animate-fade-up ${
-                  idx === includes.length - 1 ? "sm:col-span-2" : ""
+                  idx === includes.length - 1 ? "sm:col-span-2 sm:justify-center" : ""
                 }`}
                 style={{ animationDelay: `${idx * 60}ms` }}
               >
