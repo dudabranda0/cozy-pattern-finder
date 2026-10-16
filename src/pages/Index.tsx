@@ -20,12 +20,11 @@ const steps = [
 ];
 
 const includes = [
-  "Qual das suas dívidas o banco pode cobrar direto no seu dinheiro",
-  "Em quanto tempo cada risco costuma se concretizar",
-  "Risco de bloqueio de conta e de penhora de bens",
-  "Se a Lei do Superendividamento serve ou não para o seu caso",
-  "Por que o valor cobrado pode não ser o valor correto",
-  "Qual é o primeiro passo da sua situação específica",
+  "Quanto tempo costuma levar até cada coisa acontecer",
+  "O que eles podem tomar, e o que a lei não deixa encostar",
+  "Se aquela ação que todo mundo indica serve mesmo para o seu caso",
+  "O que se examina num contrato bancário, e por que isso muda a negociação",
+  "Qual é o primeiro passo no seu caso",
 ];
 
 const benefits = [
@@ -175,23 +174,31 @@ const Sales = () => {
       {/* O QUE INCLUI */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-3xl">
-          <h2 className="font-serif-lvb text-3xl md:text-4xl font-bold text-center leading-snug">
-            O que você vai <span className="text-primary italic">saber</span>
+          <h2 className="font-serif-lvb text-3xl md:text-4xl font-bold text-center leading-snug text-balance">
+            O que você <span className="text-primary italic">ainda não sabe</span>
           </h2>
-          <ul className="mt-12 grid sm:grid-cols-2 gap-x-10">
+          <p className="mt-4 text-center text-muted-foreground font-light max-w-xl mx-auto text-pretty">
+            Cinco respostas que mudam o jeito de você olhar para a sua própria situação.
+          </p>
+          <ul className="mt-10 grid sm:grid-cols-2 gap-x-10">
             {includes.map((i, idx) => (
               <li
                 key={i}
-                className="flex items-start gap-3 py-4 border-b border-gold/25 animate-fade-up"
+                className={`flex items-start gap-3 py-4 border-b border-gold/25 animate-fade-up ${
+                  idx === includes.length - 1 ? "sm:col-span-2 sm:justify-center" : ""
+                }`}
                 style={{ animationDelay: `${idx * 60}ms` }}
               >
                 <span className="mt-1.5 w-4 h-4 rounded-full border border-gold text-gold flex items-center justify-center shrink-0">
                   <Check className="w-2.5 h-2.5" strokeWidth={3.5} />
                 </span>
-                <span className="font-medium text-[15px]">{i}</span>
+                <span className="font-medium text-[15px] text-pretty">{i}</span>
               </li>
             ))}
           </ul>
+          <p className="mt-8 text-center italic text-muted-foreground text-sm md:text-base text-pretty">
+            Quanto antes você souber, mais escolhas você ainda tem.
+          </p>
         </div>
       </section>
 
