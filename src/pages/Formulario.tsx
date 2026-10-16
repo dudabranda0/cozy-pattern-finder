@@ -1433,7 +1433,7 @@ const Formulario = () => {
                     onChange={() => setSec("objetivo", { aceite_lgpd: !data.objetivo.aceite_lgpd })}
                     label={
                       <span>
-                        Autorizo o tratamento dos meus dados para elaboração da minha análise e o contato do escritório sobre ela.{" "}
+                        Autorizo o tratamento dos meus dados para elaboração da minha análise e o contato sobre ela.{" "}
                         <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer"
                           className="text-primary underline underline-offset-2 text-sm">
                           Política de Privacidade
