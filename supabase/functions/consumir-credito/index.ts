@@ -20,6 +20,13 @@ Deno.serve(async (req) => {
     return json({ ok: false, motivo: 'metodo_invalido' }, 405);
   }
 
+  // Protegido por token compartilhado: só o n8n pode consumir um crédito
+  const adminToken = Deno.env.get('CREDITO_ADMIN_TOKEN');
+  const recebido = req.headers.get('x-admin-token');
+  if (!adminToken || !recebido || recebido !== adminToken) {
+    return json({ ok: false, motivo: 'nao_autorizado' }, 401);
+  }
+
   try {
     const parsed = BodySchema.safeParse(await req.json());
     if (!parsed.success) {

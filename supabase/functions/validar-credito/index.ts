@@ -33,6 +33,20 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
 
+    // Limite de tentativas: no máximo 10 consultas a cada 15 minutos por endereço IP,
+    // para impedir que alguém fique testando códigos até acertar um válido.
+    const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'desconhecido';
+    const janela = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const { count } = await supabase
+      .from('tentativas_codigo')
+      .select('id', { count: 'exact', head: true })
+      .eq('ip', ip)
+      .gte('criado_em', janela);
+    if ((count ?? 0) >= 10) {
+      return json({ valido: false, motivo: 'muitas_tentativas' }, 429);
+    }
+    await supabase.from('tentativas_codigo').insert({ ip });
+
     const { data, error } = await supabase
       .from('creditos')
       .select('codigo, usado')

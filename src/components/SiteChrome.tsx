@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { LvbLogo } from "./LvbLogo";
-import { CAKTO_LINK } from "@/lib/lvb-constants";
+import { KIWIFY_LINK } from "@/lib/lvb-constants";
 
 export const SiteHeader = () => {
   return (
@@ -11,7 +11,7 @@ export const SiteHeader = () => {
         </Link>
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           <a
-            href={CAKTO_LINK}
+            href={KIWIFY_LINK}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-cta bg-primary text-primary-foreground px-5 md:px-7 py-2.5 text-[11px] md:text-xs font-bold tracking-[0.12em] uppercase hover:bg-ink"

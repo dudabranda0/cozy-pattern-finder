@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, Shield, MessageCircle } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
-import { CAKTO_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
+import { KIWIFY_LINK, WHATSAPP_LINK } from "@/lib/lvb-constants";
 import larissaFoto from "@/assets/larissa-brandao.jpg";
 
 const recognize = [
@@ -76,7 +76,7 @@ const Sales = () => {
                 </span>
               </div>
               <a
-                href={CAKTO_LINK}
+                href={KIWIFY_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-cta block w-full bg-primary hover:bg-ink text-primary-foreground py-4 px-6 text-sm font-bold tracking-[0.12em] uppercase"
@@ -293,7 +293,7 @@ const Sales = () => {
                 ))}
                 <div className="pt-5 flex flex-col items-center gap-3 border-t border-gold/25 mt-2">
                   <a
-                    href={CAKTO_LINK}
+                    href={KIWIFY_LINK}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-cta bg-primary hover:bg-ink text-primary-foreground px-6 py-3 text-sm font-bold tracking-[0.12em] uppercase inline-flex items-center gap-2"
@@ -339,7 +339,7 @@ const Sales = () => {
                 ))}
               </ul>
               <a
-                href={CAKTO_LINK}
+                href={KIWIFY_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-cta mt-8 block w-full bg-primary hover:bg-ink text-primary-foreground px-6 py-4 text-sm font-bold tracking-[0.12em] uppercase text-center"
@@ -377,7 +377,7 @@ const Sales = () => {
             O primeiro passo é <span className="text-primary italic">entender sua situação</span>
           </h2>
           <a
-            href={CAKTO_LINK}
+            href={KIWIFY_LINK}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-cta mt-10 bg-primary hover:bg-ink text-primary-foreground px-10 py-5 text-sm font-bold tracking-[0.15em] uppercase inline-flex items-center gap-2"

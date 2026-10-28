@@ -6,7 +6,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, CAKTO_LINK, COURSE_LINK, WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
+import { N8N_WEBHOOK, KIWIFY_LINK, COURSE_LINK, WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -655,6 +655,10 @@ const Formulario = () => {
     setVerificandoCodigo(true);
     try {
       const { data: resp, error } = await supabase.functions.invoke("validar-credito", { body: { codigo } });
+      if (error && (error as { context?: { status?: number } }).context?.status === 429) {
+        toast({ title: "Muitas tentativas", description: "Aguarde 15 minutos e tente novamente.", variant: "destructive" });
+        return;
+      }
       if (error) throw error;
       if (resp?.valido) {
         localStorage.setItem("lvb_credito", codigo);
@@ -857,27 +861,40 @@ const Formulario = () => {
       // Sucesso somente com status "ok" — a análise é gerada em segundo plano
       let ok = false;
       let analiseId = "";
+      let status = "";
       if (res.ok) {
         try {
           const j: any = await res.json();
-          ok = j?.status === "ok";
+          status = typeof j?.status === "string" ? j.status : "";
+          ok = status === "ok";
           analiseId = typeof j?.analise_id === "string" ? j.analise_id : "";
         } catch { ok = false; }
+      }
+      // O n8n recusou o código (inexistente ou já usado): volta para a tela do código
+      if (status === "codigo_invalido") {
+        localStorage.removeItem("lvb_credito");
+        setCredito(null);
+        toast({ title: "Código inválido", description: "Este código não existe ou já foi utilizado. Cada código vale uma análise.", variant: "destructive" });
+        return;
       }
       if (!ok) throw new Error(`Resposta inesperada (HTTP ${res.status})`);
       if (analiseId) localStorage.setItem("lvb_analise_id", analiseId);
       else localStorage.removeItem("lvb_analise_id");
 
-      // Consome o crédito somente após confirmação do webhook
-      if (credito) {
-        try {
-          const { data: consumo } = await supabase.functions.invoke("consumir-credito", { body: { codigo: credito } });
-          if (consumo?.ok) localStorage.removeItem("lvb_credito");
-        } catch { /* crédito segue salvo; suporte resolve se necessário */ }
-      }
-
+      // O crédito é consumido pelo próprio n8n, no servidor, antes de gerar a análise.
+      // Aqui só se apaga o código salvo no navegador.
+      localStorage.removeItem("lvb_credito");
       localStorage.setItem("lvb_usado", "true");
-      localStorage.setItem("lvb_resultado", JSON.stringify(payload));
+      // Guarda no navegador só o resumo exibido na página de análise (LGPD: mínimo necessário),
+      // com prazo de validade de 24 horas.
+      const resumo = {
+        identificacao: { nome_completo: payload.identificacao.nome_completo, email: payload.identificacao.email },
+        renda: { valor_total_dividas: payload.renda.valor_total_dividas },
+        dividas: payload.dividas.map((d) => ({ modalidade: d.modalidade, instituicao: d.instituicao, atraso: d.atraso })),
+        objetivo: { urgencia: payload.objetivo.urgencia },
+        expira_em: Date.now() + 24 * 60 * 60 * 1000,
+      };
+      localStorage.setItem("lvb_resultado", JSON.stringify(resumo));
       localStorage.removeItem(DRAFT_KEY);
       navigate("/analise");
     } catch (err: any) {
@@ -951,7 +968,7 @@ const Formulario = () => {
           </form>
           <p className="mt-5 text-xs text-muted-foreground">
             Ainda não tem um código?{" "}
-            <a href={CAKTO_LINK} target="_blank" rel="noopener noreferrer"
+            <a href={KIWIFY_LINK} target="_blank" rel="noopener noreferrer"
               className="text-primary font-semibold underline underline-offset-2">
               Adquira sua análise
             </a>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { limparHtml } from "@/lib/seguranca";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -128,11 +129,19 @@ const envolverTabelas = (html: string): string => {
 const lerResultado = (): Resultado | null => {
   try {
     const salvo = localStorage.getItem("lvb_resultado");
-    return salvo ? JSON.parse(salvo) as Resultado : null;
+    if (!salvo) return null;
+    const dados = JSON.parse(salvo) as Resultado & { expira_em?: number };
+    // Resumo vencido (mais de 24 horas) é apagado do navegador
+    if (!dados.expira_em || Date.now() > dados.expira_em) {
+      localStorage.removeItem("lvb_resultado");
+      return null;
+    }
+    return dados;
   } catch {
     return null;
   }
 };
+
 
 const Analise = () => {
   const resultado = useMemo(lerResultado, []);
@@ -161,8 +170,8 @@ const Analise = () => {
         const j: any = await res.json();
         if (!ativo) return;
         if (j?.pronto) {
-          setHtml(envolverTabelas(typeof j.html === "string" ? j.html : ""));
-          setBlocoCurso(envolverTabelas(typeof j.bloco_curso === "string" ? j.bloco_curso : ""));
+          setHtml(envolverTabelas(limparHtml(typeof j.html === "string" ? j.html : "")));
+          setBlocoCurso(envolverTabelas(limparHtml(typeof j.bloco_curso === "string" ? j.bloco_curso : "")));
           setNomeApi(typeof j.primeiro_nome === "string" ? j.primeiro_nome : "");
           setEstado("pronto");
           clearInterval(intervalo);
