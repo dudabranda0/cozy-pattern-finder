@@ -8,6 +8,14 @@ describe("limparHtml", () => {
     expect(limparHtml(html)).toContain("<table>");
   });
 
+  it("mantém estilos e links do n8n", () => {
+    const html = '<style>.x{color:red}</style><p style="color:#7a1f2b">Texto</p><a href="https://exemplo.com" target="_blank">Curso</a>';
+    const limpo = limparHtml(html);
+    expect(limpo).toContain("<style>");
+    expect(limpo).toContain('style="color:#7a1f2b"');
+    expect(limpo).toContain('target="_blank"');
+  });
+
   it("remove scripts e eventos", () => {
     const html = '<p onclick="alert(1)">Oi</p><script>alert(2)</script><img src=x onerror="alert(3)">';
     const limpo = limparHtml(html);
