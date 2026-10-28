@@ -6,7 +6,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { LvbLogo } from "@/components/LvbLogo";
-import { N8N_WEBHOOK, KIWIFY_LINK, COURSE_LINK, WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
+import { KIWIFY_LINK, COURSE_LINK, WHATSAPP_SUPORTE } from "@/lib/lvb-constants";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -848,41 +848,31 @@ const Formulario = () => {
         course_link: elegivelCurso ? COURSE_LINK : "",
       });
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-      const res = await fetch(N8N_WEBHOOK, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify(payload),
-      }).finally(() => clearTimeout(timeoutId));
+      // A função enviar-analise consome o crédito no servidor e repassa os dados ao n8n
+      const { data: j, error } = await supabase.functions.invoke("enviar-analise", { body: payload, timeout: 20000 });
+      const httpStatus = (error as { context?: { status?: number } } | null)?.context?.status;
+      if (httpStatus === 429) {
+        toast({ title: "Muitas tentativas", description: "Aguarde 15 minutos e tente novamente.", variant: "destructive" });
+        return;
+      }
+      if (error) throw error;
 
       // Sucesso somente com status "ok" — a análise é gerada em segundo plano
-      let ok = false;
-      let analiseId = "";
-      let status = "";
-      if (res.ok) {
-        try {
-          const j: any = await res.json();
-          status = typeof j?.status === "string" ? j.status : "";
-          ok = status === "ok";
-          analiseId = typeof j?.analise_id === "string" ? j.analise_id : "";
-        } catch { ok = false; }
-      }
-      // O n8n recusou o código (inexistente ou já usado): volta para a tela do código
+      const status = typeof j?.status === "string" ? j.status : "";
+      const ok = status === "ok";
+      const analiseId = typeof j?.analise_id === "string" ? j.analise_id : "";
+      // Código inexistente ou já usado: volta para a tela do código
       if (status === "codigo_invalido") {
         localStorage.removeItem("lvb_credito");
         setCredito(null);
         toast({ title: "Código inválido", description: "Este código não existe ou já foi utilizado. Cada código vale uma análise.", variant: "destructive" });
         return;
       }
-      if (!ok) throw new Error(`Resposta inesperada (HTTP ${res.status})`);
+      if (!ok) throw new Error(`Resposta inesperada (${status || "sem status"})`);
       if (analiseId) localStorage.setItem("lvb_analise_id", analiseId);
       else localStorage.removeItem("lvb_analise_id");
 
-      // O crédito é consumido pelo próprio n8n, no servidor, antes de gerar a análise.
-      // Aqui só se apaga o código salvo no navegador.
+      // O crédito já foi consumido no servidor; aqui só se apaga o código salvo no navegador.
       localStorage.removeItem("lvb_credito");
       localStorage.setItem("lvb_usado", "true");
       // Guarda no navegador só o resumo exibido na página de análise (LGPD: mínimo necessário),
